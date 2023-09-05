@@ -1,0 +1,54 @@
+# Font configuration
+font_family JetBrainsMono Nerd Font Mono Regular
+bold_font JetBrainsMono Nerd Font Mono Bold
+italic_font JetBrainsMono Nerd Font Mono Italic
+bold_italic_font JetBrainsMono Nerd Font Mono Bold Italic
+
+# italic_font JetBrains Mono Italic Nerd Font Complete Mono
+# bold_font Jetbrains Mono Bold
+
+# If I ever write Julia... we can try it out :)
+#
+# font_family JuliaMono Regular
+
+sync_to_monitor no
+disable_ligatures never
+
+enabled_layouts fat:bias=50, tall:bias=50, horizontal, stack, tall, vertical
+
+window_border_width 1.0
+window_margin_width 0.0
+single_window_margin_width 0.0
+
+# NO BELLS!
+enable_audio_bell no
+
+# theme gruvbox_dark
+# include /themes/gruvbox_dark.conf
+
+# window_margin_width 5.0
+# window_padding_width 5.0
+
+# from nvim-nonicons
+# symbol_map U+f101-U+f208 nonicon regular
+
+map ctrl+shift+q noop
+map ctrl+shift+w noop
+
+map ctrl+shift+p>n kitten hints --type=linenum --linenum-action=tab nvim +{line} {path}
+
+map f1 kitten hints --customize-processing hint_define_word.py
+
+
+# kitty search
+map kitty_mod+/      launch --allow-remote-control kitty +kitten search/search.py @active-kitty-window-id
+
+include linux.conf
+
+font_size 15.0
+
+# BEGIN_KITTY_THEME
+# macchiato
+include ./theme.conf
+#include current-theme.conf
+# END_KITTY_THEME

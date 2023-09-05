@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$"$if(dir)$ dir="$dir$"$endif$>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+$for(author-meta)$
+  <meta name="author" content="$author-meta$" />
+$endfor$
+$if(date-meta)$
+  <meta name="dcterms.date" content="$date-meta$" />
+$endif$
+$if(keywords)$
+  <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$" />
+$endif$
+$if(description-meta)$
+  <meta name="description" content="$description-meta$" />
+$endif$
+  <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
+  <style>
+    $styles.html()$
+  </style>
+$for(css)$
+  <link rel="stylesheet" href="$css$" />
+$endfor$
+$for(header-includes)$
+  $header-includes$
+$endfor$
+$if(math)$
+$if(mathjax)$
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+$endif$
+  $math$
+$endif$
+</head>
+<body>
+<main class="wrapper">
+$for(include-before)$
+$include-before$
+$endfor$
+$if(toc)$
+<nav id="$idprefix$TOC" role="doc-toc">
+$if(toc-title)$
+<h2 id="$idprefix$toc-title">$toc-title$</h2>
+$endif$
+$table-of-contents$
+</nav>
+$endif$
+<header class="site-header">
+<nav class="nav">
+  <div class="container">
+    <h1 class="logo"><a href="$rootDir$"><span>Notes</span></a></h1>
+    <ul class="navbar">
+      <!-- <li><a href="{{ '/about' | prepend: site.baseurl | prepend: site.url }}">About me</a></li> -->
+    </ul>
+  </div>
+</nav>
+</header>
+<article class="post container">
+    <header class="post-header">
+        <p class="post-meta">
+            $if(date)$
+            <time datetime="$date$">$date$</time>
+            $endif$
+        </p>
+        $if(title)$
+        <h1 class="post-title" itemprop="name headline">$title$</h1>
+        $endif$
+        <p class="post-meta">
+            $if(subtitle)$
+            $subtitle$
+            $endif$
+        </p>
+    </header>
+    <div class="post-content">
+        $body$
+    </div>
+</article>
+<footer class="site-footer">
+  <div class="container">
+    <small class="block">$author-meta$</small>
+  </div>
+</footer>
+</main>
+</body>
+</html>
+

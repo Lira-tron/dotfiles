@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+TMUX_SESSION_NAME="notes"
+NVIM_SESSIONS_FOLDER="$XDG_DATA_HOME/nvim/sessions"
+NOTES_FOLDER="$HOME/notes"
+
+cd $NOTES_FOLDER
+
+if ! tmux has-session -t $TMUX_SESSION_NAME 2>/dev/null; then
+    tmux new -s $TMUX_SESSION_NAME -d
+
+    if [ ! -d $NVIM_SESSIONS_FOLDER ]; then
+        mkdir $NVIM_SESSIONS_FOLDER
+    fi
+
+    if [ ! -f "$NVIM_SESSIONS_FOLDER/notes.vim" ]; then
+        nvim --headless +":VimwikiIndex" +":Obsession $NVIM_SESSIONS_FOLDER/notes.vim" +":qa"
+    fi
+
+    tmux send-keys -t $TMUX_SESSION_NAME "nvim --listen $XDG_DATA_HOME/nvim/nvim-$(date +%s).pipe -S $NVIM_SESSIONS_FOLDER/notes.vim" C-m
+fi
+
+tmux attach -t $TMUX_SESSION_NAME

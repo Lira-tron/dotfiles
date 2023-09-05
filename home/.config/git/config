@@ -1,0 +1,37 @@
+[core]
+    editor = nvim
+    pager = less
+    eol = lf
+
+[user]
+    name = Liratron
+    email = octalimon@gmail.com
+
+[commit]
+    verbose = true
+
+[diff]
+    algorithm = patience
+
+[rebase]
+    stat = true
+    instructionFormat = %s [%an - %ar]
+    autoSquash = true
+
+[github]
+    user = liratron
+
+[checkout]
+    defaultRemote = origin
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true
+
+[color]
+    ui = auto
+
+[includeIf "hasconfig:remote.*.url:ssh://git.amazon.com*/**"]
+    path = ~/.gitconfig-amazon

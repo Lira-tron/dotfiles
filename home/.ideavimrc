@@ -1,0 +1,58 @@
+set number relativenumber
+set idearefactormode=keep
+set ideajoin
+set surround
+
+let mapleader = " "
+nnoremap <Space> <Nop>
+
+
+nmap <S-Enter> O<Esc>
+nmap <CR> o<Esc>
+
+nnoremap <C-j> :m +1<CR>
+nnoremap <C-k> :m -2<CR>
+inoremap <C-j> <Esc>:m +1<CR>gi
+inoremap <C-k> <Esc>:m -2<CR>gi
+
+
+
+" system clipboard
+vmap <leader>y "+y
+vmap <leader>d "+d
+nmap <leader>y "+yy
+nmap <leader>p "+p
+nmap <leader>P "+P
+vmap <leader>p "+p
+vmap <leader>P "+P
+
+nmap <leader>t      <action>(ActivateTerminalToolWindow)
+
+set NERDTree
+map <C-p> :NERDTree<CR>
+let g:NERDTreeMapActivateNode='l'
+let g:NERDTreeMapJumpParent='h'
+
+nnoremap <leader>sf :action SearchEverywhere<CR>
+nnoremap <leader>sg :action FindInPath<CR>
+nnoremap <leader>ss :action FileStructurePopup<CR>
+
+nnoremap <leader>gd :action GotoDeclaration<CR>
+nnoremap <leader>gs :action GotoSuperMethod<CR>
+nnoremap <leader>gi :action GotoImplementation<CR>
+nnoremap <leader>ggb :action JumpToLastChange<CR>
+nnoremap <leader>ga :action GotoAction<CR>
+vnoremap <leader>ga :action GotoAction<CR>
+
+
+nnoremap <leader>gu :action FindUsages<CR>
+nnoremap <leader>rn :action RenameElement<CR>
+
+nnoremap == :action ReformatCode<CR>
+vnoremap == :action ReformatCode<CR>
+
+nnoremap cc :action CommentByLineComment<CR>
+vnoremap cc :action CommentByLineComment<CR>
+
+nnoremap <C-CR> :action ShowIntentionActions<CR>
+
