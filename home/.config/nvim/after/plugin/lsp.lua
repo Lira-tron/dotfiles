@@ -58,8 +58,10 @@ end)
 
 -- (Optional) Configure lua language server for neovim
 require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
+require('lspconfig').gopls.setup({})
 lsp.configure('barium', { force_setup = true })
 lsp.skip_server_setup({'jdtls'})
+
 lsp.setup()
 
 
