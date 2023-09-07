@@ -1,4 +1,3 @@
-
 # ============================================================================ #
 # ===                               PLUGINS                                === #
 # ============================================================================ #
@@ -8,8 +7,7 @@ set -g @plugin 'tmux-plugins/tmux-sensible'
 set -g @plugin 'tmux-plugins/tmux-cpu'
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'jaclu/tmux-menus'
-set -g @plugin 'tmux-plugins/tmux-resurrect' # persist tmux sessions after computer restart
-set -g @plugin 'tmux-plugins/tmux-continuum' # automatically saves sessions for you every 15 minutes
+set -g @plugin 'tmux-plugins/tmux-sessionist'
 
 # ============================================================================ #
 # ===                               GENERAL                                === #
@@ -89,13 +87,6 @@ bind -r J resize-pane -D 5
 bind -r K resize-pane -U 5
 bind -r L resize-pane -R 5
 
-bind -r m resize-pane -Z
-
-bind-key -T copy-mode-vi 'v' send -X begin-selection # start selecting text with "v"
-bind-key -T copy-mode-vi 'y' send -X copy-selection # copy text with "y"
-
-unbind -T copy-mode-vi MouseDragEnd1Pane # don't exit copy mode when dragging with mouse
-
 # Visual notification of activity in other windows.
 setw -g monitor-activity off
 set -g visual-activity off
@@ -107,9 +98,6 @@ set -g visual-activity off
 # enable mouse support
 set -g mouse on
 
-
-set -g @resurrect-capture-pane-contents 'on'
-set -g @continuum-restore 'on'
 # ============================================================================ #
 # ===                            THEME CHANGES                             === #
 # ============================================================================ #
