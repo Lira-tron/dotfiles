@@ -35,6 +35,7 @@ if [ -d "$HOME/go/bin" ]; then
 fi
 
 if [ -d "/usr/local/go/bin" ]; then
+    export GOROOT=/usr/local/go
     path+=/usr/local/go/bin
 fi
 
