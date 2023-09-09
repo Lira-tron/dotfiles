@@ -1,6 +1,7 @@
 return {
     "rafaelsq/nvim-goc.lua",
     event = "VeryLazy",
+    ft = "go",
     config = function ()
         -- if set, when we switch between buffers, it will not split more than once. It will switch to the existing buffer instead
         vim.opt.switchbuf = 'useopen'

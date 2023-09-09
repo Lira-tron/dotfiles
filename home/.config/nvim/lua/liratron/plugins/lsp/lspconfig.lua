@@ -5,6 +5,14 @@ return {
         "hrsh7th/cmp-nvim-lsp",
         { "antosha417/nvim-lsp-file-operations", config = true },
     },
+    -- opts = {
+    --     setup = {
+    --         -- disable jdtls config from lspconfig
+    --         jdtls = function()
+    --             return true
+    --         end,
+    --     }
+    -- },
     config = function()
         -- import lspconfig plugin
         local lspconfig = require("lspconfig")
@@ -62,6 +70,10 @@ return {
             vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
         end
 
+        -- lspconfig["jdtls"].setup({
+        --     capabilities = capabilities,
+        --     on_attach = on_attach,
+        -- })
 
         lspconfig["gopls"].setup({
             capabilities = capabilities,
