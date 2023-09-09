@@ -49,8 +49,6 @@ return {
             vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
                 vim.lsp.buf.format()
             end, { desc = 'Format current buffer with LSP' })
-            -- set keybinds
-            vim.keymap.set("n", "<leader>gf", "<cmd>Telescope diagnostics bufnr=0<CR>", opts) -- show  diagnostics for file
         end
 
         -- used to enable autocompletion (assign to every lsp server config)
@@ -77,11 +75,6 @@ return {
                 debounce_text_changes = 150,
             },
         })
-
-        -- lspconfig["jdtls"].setup({
-        --     capabilities = capabilities,
-        --     on_attach = on_attach,
-        --   })
 
         -- configure lua server (with special settings)
         lspconfig["lua_ls"].setup({

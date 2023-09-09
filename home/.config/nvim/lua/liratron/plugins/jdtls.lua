@@ -162,6 +162,40 @@ return {
             -- https://github.com/mfussenegger/nvim-jdtls#usage
 
             local opts = {buffer = bufnr}
+            local nmap = function(keys, func, desc)
+                if desc then
+                    desc = 'LSP: ' .. desc
+                end
+
+                vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
+            end
+
+            nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+            nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+
+            nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+            nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+            nmap('gi', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
+            nmap('gs', require('telescope.builtin').lsp_document_symbols, '[G]o to [D]ocument [S]ymbols')
+            nmap('gds', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[G]o to [D]ynamic  workspace [S]ymbols')
+
+            -- See `:help K` for why this keymap
+            nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+            nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+
+            -- Lesser used LSP functionality
+            nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+            nmap('gt', vim.lsp.buf.lsp_type_definitions, '[G]oto [T]ype Definitions')
+            nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
+            nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
+            nmap('<leader>wl', function()
+                print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+            end, '[W]orkspace [L]ist Folders')
+            -- Create a command `:Format` local to the LSP buffer
+            vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
+                vim.lsp.buf.format()
+            end, { desc = 'Format current buffer with LSP' })
+
             vim.keymap.set("n", "<leader>dt", jdtls.test_nearest_method, { buffer = true, desc = "[D]ebug [T]est nearest method" })
             vim.keymap.set("n", "<leader>dT", jdtls.test_class, { buffer = true, desc = "[D]ebug [T]est class" })
             vim.keymap.set("n", "<leader>lo", jdtls.organize_imports, { buffer = true, desc = "Organize imports" })
