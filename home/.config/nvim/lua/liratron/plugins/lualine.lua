@@ -1,6 +1,6 @@
 return {
     "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = { "nvim-tree/nvim-web-devicons", "arkav/lualine-lsp-progress" },
     config = function ()
         local lualine = require('lualine')
 
@@ -106,15 +106,11 @@ return {
             },
         }
 
-        -- Insert mid section. You can make any number of sections in neovim :)
-        -- for lualine it's any number greater then 2
         ins_left {
-            function()
-                return '%='
-            end,
+            'lsp_progress'
         }
 
-        ins_left {
+        ins_right {
             -- Lsp server name .
             function()
                 local msg = 'No Active Lsp'
