@@ -39,7 +39,6 @@ return {
         --     exclude = { 1, -1 }
         --   }
         -- },
-        file_ignore_patterns = { "node_modules", ".git", "alfred" },
         pickers = {
           live_grep = {
             layout_config = {
