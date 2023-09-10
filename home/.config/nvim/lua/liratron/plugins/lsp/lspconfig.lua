@@ -64,12 +64,35 @@ return {
 
         -- Change the Diagnostic symbols in the sign column (gutter)
         -- (not in youtube nvim video)
-        local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
+        local signs = { Error = "E ", Warn = "W ", Hint = "H ", Info = "I " }
         for type, icon in pairs(signs) do
             local hl = "DiagnosticSign" .. type
             vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
         end
 
+        -- configure html server
+        lspconfig["html"].setup({
+            capabilities = capabilities,
+            on_attach = on_attach,
+        })
+
+        -- configure typescript server with plugin
+        lspconfig["tsserver"].setup({
+            capabilities = capabilities,
+            on_attach = on_attach,
+        })
+
+        -- configure graphql language server
+        lspconfig["graphql"].setup({
+            capabilities = capabilities,
+            on_attach = on_attach,
+            filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
+        })
+        -- configure python server
+        lspconfig["pyright"].setup({
+            capabilities = capabilities,
+            on_attach = on_attach,
+        })
         -- lspconfig["jdtls"].setup({
         --     capabilities = capabilities,
         --     on_attach = on_attach,
