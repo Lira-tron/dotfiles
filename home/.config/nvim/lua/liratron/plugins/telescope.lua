@@ -54,8 +54,10 @@ return {
                         hidden = true,
                         follow = true
                     }
-                }
-            }
+                },
+                sorting_strategy = "ascending",
+                file_ignore_patterns = { "node_modules" },
+            },
         })
 
         telescope.load_extension("fzf")
