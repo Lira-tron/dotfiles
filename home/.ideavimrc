@@ -1,58 +1,112 @@
+
 set number relativenumber
 set idearefactormode=keep
 set ideajoin
+set incsearch
 set surround
+set visualbell
+set ideamarks
+set commentary
+
+set ignorecase
+set history=2000
+set which-key
+set timeoutlen=5000
+set hls
+set NERDTree
+set showmode
+set clipboard+=unnamed
 
 let mapleader = " "
-nnoremap <Space> <Nop>
+nmap <Space> <Nop>
 
+" Window navigation keymaps
+nmap <C-h> <C-w>h
+nmap <C-j> <C-w>j
+nmap <C-k> <C-w>k
+nmap <C-l> <C-w>l
 
-nmap <S-Enter> O<Esc>
-nmap <CR> o<Esc>
+nmap <C-w>K <action>(StretchSplitToTop)
+nmap <C-w>J <action>(StretchSplitToBottom)
+nmap <C-w>H <action>(StretchSplitToLeft)
+nmap <C-w>L <action>(StretchSplitToRight)
 
-nnoremap <C-j> :m +1<CR>
-nnoremap <C-k> :m -2<CR>
-inoremap <C-j> <Esc>:m +1<CR>gi
-inoremap <C-k> <Esc>:m -2<CR>gi
-
-
-
+nmap <C-z> <action> (ToggleDistractionFreeMode)
 " system clipboard
-vmap <leader>y "+y
-vmap <leader>d "+d
-nmap <leader>y "+yy
-nmap <leader>p "+p
-nmap <leader>P "+P
-vmap <leader>p "+p
-vmap <leader>P "+P
+xmap <leader>p "_dP
+
+nmap <leader>d "_d
+vmap <leader>d "_d
+
+" next greatest remap ever
+nmap y "+y
+nmap Y "+Y
+
+imap <C-c> <Esc>
+
+
+nmap <leader>s :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>
+
+ " { desc = "When highlighted move the line down" })
+vmap J :m >+1<CR>gv=gv
+" { desc = "When highlighted move the line up" })
+vmap K :m <-2<CR>gv=gv
+" { desc = "Paste below line at the end of the line without moving cursor " })
+nmap J mzJ`z
+ "{ desc = "C-d keep cursor in middle" })
+nmap <C-d> <C-d>zz
+"{ desc = "C-u keep cursor in middle" })
+nmap <C-u> <C-u>zz
+"{ desc = "search keep cursor in middle" })
+nmap n nzzzv
+"{ desc = "search keep cursor in middle" })
+nmap N Nzzzv
+
+vmap < <gv
+vmap > >gv
 
 nmap <leader>t      <action>(ActivateTerminalToolWindow)
 
-set NERDTree
-map <C-p> :NERDTree<CR>
+nmap <leader>pv :NERDTree<CR>
+
 let g:NERDTreeMapActivateNode='l'
 let g:NERDTreeMapJumpParent='h'
 
-nnoremap <leader>sf :action SearchEverywhere<CR>
-nnoremap <leader>sg :action FindInPath<CR>
-nnoremap <leader>ss :action FileStructurePopup<CR>
 
-nnoremap <leader>gd :action GotoDeclaration<CR>
-nnoremap <leader>gs :action GotoSuperMethod<CR>
-nnoremap <leader>gi :action GotoImplementation<CR>
-nnoremap <leader>ggb :action JumpToLastChange<CR>
-nnoremap <leader>ga :action GotoAction<CR>
-vnoremap <leader>ga :action GotoAction<CR>
+nmap <leader><space> <action>(RecentFiles)
+"  { desc = '[S]earch  in [C]urrent buffer' })
+nmap <leader>sc <action>(Find)
+{ desc = '[S]earch [F]iles' })
+nmap <leader>sf <action>(GoToFile)
+nmap <leader>sg <action>(SearchEverywhere)
+
+nmap <leader>r <action>(Refactorings.QuickListPopupAction)
+""""""
 
 
-nnoremap <leader>gu :action FindUsages<CR>
-nnoremap <leader>rn :action RenameElement<CR>
+nmap <leader>rn :action RenameElement<CR>
 
-nnoremap == :action ReformatCode<CR>
-vnoremap == :action ReformatCode<CR>
+nmap gi <action>(GotoImplementation)
 
-nnoremap cc :action CommentByLineComment<CR>
-vnoremap cc :action CommentByLineComment<CR>
+nmap gs :action FileStructurePopup<CR>
 
-nnoremap <C-CR> :action ShowIntentionActions<CR>
+nmap gd :action GotoDeclaration<CR>
+map <C-o> <Action>(Back)
+map <C-i> <Action>(Forward)
+nmap ga :action GotoAction<CR>
+vmap ga :action GotoAction<CR>
+nmap gr <action>(FindUsages)
+
+nmap <leader>f <action>(ReformatCode)
+vmap <leader>f <action>(ReformatCode)
+
+vmap gc :action CommentByLineComment<CR>
+
+nmap <leader>ca <action>(ShowIntentionActions)
+
+nmap [d <action>(GotoNextError)
+nmap ]d <Action>(GotoPreviousError)
+
+nmap <leader>G <action>(GotoLine)
+nmap <leader>rr <action>(IdeaVim.ReloadVimRc.reload)
 
