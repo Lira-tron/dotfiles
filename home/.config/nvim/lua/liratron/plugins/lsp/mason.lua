@@ -44,6 +44,7 @@ return {
         "stylua", -- lua formatter
         "gofumpt",
         "goimports",
+        "google_java_format",
       },
       -- auto-install configured servers (with lspconfig)
       automatic_installation = true,
