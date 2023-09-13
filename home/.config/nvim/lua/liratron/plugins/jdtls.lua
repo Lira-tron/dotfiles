@@ -394,6 +394,9 @@ return {
                     bundles = path.bundles,
                     workspaceFolders = ws_folders_jdtls,
                 },
+                handlers = {
+                    ['language/status'] = function() end
+                },
             })
         end
 
