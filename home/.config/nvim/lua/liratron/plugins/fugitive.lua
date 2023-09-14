@@ -9,7 +9,6 @@ return {
                 vim.keymap.set('n', '<Leader>ga', ':GV --all<CR>', { silent = true, desc = 'Git log tree --all' })
             end
         },
-
         -- Enables :GBrowse from fugitive.vim to open GitHub URLs.
         {
             "tpope/vim-rhubarb",
