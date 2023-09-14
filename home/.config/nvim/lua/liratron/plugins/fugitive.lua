@@ -16,8 +16,8 @@ return {
     },
     config = function()
         vim.keymap.set('n', '<Leader>gf', ':Git ', { desc = 'Git' })
-        vim.keymap.set('n', '<Leader>gfs', ':Git<CR>', { silent = true, desc = 'Git status' })
-        vim.keymap.set('n', '<Leader>gfp', ':Git push<CR>', { silent = true, desc = 'Git push' })
+        vim.keymap.set('n', '<Leader>gs', ':Git<CR>', { silent = true, desc = 'Git status' })
+        vim.keymap.set('n', '<Leader>gp', ':Git push<CR>', { silent = true, desc = 'Git push' })
         vim.keymap.set({ 'n', 'v' }, '<Leader>go', ':GBrowse<CR>', { silent = true, desc = 'Git browse' })
         vim.keymap.set({ 'n', 'v' }, '<Leader>gc', ':GBrowse!<CR>', { silent = true, desc = 'Git browse' })
         vim.keymap.set('n', '<Leader>gb', ':Git blame<CR>', { silent = true, desc = 'Git blame' })
