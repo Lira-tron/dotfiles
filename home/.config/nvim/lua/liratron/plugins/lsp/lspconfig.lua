@@ -88,11 +88,19 @@ return {
             on_attach = on_attach,
             filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
         })
+
+        -- configure yaml server
+        lspconfig["yamlls"].setup({
+            capabilities = capabilities,
+            on_attach = on_attach,
+        })
+
         -- configure python server
         lspconfig["pyright"].setup({
             capabilities = capabilities,
             on_attach = on_attach,
         })
+
         -- lspconfig["jdtls"].setup({
         --     capabilities = capabilities,
         --     on_attach = on_attach,
