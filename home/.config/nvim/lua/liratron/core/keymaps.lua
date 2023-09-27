@@ -15,8 +15,8 @@ vim.keymap.set("n", "N", "Nzzzv", { desc = "search keep cursor in middle" })
 vim.keymap.set("x", "<leader>p", [["_dP]], { desc = "Paste without having it in buffer" })
 
 -- next greatest remap ever :
-vim.keymap.set({ "n", "v" }, "y", [["+y]], { desc = "Copy to clipboard" } )
-vim.keymap.set("n", "Y", [["+Y]], { desc = "Copy to clipboard" })
+-- vim.keymap.set({ "n", "v" }, "y", [["+y]], { desc = "Copy to clipboard" } )
+-- vim.keymap.set("n", "Y", [["+Y]], { desc = "Copy to clipboard" })
 
 vim.keymap.set({ "n", "v" }, "<leader>D", [["_d]])
 
