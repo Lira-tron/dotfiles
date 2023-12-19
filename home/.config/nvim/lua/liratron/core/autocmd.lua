@@ -57,7 +57,6 @@ api.nvim_create_autocmd("FileType", {
     "help",
     "man",
     "notify",
-    "null-ls-info",
     "qf",
     "PlenaryTestPopup",
     "startuptime",
@@ -96,18 +95,18 @@ api.nvim_create_autocmd(
 )
 
 -- Auto save files
-vim.api.nvim_create_autocmd({ 'BufLeave', 'FocusLost' }, {
-    desc = 'Auto save files',
-    callback = function()
-        if vim.bo.modified and not vim.bo.readonly and vim.fn.expand('%') ~= '' and vim.bo.buftype == '' then
-            vim.api.nvim_command('silent update')
+vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost" }, {
+  desc = "Auto save files",
+  callback = function()
+    if vim.bo.modified and not vim.bo.readonly and vim.fn.expand("%") ~= "" and vim.bo.buftype == "" then
+      vim.api.nvim_command("silent update")
 
-            if vim.bo.filetype == 'vimwiki' then
-                vim.cmd(':Vimwiki2HTML')
-                vim.cmd(':VimwikiRebuildTags')
-            end
-        end
+      if vim.bo.filetype == "vimwiki" then
+        vim.cmd(":Vimwiki2HTML")
+        vim.cmd(":VimwikiRebuildTags")
+      end
     end
+  end,
 })
 
 vim.api.nvim_create_user_command("FormatDisable", function(args)
