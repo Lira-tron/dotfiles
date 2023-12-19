@@ -18,8 +18,17 @@ api.nvim_create_autocmd("Filetype", {
     vim.opt.wrapmargin = 0
     vim.opt.wrap = true
     vim.opt.linebreak = true
-    vim.opt.columns = 80
-    vim.opt.colorcolumn = "80"
+    vim.opt.columns = 100
+    vim.opt.colorcolumn = "100"
+  end,
+})
+
+api.nvim_create_autocmd("Filetype", {
+  pattern = "java",
+  callback = function()
+    vim.opt.tabstop = 2
+    vim.opt.softtabstop = 2
+    vim.opt.shiftwidth = 2
   end,
 })
 
