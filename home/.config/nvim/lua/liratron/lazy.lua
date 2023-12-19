@@ -14,7 +14,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup(
     {
         { 'rose-pine/neovim', as = 'rose-pine' },
-        { import = "liratron.plugins"}, 
+        { import = "liratron.plugins"},
         { import = "liratron.plugins.lsp"}
     }, {
   -- install = {

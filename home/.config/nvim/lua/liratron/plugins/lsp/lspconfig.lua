@@ -53,6 +53,13 @@ return {
             nmap('<leader>wl', function()
                 print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
             end, '[W]orkspace [L]ist Folders')
+            opts.desc = "Show buffer diagnostics"
+
+            nmap("ge", vim.diagnostic.open_float, 'Show line diagnostics')
+
+      nmap("gep", vim.diagnostic.goto_prev, "Go to previous diagnostic") -- jump to previous diagnostic in buffer
+
+      nmap("gen", vim.diagnostic.goto_next, "Go to next diagnostic")
             -- Create a command `:Format` local to the LSP buffer
             vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
                 vim.lsp.buf.format()
@@ -112,6 +119,11 @@ return {
             settings = {
                 gopls = {
                     gofumpt = true,
+                    completeUnimported = true,
+                    usePlaceholders = true,
+                    analyses = {
+                        unusedparams = true,
+                    }
                 },
             },
             flags = {

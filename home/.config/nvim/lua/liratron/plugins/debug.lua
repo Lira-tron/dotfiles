@@ -32,7 +32,6 @@ return {
             { "<leader>dt", function() require("dap-go").debug_test() end, desc = 'Debug: Start debug test' },
             { "<leader>dtl", function() require("dap-go").debug_last_test() end, desc = 'Debug: Start debug last test' },
             { "<leader>dL", function() require("telescope").extensions.dap.list_breakpoints() end, desc = 'Debug: List breakpoints' },
-            { "<leader>dC", function() require("dap").run_to_cursor() end, desc = 'Debug: Run to cursor' },
             { "<leader>dv", function() require("telescope").extensions.dap.variables() end, desc = 'Debug: Open Variables' },
         },
     },
