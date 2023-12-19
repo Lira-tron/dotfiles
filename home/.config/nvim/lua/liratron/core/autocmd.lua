@@ -76,6 +76,7 @@ api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
   command = "set cursorline",
   group = cursorGrp,
 })
+
 api.nvim_create_autocmd(
   { "InsertEnter", "WinLeave" },
   { pattern = "*", command = "set nocursorline", group = cursorGrp }
@@ -89,7 +90,7 @@ api.nvim_create_autocmd(
     pattern = { "*.txt", "*.md", "*.tex" },
     callback = function()
       vim.opt.spell = true
-      vim.opt.spelllang = "en,es"
+      vim.opt.spelllang = "en"
     end,
   }
 )
