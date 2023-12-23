@@ -14,7 +14,7 @@ return {
       python = { "pylint" },
       go = { "golangcilint", "cspell" },
       java = { "checkstyle", "cspell" },
-      markdown = { "vale", "write_good" },
+      markdown = { "markdownlint", "write_good" },
       yaml = { "yamllint" },
     }
 
