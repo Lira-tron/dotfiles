@@ -11,10 +11,18 @@ return {
     -- configure autopairs
     autopairs.setup({
       check_ts = true, -- enable treesitter
-      ts_config = {
-        lua = { "string" }, -- don't add pairs in lua string treesitter nodes
-        javascript = { "template_string" }, -- don't add pairs in javscript template_string treesitter nodes
-        java = false, -- don't check treesitter on java
+      -- ts_config = {
+      --   lua = { "string" }, -- don't add pairs in lua string treesitter nodes
+      --   javascript = { "template_string" }, -- don't add pairs in javscript template_string treesitter nodes
+      --   java = false, -- don't check treesitter on java
+      -- },
+      map_cr = true, --  map <CR> on insert mode
+      map_complete = true, -- it will auto insert `(` (map_char) after select function or method item
+      auto_select = false, -- auto select first item
+      map_char = {
+        -- modifies the function or method delimiter by filetypes
+        all = "(",
+        tex = "{",
       },
     })
 

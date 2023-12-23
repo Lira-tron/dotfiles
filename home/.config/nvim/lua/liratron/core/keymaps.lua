@@ -20,7 +20,7 @@ vim.keymap.set("x", "<leader>p", [["_dP]], { desc = "Paste without having it in 
 
 vim.keymap.set({ "n", "v" }, "<leader>D", [["_d]])
 
--- This is going to get me cancelled
+-- This is going to get me cancelledkeykeykeykey
 vim.keymap.set("i", "<C-c>", "<Esc>")
 
 vim.keymap.set("n", "Q", "<nop>")
@@ -50,7 +50,12 @@ vim.keymap.set("n", "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>")
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 
 -- Diagnostic keymaps
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
-vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
-vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
+-- vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
+-- vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
+-- vim.keymap.set("n", "ge", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
+vim.keymap.set("n", "gep", "<cmd>Lspsaga diagnostic_jump_prev<cr>", { desc = "Go to previous diagnostic message" })
+vim.keymap.set("n", "gen", "<cmd>Lspsaga diagnostic_jump_next<cr>", { desc = "Go to next diagnostic message" })
+vim.keymap.set("n", "gel", "<cmd>Lspsaga show_line_diagnostics<cr>", { desc = "Open diagnostics line" })
+-- vim.keymap.set("n", "gle", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
+vim.keymap.set("n", "geb", "<cmd>Lspsaga show_buf_diagnostics<cr>", { desc = "Open diagnostics buffer" })
+vim.keymap.set("n", "gew", "<cmd>Lspsaga show_workspace_diagnostics<cr>", { desc = "Open diagnostics workspace" })

@@ -32,34 +32,41 @@ return {
         vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
       end
 
-      nmap("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-      nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+      -- nmap("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
+      nmap("<leader>rn", "<cmd>Lspsaga rename<cr>", "[R]e[n]ame")
+      -- nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+      nmap("<leader>ca", "<cmd>Lspsaga code_action<cr>", "[C]ode [A]ction")
 
-      nmap("gd", vim.lsp.buf.definition, "[G]oto [D]efinition")
+      nmap("gd", "<cmd>Lspsaga goto_definition<cr>", "[G]oto [D]efinition")
       nmap("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
+      nmap("gwf", "<cmd>Lspsaga finder<cr>", "[G]oto [W]ord [R]eferences ")
+      nmap("gwi", "<cmd>Lspsaga finder imp<cr>", "[G]oto [W]ord [I]mplementation ")
       nmap("gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
       nmap("gs", require("telescope.builtin").lsp_document_symbols, "[G]o to [D]ocument [S]ymbols")
-      nmap("gds", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[G]o to [D]ynamic  workspace [S]ymbols")
+      nmap("gas", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[G]o to [D]ynamic  workspace [S]ymbols")
 
       -- See `:help K` for why this keymap
-      nmap("K", vim.lsp.buf.hover, "Hover Documentation")
-      nmap("<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
+      -- nmap("K", vim.lsp.buf.hover, "Hover Documentation")
+      nmap("K", "<cmd>Lspsaga hover_doc<cr>", "Hover Documentation")
+      nmap("gk", vim.lsp.buf.signature_help, "Signature Documentation")
+
+      nmap("ghi", "<cmd>Lspsaga incoming_calls<cr>", "[G]o to [H]ierarchy [I]ncoming")
+      nmap("gho", "<cmd>Lspsaga outgoing_calls<cr>", "[G]o to [H]ierarchy [O]utgoing")
+
+      nmap("gwp", "<cmd>Lspsaga peek_definition<cr>", "[G]o to Peek Definition")
+      nmap("gwt", "<cmd>Lspsaga peek_type_definition<cr>", "[G]o to Peek Type Definition")
+
+      nmap("<leader>tt", "<cmd>Lspsaga term_toggle<cr>", "[G]o Terminal")
 
       -- Lesser used LSP functionality
       nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-      nmap("gt", vim.lsp.buf.lsp_type_definitions, "[G]oto [T]ype Definitions")
+      nmap("gt", "<cmd>Lspsaga goto_type_definition<cr>", "[G]oto [T]ype Definitions")
       nmap("<leader>wa", vim.lsp.buf.add_workspace_folder, "[W]orkspace [A]dd Folder")
       nmap("<leader>wr", vim.lsp.buf.remove_workspace_folder, "[W]orkspace [R]emove Folder")
       nmap("<leader>wl", function()
         print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
       end, "[W]orkspace [L]ist Folders")
-      opts.desc = "Show buffer diagnostics"
 
-      nmap("ge", vim.diagnostic.open_float, "Show line diagnostics")
-
-      nmap("gep", vim.diagnostic.goto_prev, "Go to previous diagnostic") -- jump to previous diagnostic in buffer
-
-      nmap("gen", vim.diagnostic.goto_next, "Go to next diagnostic")
       -- Create a command `:Format` local to the LSP buffer
       vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
         vim.lsp.buf.format()
@@ -153,7 +160,7 @@ return {
     })
 
     vim.diagnostic.config({
-      virtual_text = false,
+      virtual_text = true,
       severity_sort = true,
       float = {
         style = "minimal",
@@ -162,10 +169,6 @@ return {
         header = "",
         prefix = "",
       },
-    })
-
-    vim.diagnostic.config({
-      virtual_text = true,
     })
   end,
 }

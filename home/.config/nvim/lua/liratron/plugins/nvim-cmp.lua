@@ -10,10 +10,9 @@ return {
     "saadparwaiz1/cmp_luasnip", -- for autocompletion
     "rafamadriz/friendly-snippets", -- useful snippets
     "onsails/lspkind.nvim", -- vs-code like pictograms
-
+    "hrsh7th/cmp-cmdline",
   },
   config = function()
-
     local cmp = require("cmp")
 
     local luasnip = require("luasnip")
@@ -25,7 +24,10 @@ return {
 
     cmp.setup({
       completion = {
-        completeopt = "menu,menuone,preview,noinsert",
+        completeopt = "menu,menuone,preview,noselect",
+      },
+      experimental = {
+        ghost_text = true, -- this feature conflict with copilot.vim's preview.
       },
       snippet = { -- configure how nvim-cmp interacts with snippet engine
         expand = function(args)
@@ -33,7 +35,7 @@ return {
         end,
       },
       mapping = cmp.mapping.preset.insert({
-        ['<C-p>'] = cmp.mapping(function(fallback)
+        ["<C-p>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_prev_item()
           elseif luasnip.locally_jumpable(-1) then
@@ -41,8 +43,8 @@ return {
           else
             fallback()
           end
-        end, { 'i', 's' }),
-        ['<C-n>'] = cmp.mapping(function(fallback)
+        end, { "i", "s" }),
+        ["<C-n>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_next_item()
           elseif luasnip.expand_or_locally_jumpable() then
@@ -50,11 +52,11 @@ return {
           else
             fallback()
           end
-        end, { 'i', 's' }),
-        ['<C-y>'] = cmp.mapping.confirm({ select = true }),
+        end, { "i", "s" }),
+        ["<C-y>"] = cmp.mapping.confirm({ select = true }),
         ["<C-Space>"] = cmp.mapping.complete(),
-        ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-        ['<C-f>'] = cmp.mapping.scroll_docs(4),
+        ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+        ["<C-f>"] = cmp.mapping.scroll_docs(4),
         ["<C-e>"] = cmp.mapping.abort(), -- close completion window
       }),
       -- sources for autocompletion
@@ -64,7 +66,7 @@ return {
         { name = "buffer" }, -- text within current buffer
         { name = "path" }, -- file system paths
         { name = "nvim-cmp" },
-        { name = 'nvim-lua' },
+        { name = "nvim-lua" },
       }),
       -- configure lspkind for vs-code like pictograms in completion menu
       formatting = {
@@ -73,6 +75,23 @@ return {
           ellipsis_char = "...",
         }),
       },
+    })
+
+    cmp.setup.cmdline({ "/", "?" }, {
+      mapping = cmp.mapping.preset.cmdline(),
+      sources = {
+        { name = "buffer" },
+      },
+    })
+
+    -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+    cmp.setup.cmdline(":", {
+      mapping = cmp.mapping.preset.cmdline(),
+      sources = cmp.config.sources({
+        { name = "path" },
+      }, {
+        { name = "cmdline" },
+      }),
     })
   end,
 }
