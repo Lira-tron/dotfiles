@@ -36,6 +36,8 @@ return {
           quit = "<ESC>",
           exec = "<CR>",
         },
+        sign_priority = 40,
+        virtual_text = true,
       },
       lightbulb = {
         enable = true,
