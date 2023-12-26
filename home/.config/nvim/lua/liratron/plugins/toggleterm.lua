@@ -15,6 +15,6 @@ return {
       local lazygit = terminal:new({ cmd = "lazygit", direction = "float" })
       return lazygit:toggle()
     end
-    vim.keymap.set({ "v", "n" }, "<leader>tl", toggle_lazygit, { desc = "[T]erminal [L]azygit" })
+    vim.keymap.set({ "v", "n" }, "<leader>gg", toggle_lazygit, { desc = "[T]erminal [L]azygit" })
   end,
 }
