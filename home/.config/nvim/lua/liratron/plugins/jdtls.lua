@@ -180,8 +180,6 @@ return {
       nmap("gwp", "<cmd>Lspsaga peek_definition<cr>", "[G]o to Peek Definition")
       nmap("gwt", "<cmd>Lspsaga peek_type_definition<cr>", "[G]o to Peek Type Definition")
 
-      nmap("<leader>tt", "<cmd>Lspsaga term_toggle<cr>", "[G]o Terminal")
-
       -- Lesser used LSP functionality
       nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
       nmap("gt", "<cmd>Lspsaga goto_type_definition<cr>", "[G]oto [T]ype Definitions")
