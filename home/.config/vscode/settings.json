@@ -1,0 +1,322 @@
+{
+  "viceroy.config.lastVersion": "0.51.201448",
+  "files.watcherExclude": {
+    "**/build/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/.hg/store/**": true
+  },
+  "files.exclude": {
+    ".viceroy": true,
+    "apollo-overrides": true,
+    "release-info": true,
+    "src/*/build": false,
+    "build": false,
+    "env": true,
+    "packageInfo*": true,
+    ".bemol": true,
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  },
+  "search.exclude": {
+    "env": true,
+    "src/*/build": true,
+    "build": true,
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true
+  },
+  "[brazilPackageConfig]": {
+    "workbench.editor.languageDetection": false
+  },
+  "viceroy.marketplace.extensionUpdateChannels": {
+    "marklel.vscode-brazil": "stable",
+    "amzn.AWSGuruQLinter": "stable"
+  },
+  "viceroy.config.internal.lastUpdateTime": "2023-08-06T15:16:23.890Z",
+  "viceroy.workspaceSyncStrategy": "automatic",
+  "viceroy.doc.welcome.showAtStartup": false,
+
+  "workbench.startupEditor": "newUntitledFile",
+  "vscodeWorkspaceSwitcher.paths": ["/Users/limonoct/workplace"],
+  "vscodeWorkspaceSwitcher.showInActivityBar": true,
+  "breadcrumbs.enabled": true,
+  "editor.renderWhitespace": "none",
+  "workbench.statusBar.visible": true,
+  "editor.renderControlCharacters": true,
+  "editor.minimap.enabled": false,
+  "workbench.panel.defaultLocation": "bottom",
+  "workbench.panel.opensMaximized": "preserve",
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true,
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true
+  },
+  "git.enableSmartCommit": true,
+  "search.collapseResults": "alwaysExpand",
+  "git.confirmSync": false,
+  "python.languageServer": "Pylance",
+  "python.analysis.typeCheckingMode": "basic",
+  "jupyter.askForKernelRestart": false,
+  "go.toolsManagement.autoUpdate": true,
+  "security.workspace.trust.untrustedFiles": "open",
+  "python.defaultInterpreterPath": "/bin/python3.11",
+  "workbench.editor.enablePreview": true,
+  "editor.bracketPairColorization.enabled": true,
+  "files.associations": {
+    "*.txt": "plaintext",
+    "*.x": "xfile"
+  },
+  "window.zoomLevel": 3,
+  "diffEditor.ignoreTrimWhitespace": false,
+  "haskell.manageHLS": "GHCup",
+  "[haskell]": {
+    "editor.defaultFormatter": "haskell.haskell"
+  },
+  "binocular.general.additionalSearchLocations": ["~/home/Dropbox/projects"],
+  "vim.foldfix": true,
+  "vim.easymotion": true,
+  "vim.incsearch": true,
+  "vim.useSystemClipboard": true,
+  "vim.useCtrlKeys": true,
+  "vim.hlsearch": true,
+  "vim.leader": "<space>",
+  "vim.highlightedyank.enable": true,
+  "vim.highlightedyank.color": "#C34043",
+  "vim.insertModeKeyBindings": [
+    {
+      "before": ["<C-c>"],
+      "after": ["<Esc>"]
+    }
+  ],
+  "vim.visualModeKeyBindings": [
+    {
+      "before": [">"],
+      "commands": ["editor.action.indentLines"]
+    },
+    {
+      "before": ["<"],
+      "commands": ["editor.action.outdentLines"]
+    }
+  ],
+  "vim.visualModeKeyBindingsNonRecursive": [
+    {
+      "before": ["g", "c"],
+      "commands": ["editor.action.commentLine"],
+      "silent": true
+    }
+  ],
+  "vim.handleKeys": {
+    "<C-b>": false,
+    "<C-o>": false
+  },
+  "vim.normalModeKeyBindings": [
+    {
+      "before": ["C"],
+      "after": ["c", "$"]
+    }
+  ],
+  "vim.normalModeKeyBindingsNonRecursive": [
+    {
+      "before": ["<c-k>"],
+      "commands": ["cursorPageUp"]
+    },
+    {
+      "before": ["<c-j>"],
+      "commands": ["cursorPageDown"]
+    },
+    {
+      "before": ["<c-p>"],
+      "commands": ["workbench.action.quickOpen"]
+    },
+    {
+      "before": ["<c-f>"],
+      "commands": ["workbench.action.findInFiles"]
+    },
+    {
+      "before": ["L"],
+      "after": ["$"]
+    },
+    {
+      "before": ["H"],
+      "after": ["^"]
+    },
+    {
+      "before": ["Y"],
+      "after": ["y", "$"]
+    },
+    {
+      "before": ["<leader>", "t", "e", "r", "m"],
+      "commands": ["terminalHere.create"],
+      "silent": true
+    },
+    {
+      "before": ["<leader>", "o", "l", "d"],
+      "commands": ["workbench.action.openRecent"],
+      "silent": true
+    },
+    {
+      "before": ["t", "l"],
+      "commands": ["workbench.action.nextEditor"],
+      "silent": true
+    },
+    {
+      "before": ["t", "h"],
+      "commands": ["workbench.action.previousEditor"],
+      "silent": true
+    },
+    {
+      "before": ["t", "d"],
+      "commands": ["workbench.action.closeActiveEditor"],
+      "silent": true
+    },
+    {
+      "before": ["t", "n"],
+      "commands": ["workbench.action.files.newUntitledFile"],
+      "silent": true
+    },
+    {
+      "before": ["f", "f"],
+      "commands": ["fzf-quick-open.runFzfSearchPwd"],
+      "silent": true
+    },
+    {
+      "before": ["t", "t"],
+      "commands": ["fzf-quick-open.runFzfFilePwd"],
+      "silent": true
+    },
+    {
+      "before": ["<leader>", "n"],
+      "commands": [":noh"],
+      "silent": false
+    },
+    {
+      "before": ["<leader>", "l", "g"],
+      "commands": [
+        {
+          "command": "workbench.action.tasks.runTask",
+          "args": ["lazygit"]
+        }
+      ],
+      "silent": false
+    }
+  ],
+  // "vscode-neovim.neovimExecutablePaths.linux": "/home/tdeneire/bin/nvim",
+  // "vscode-neovim.useCtrlKeysForInsertMode": false,
+  // "vscode-neovim.useCtrlKeysForNormalMode": false,
+  "errorLens.statusBarMessageEnabled": true,
+  "errorLens.statusBarColorsEnabled": true,
+  "errorLens.messageEnabled": true,
+  "zenMode.hideStatusBar": false,
+  "zenMode.hideLineNumbers": false,
+  "zenMode.restore": true,
+  "zenMode.centerLayout": true,
+  "gitlens.mode.active": "zen",
+  "gitlens.hovers.currentLine.over": "line",
+  "gitlens.currentLine.enabled": false,
+  "fzf-quick-open.ripgrepSearchStyle": "Smart case",
+  "fzf-quick-open.findDirectoriesCmd": "fd --type d",
+  "window.newWindowDimensions": "maximized",
+  "editor.cursorSurroundingLines": 5,
+  "editor.inlineSuggest.enabled": true,
+  "editor.suggest.insertMode": "replace",
+  "editor.suggestFontSize": 14,
+  "editor.guides.bracketPairs": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.lineNumbers": "relative",
+  "editor.wordWrap": "on",
+  "editor.detectIndentation": false,
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "files.autoSave": "afterDelay",
+  "editor.scrollbar.verticalScrollbarSize": 2,
+  "editor.scrollbar.horizontalScrollbarSize": 2,
+  "editor.scrollbar.vertical": "hidden",
+  "editor.scrollbar.horizontal": "hidden",
+  "editor.fontLigatures": true,
+  "editor.overviewRulerBorder": false,
+  "editor.renderLineHighlight": "line",
+  "editor.fontSize": 16,
+  "editor.lineHeight": 0,
+  "editor.rulers": [120],
+  "editor.renderWhitespace": "none",
+  "editor.smoothScrolling": true,
+  "editor.stickyScroll.enabled": false,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "editor.guides.indentation": false,
+  "editor.linkedEditing": true,
+  "editor.cursorBlinking": "solid",
+  "editor.minimap.enabled": false,
+  "editor.scrollBeyondLastLine": false,
+  "editor.selectionHighlight": true,
+  "editor.wordSeparators": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
+  "window.menuBarVisibility": "toggle",
+  "workbench.editor.showTabs": "multiple",
+  "workbench.editor.labelFormat": "short",
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": true,
+      "strings": true
+    }
+  },
+  "workbench.layoutControl.enabled": false,
+  "window.restoreWindows": "none",
+  "window.commandCenter": true,
+  "symbols.hidesExplorerArrows": false,
+  "breadcrumbs.enabled": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "errorLens.fontStyleItalic": true,
+  "search.useIgnoreFiles": false,
+  "prettier.semi": false,
+  "prettier.singleAttributePerLine": true,
+  "prettier.singleQuote": true,
+  "prettier.trailingComma": "all",
+  "workbench.settings.editor": "json",
+  "workbench.startupEditor": "readme",
+  "redhat.telemetry.enabled": true,
+  "[java]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "gitlens.remotes": [
+    {
+      "domain": "git.amazon.com",
+      "type": "Custom",
+      "name": "Amazon",
+      "protocol": "https",
+      "urls": {
+        "repository": "https://code.amazon.com/packages/${repoPath}",
+        "branches": "https://code.amazon.com/packages/${repoPath}/trees",
+        "branch": "https://code.amazon.com/packages/${repoPath}/trees/${branch}",
+        "commit": "https://code.amazon.com/packages/${repoPath}/commits/${id}",
+        "file": "https://code.amazon.com/packages/${repoPath}/blobs/mainline/--/${file}${line}",
+        "fileInBranch": "https://code.amazon.com/packages/${repoPath}/blobs/${branch}/--/${file}${line}",
+        "fileInCommit": "https://code.amazon.com/packages/${repoPath}/blobs/${id}/--/${file}${line}",
+        "fileLine": "#L${line}",
+        "fileRange": "#L${start}-L${end}"
+      }
+    }
+  ],
+  "workbench.iconTheme": "vs-minimal",
+  "diffEditor.ignoreTrimWhitespace": false,
+  "git.openRepositoryInParentFolders": "never",
+  "go.toolsEnvVars": {
+    "GOPROXY": "direct"
+  },
+  "go.toolsManagement.autoUpdate": true,
+  "terminal.integrated.env.osx": {
+    "CW_NEW_SESSION": "1"
+  }
+}
