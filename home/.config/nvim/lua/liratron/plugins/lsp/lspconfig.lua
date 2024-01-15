@@ -43,7 +43,7 @@ return {
       nmap("gwi", "<cmd>Lspsaga finder imp<cr>", "[G]oto [W]ord [I]mplementation ")
       nmap("gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
       nmap("gs", require("telescope.builtin").lsp_document_symbols, "[G]o to [D]ocument [S]ymbols")
-      nmap("gas", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[G]o to [D]ynamic  workspace [S]ymbols")
+      nmap("gws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[G]o to [D]ynamic  workspace [S]ymbols")
 
       -- See `:help K` for why this keymap
       -- nmap("K", vim.lsp.buf.hover, "Hover Documentation")
@@ -53,8 +53,8 @@ return {
       nmap("ghi", "<cmd>Lspsaga incoming_calls<cr>", "[G]o to [H]ierarchy [I]ncoming")
       nmap("gho", "<cmd>Lspsaga outgoing_calls<cr>", "[G]o to [H]ierarchy [O]utgoing")
 
-      nmap("gwp", "<cmd>Lspsaga peek_definition<cr>", "[G]o to Peek Definition")
-      nmap("gwt", "<cmd>Lspsaga peek_type_definition<cr>", "[G]o to Peek Type Definition")
+      nmap("gpd", "<cmd>Lspsaga peek_definition<cr>", "[G]o to Peek Definition")
+      nmap("gpt", "<cmd>Lspsaga peek_type_definition<cr>", "[G]o to Peek Type Definition")
 
       -- Lesser used LSP functionality
       nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
