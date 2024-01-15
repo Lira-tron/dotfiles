@@ -60,7 +60,8 @@ nmap <C-j> <C-w>j
 nmap <C-k> <C-w>k
 nmap <C-l> <C-w>l
 
-nmap <C-z> <action> (ToggleDistractionFreeMode)
+nmap <leader>z <action> (ToggleDistractionFreeMode)
+
 " system clipboard
 xmap <leader>p "_dP
 
@@ -223,7 +224,7 @@ nmap za <Action>(CollapseAllRegions)
 nmap zA <Action>(ExpandAllRegions)
 
 " zen
-nmap <leader>z <Action>(ToggleZenMode)
+" nmap <leader>z <Action>(ToggleZenMode)
 
 " []
 nmap * <Action>(GotoPrevElementUnderCaretUsage)
