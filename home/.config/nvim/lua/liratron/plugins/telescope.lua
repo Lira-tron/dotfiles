@@ -85,7 +85,7 @@ return {
     vim.keymap.set("n", "<leader>sif", builtin.git_files, { desc = "Search [G]it [F]iles" })
     vim.keymap.set("n", "<leader>sis", builtin.git_status, { desc = "Search [G]it [S]tatus" })
     vim.keymap.set("n", "<leader>sic", builtin.git_commits, { desc = "Search [G]it [C]ommits" })
-    vim.keymap.set("n", "<leader>sif", builtin.find_files, { desc = "[S]earch [F]iles" })
+    vim.keymap.set("n", "<leader>sf", builtin.find_files, { desc = "[S]earch [F]iles" })
     vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
     vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
     vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
