@@ -27,6 +27,9 @@ vim.keymap.set("n", "Q", "<nop>")
 vim.keymap.set("n", "<leader>ts", "<cmd>silent !tmux neww tmux-sessionizer<CR>", { desc = "change to session" })
 vim.keymap.set("n", "<leader>rf", vim.lsp.buf.format, { desc = "Format" })
 
+vim.keymap.set("n", "<leader>hn", ":bnext<CR>", { desc = "Next buffer" })
+vim.keymap.set("n", "<leader>hp", ":bprev<CR>", { desc = "Prev buffer" })
+
 vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
 vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
 vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")

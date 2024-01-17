@@ -72,8 +72,7 @@
   "files.associations": {
     "*.txt": "plaintext",
     "*.x": "xfile"
-  },
-  "window.zoomLevel": 3,
+},
   "diffEditor.ignoreTrimWhitespace": false,
   "haskell.manageHLS": "GHCup",
   "[haskell]": {
@@ -318,5 +317,6 @@
   "go.toolsManagement.autoUpdate": true,
   "terminal.integrated.env.osx": {
     "CW_NEW_SESSION": "1"
-  }
+},
+"telemetry.telemetryLevel": "off"
 }
