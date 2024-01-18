@@ -105,8 +105,8 @@ nmap <leader>sv :NERDTree<CR>
 " New keymaps
 
 " location
-map <C-i> <Action>(Back)
-map <C-o> <Action>(Forward)
+map <C-o> <Action>(Back)
+map <C-i> <Action>(Forward)
 
 " buffer (buffer < window < tab)
 nmap <leader>xx <Action>(CloseContent)
