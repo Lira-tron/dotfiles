@@ -279,7 +279,7 @@ nmap mm <Action>(ToggleBookmark)
 nmap ms <Action>(ShowBookmarks)
 
 " Git
-noremap <leader>gg <Action>(Vcs.Show.Log)
+nmap <leader>gg <Action>(Vcs.Show.Log)
 
 
 " todo
