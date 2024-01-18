@@ -15,13 +15,13 @@ return {
     )
     keymap.set(
       "n",
-      "<leader>hbn",
+      "<leader>hn",
       "<cmd>lua require('harpoon.ui').nav_next()<cr>",
       { desc = "Go to next harpoon mark" }
     )
     keymap.set(
       "n",
-      "<leader>hbp",
+      "<leader>hp",
       "<cmd>lua require('harpoon.ui').nav_prev()<cr>",
       { desc = "Go to previous harpoon mark" }
     )
