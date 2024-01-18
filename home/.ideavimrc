@@ -81,9 +81,9 @@ vmap K :m <-2<CR>gv=gv
 " { desc = "Paste below line at the end of the line without moving cursor " })
 nmap J mzJ`z
  "{ desc = "C-d keep cursor in middle" })
-nmap <C-d> <C-d>zz
+nnoremap <C-d> <C-d>zz
 "{ desc = "C-u keep cursor in middle" })
-nmap <C-u> <C-u>zz
+nnoremap <C-u> <C-u>zz
 "{ desc = "search keep cursor in middle" })
 nmap n nzzzv
 "{ desc = "search keep cursor in middle" })
@@ -141,7 +141,7 @@ map <C-w>v <Action>(SplitVertically)
 " nmap <M-i> <Action>(PrevSplitter)
 " nmap <M-o> <Action>(NextSplitter)
 
-" nmap <leader>ww <Action>(HideAllWindows)
+nmap <C-w>h <Action>(HideAllWindows)
 " nmap <leader>wk <Action>(StretchSplitToTop)
 " nmap <leader>wj <Action>(StretchSplitToBottom)
 " nmap <leader>wh <Action>(StretchSplitToLeft)
@@ -277,6 +277,10 @@ nmap <leader>tc <Action>(Terminal.OpenInTerminal)
 " bookmark
 nmap mm <Action>(ToggleBookmark)
 nmap ms <Action>(ShowBookmarks)
+
+" Git
+noremap <leader>gg <Action>(Vcs.Show.Log)
+
 
 " todo
 nmap <leader>to <Action>(ActivateTODOToolWindow)
