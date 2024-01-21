@@ -28,7 +28,7 @@ set NERDTree
 
 " replace with register (bundle plugin)
 " usage: https://github.com/vim-scripts/ReplaceWithRegister
-set ReplaceWithRegister
+" set ReplaceWithRegister
 
 " text-object (bundle plugin)
 set vim-paragraph-motion
