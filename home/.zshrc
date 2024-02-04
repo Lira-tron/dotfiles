@@ -77,6 +77,9 @@ function my_zvm_init() {
 
 zvm_after_init_commands+=(my_zvm_init)
 
+bindkey -e
+bindkey '^[[1;3C' forward-word
+bindkey '^[[1;3D' backward-word
 
 bindkey '^[OA' history-substring-search-up
 bindkey '^[OB' history-substring-search-down
