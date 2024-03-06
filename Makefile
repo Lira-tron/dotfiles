@@ -3,7 +3,7 @@ DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 UNAME_S := $(shell uname -s)
 
 
-BREW_PACKAGES        := stow tmux ripgrep wget jq fd lua-language-server exa bat tree htop miller glow lazygit node@20 helm kubectl derailed/k9s/k9s awscli neovim yaml-language-server go yq fzf starship mvn gotests autojump
+BREW_PACKAGES        := stow tmux ripgrep wget jq fd lua-language-server exa bat tree htop miller glow lazygit node@20 helm kubectl derailed/k9s/k9s awscli neovim yaml-language-server go yq fzf starship mvn gotests autojump powerlevel10k
 
 all:: install-brew-packages link install-terminfo
 

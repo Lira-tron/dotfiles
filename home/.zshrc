@@ -102,8 +102,8 @@ alias gb='git branch'
 alias glo='git log --oneline'
 alias gs='git status'
 
-alias l="exa -lh --icons --octal-permissions --no-user --git --group-directories-first"
-alias ls="exa -lh --icons --octal-permissions --no-user --git --group-directories-first --ignore-glob '.git|node_modules' --all"
+alias ll="lsd -al"
+alias ls="lsd -ah --group-directories-first"
 
 alias t='tmux'
 alias tn='t new-session -As'
@@ -187,10 +187,9 @@ initsetup () {
   git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
   git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
   git clone https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
-  git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+  brew tap homebrew/cask-fonts
+  brew install --cask font-jetbrains-mono
 }
-
-eval "$(starship init zsh)"
 
 
 if [ -f "$HOME/.zshrc.local" ]; then
@@ -199,3 +198,4 @@ fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
