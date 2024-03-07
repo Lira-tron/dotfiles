@@ -26,7 +26,8 @@ fi
 export JAVA_HOME_LATEST=$HOMEBREW_PREFIX/Cellar/openjdk/latest/libexec/openjdk.jdk/Contents/Home
 export JAVA_HOME_17=$HOMEBREW_PREFIX/Cellar/openjdk@17/latest/libexec/openjdk.jdk/Contents/Home
 export JAVA_HOME_11=$HOMEBREW_PREFIX/Cellar/openjdk@11/latest/libexec/openjdk.jdk/Contents/Home
-export JAVA_HOME_8=$HOMEBREW_PREFIX/Cellar/openjdk@8/latest/libexec/openjdk.jdk/Contents/Home
+# export JAVA_HOME_8=$HOMEBREW_PREFIX/Cellar/openjdk@8/latest/libexec/openjdk.jdk/Contents/Home
+export JAVA_HOME_8=/Library/Java/JavaVirtualMachines/amazon-corretto-8.jdk/Contents/Home
 
 export JAVA_HOME=$JAVA_HOME_LATEST
 
