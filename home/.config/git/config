@@ -4,7 +4,7 @@
     eol = lf
 
 [user]
-    name = Liratron
+    name = Liratron 🍋 🥑
     email = octalimon@gmail.com
 
 [commit]
@@ -19,7 +19,7 @@
     autoSquash = true
 
 [github]
-    user = liratron
+    user = Lira-tron
 
 [checkout]
     defaultRemote = origin
