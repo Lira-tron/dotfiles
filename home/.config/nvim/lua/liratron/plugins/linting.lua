@@ -13,7 +13,6 @@ return {
       svelte = { "eslint_d" },
       python = { "pylint" },
       go = { "golangcilint", "cspell" },
-      java = { "checkstyle", "cspell" },
       markdown = { "markdownlint", "write_good" },
       yaml = { "yamllint" },
     }
