@@ -54,6 +54,8 @@ nmap <C-a> ggVG"+y
 let mapleader = " "
 nmap <Space> <Nop>
 
+nmap <C-y> <CR>
+
 " Window navigation keymaps
 nmap <C-h> <C-w>h
 nmap <C-j> <C-w>j
