@@ -54,8 +54,6 @@ nmap <C-a> ggVG"+y
 let mapleader = " "
 nmap <Space> <Nop>
 
-nmap <C-y> <CR>
-
 " Window navigation keymaps
 nmap <C-h> <C-w>h
 nmap <C-j> <C-w>j
@@ -77,9 +75,9 @@ nmap Y "+Y
 imap <C-c> <Esc>
 
  " { desc = "When highlighted move the line down" })
-vmap J :m >+1<CR>gv=gv
+vmap J :m '>+1<CR>gv=gv
 " { desc = "When highlighted move the line up" })
-vmap K :m <-2<CR>gv=gv
+vmap K :m '>-2<CR>gv=gv
 " { desc = "Paste below line at the end of the line without moving cursor " })
 nmap J mzJ`z
  "{ desc = "C-d keep cursor in middle" })
@@ -96,15 +94,10 @@ vmap > >gv
 
 " keymaps
 
-nmap <leader>tt <Action>(ActivateTerminalToolWindow)
-
 nmap <leader>sv :NERDTree<CR>
 
 " let g:NERDTreeMapActivateNode='l'
 " let g:NERDTreeMapJumpParent='h'
-
-
-" New keymaps
 
 " location
 map <C-o> <Action>(Back)
@@ -143,7 +136,7 @@ map <C-w>v <Action>(SplitVertically)
 " nmap <M-i> <Action>(PrevSplitter)
 " nmap <M-o> <Action>(NextSplitter)
 
-nmap <C-w>h <Action>(HideAllWindows)
+nmap <C-w>m <Action>(HideAllWindows)
 " nmap <leader>wk <Action>(StretchSplitToTop)
 " nmap <leader>wj <Action>(StretchSplitToBottom)
 " nmap <leader>wh <Action>(StretchSplitToLeft)
@@ -231,6 +224,7 @@ nmap zA <Action>(ExpandAllRegions)
 " []
 nmap * <Action>(GotoPrevElementUnderCaretUsage)
 nmap # <Action>(GotoNextElementUnderCaretUsage)
+imap <C-y> <Action>(EditorChooseLookupItem)
 map <C-n> <Action>(NextOccurence)
 map <C-p> <Action>(PreviousOccurence)
 nmap gpm <Action>(MethodUp)
