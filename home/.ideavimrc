@@ -214,8 +214,8 @@ nmap <leader>ghm <Action>(MethodHierarchy)
 nmap <leader>ght <Action>(TypeHierarchy)
 
 " collapse
-nmap zz <Action>(ExpandCollapseToggleAction)
-nmap za <Action>(CollapseAllRegions)
+nmap zC <Action>(ExpandCollapseToggleAction)
+nmap zE <Action>(CollapseAllRegions)
 nmap zA <Action>(ExpandAllRegions)
 
 " zen
@@ -229,8 +229,8 @@ map <C-n> <Action>(NextOccurence)
 map <C-p> <Action>(PreviousOccurence)
 nmap gpm <Action>(MethodUp)
 nmap gnm <Action>(MethodDown)
-nmap [c <Action>(JumpToLastChange)
-nmap ]c <Action>(JumpToNextChange)
+nmap gpc <Action>(JumpToLastChange)
+nmap gnc <Action>(JumpToNextChange)
 
 " goto
 nmap ga <Action>(GotoAction)
