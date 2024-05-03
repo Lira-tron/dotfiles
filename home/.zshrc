@@ -23,7 +23,7 @@ export SAVEHIST=1000000000
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-# eval "$(fzf --zsh)"
+eval "$(fzf --zsh)"
 eval "$(zoxide init zsh)"
 eval "$(thefuck --alias)"
 eval "$(thefuck --alias fk)"
@@ -112,8 +112,7 @@ fd() {
 
   local dir
   dir=$(find ${1:-.} -path '*/\.*' -prune \
-                  -o -type d -print 2> /dev/null | fzf +m) &&
-  cd "$dir"
+                  -o -type d -print 2> /dev/null | fzf +m) && cd "$dir"
 }
 
 # fda - including hidden directories
