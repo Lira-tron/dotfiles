@@ -1,68 +1,81 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Enable Powerrevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# https://unix.stackexchange.com/questions/599641/why-do-i-have-duplicates-in-my-zsh-history
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
 
-# setopt HIST_IGNORE_ALL_DUPS
-# setopt HIST_FIND_NO_DUPS
-# setopt HIST_SAVE_NO_DUPS
-# setopt INC_APPEND_HISTORY
+#ZSH_THEME="powerlevel10k/powerlevel10k"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+# Uncomment the following line to display red dots whilst waiting for completion.
+# You can also set it to another string to have that shown instead of the default red dots.
+# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
+# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
+COMPLETION_WAITING_DOTS="true"
+
+
+# https://unix.stackexchange.com/questions/599641/why-do-i-have-duplicates-in-my-zsh-history
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_FIND_NO_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt INC_APPEND_HISTORY
 setopt EXTENDED_HISTORY
-setopt share_history
-setopt hist_expire_dups_first
-setopt hist_ignore_dups
-setopt hist_verify
+
 export HISTFILE=~/.zsh_history
 export HISTSIZE=1000000000
 export SAVEHIST=1000000000
 
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-# eval "$(fzf --zsh)"
-eval "$(zoxide init zsh)"
-eval "$(thefuck --alias)"
-eval "$(thefuck --alias fk)"
-
 # export WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>'
 export WORDCHARS='~!#$%^&*(){}[]<>?.+;-'
 
-export FZF_DEFAULT_OPTS="--color=fg:${fg},bg:${bg},hl:${purple},fg+:${fg},bg+:${bg_highlight},hl+:${purple},info:${blue},prompt:${cyan},pointer:${cyan},marker:${cyan},spinner:${cyan},header:${cyan}"
-# export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude .bemol'
-export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git --exclude .bemol"
-export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git --exclude .bemol"
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude .bemol'
+export FZF_CTRL_R_OPTS="--reverse --info hidden"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-# export FZF_CTRL_R_OPTS="--reverse --info hidden"
-# export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-
-show_file_or_dir_preview="if [ -d {} ]; then eza --tree --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
-
-export FZF_CTRL_T_OPTS="--preview '$show_file_or_dir_preview'"
-export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
-
-# Advanced customization of fzf options via _fzf_comprun function
-# - The first argument to the function is the name of the command.
-# - You should make sure to pass the rest of the arguments to fzf.
-_fzf_comprun() {
-  local command=$1
-  shift
-
-  case "$command" in
-    cd)           fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
-    export|unset) fzf --preview "eval 'echo \${}'"         "$@" ;;
-    ssh)          fzf --preview 'dig {}'                   "$@" ;;
-    *)            fzf --preview "$show_file_or_dir_preview" "$@" ;;
-  esac
-}
 
 export EDITOR='nvim'
 export MANPAGER='nvim +Man!'
 
+# Add wisely, as too many plugins slow down shell startup.
+plugins=(
+  aws
+  autojump
+  git
+  brew
+  kubectl
+  # zsh-vi-mode
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  zsh-history-substring-search
+  # command-time
+)
 
+source $ZSH/oh-my-zsh.sh
+
+function zvm_config() {
+  ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
+}
+
+# https://github.com/jeffreytse/zsh-vi-mode/issues/19
+# saves to clipboard on yank
+function zvm_vi_yank() {
+    zvm_yank
+    printf %s "${CUTBUFFER}" | clipcopy
+    zvm_exit_visual_mode
+}
+
+function my_zvm_init() {
+    [ -f $XDG_CONFIG_HOME/fzf/fzf.zsh ] && source $XDG_CONFIG_HOME/fzf/fzf.zsh
+
+    bindkey '^P' history-beginning-search-backward
+    bindkey '^N' history-beginning-search-forward
+    bindkey '^ ' autosuggest-accept
+}
+
+zvm_after_init_commands+=(my_zvm_init)
 
 bindkey -e
 bindkey '^[[1;3C' forward-word
@@ -89,11 +102,8 @@ alias gb='git branch'
 alias glo='git log --oneline'
 alias gs='git status'
 
-alias ll="eza -alh"
-# alias ls="lsd -h --group-directories-first"
-alias ls="eza --color=always --long --no-filesize --icons=always --no-time --no-user --no-permissions"
-
-alias cd="z"
+alias ll="lsd -alh"
+alias ls="lsd -h --group-directories-first"
 
 alias t='tmux'
 alias tn='t new-session -As'
@@ -106,6 +116,7 @@ fg() {
   if [ ! "$#" -gt 0 ]; then echo "Need a string to search for!"; return 1; fi
   rg --files-with-matches --hidden --no-messages "$1" | fzf --preview "highlight -O ansi -l {} 2> /dev/null | rg --colors 'match:bg:yellow' --ignore-case --pretty --context 10 '$1' || rg --ignore-case --pretty --context 10 '$1' {}"
 }
+
 
 # fd - cd to selected directory
 fd() {
@@ -170,10 +181,21 @@ reloadzsh () {
    test -f ~/.zshrc && . ~/.zshrc
 }
 
+initsetup () {
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+  git clone https://github.com/jeffreytse/zsh-vi-mode ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-vi-mode
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+  git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+  git clone https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
+  brew tap homebrew/cask-fonts
+  brew install --cask font-jetbrains-mono
+}
+
+
 if [ -f "$HOME/.zshrc.local" ]; then
     source "$HOME/.zshrc.local"
 fi
 
-source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
