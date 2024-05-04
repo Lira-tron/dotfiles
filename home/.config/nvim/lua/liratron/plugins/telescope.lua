@@ -44,12 +44,12 @@ return {
         mappings = {
           i = {
             ["<C-y>"] = actions.select_default,
-            ["<C-h>"] = actions.which_key,
+            ["<C-k>"] = actions.which_key,
           },
           n = {
             ["<C-c>"] = actions.close,
             ["<C-y>"] = actions.select_default,
-            ["<C-h>"] = actions.which_key,
+            ["<C-k>"] = actions.which_key,
           },
         },
         -- path_display = { "truncate " },

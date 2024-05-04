@@ -11,14 +11,10 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup(
-    {
-        { import = "liratron.plugins"},
-        { import = "liratron.plugins.lsp"}
-    }, {
-  -- install = {
-  --   colorscheme = { "rose-pine" },
-  -- },
+require("lazy").setup({
+  { import = "liratron.plugins" },
+  { import = "liratron.plugins.lsp" },
+}, {
   checker = {
     enabled = true,
     notify = false,
