@@ -42,12 +42,31 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export EDITOR='nvim'
 export MANPAGER='nvim +Man!'
 
-bindkey -e
-bindkey '^[[1;3C' forward-word
-bindkey '^[[1;3D' backward-word
+function zvm_config() {
+  ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
+}
 
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
+# https://github.com/jeffreytse/zsh-vi-mode/issues/19
+# saves to clipboard on yank
+function zvm_vi_yank() {
+    zvm_yank
+    printf %s "${CUTBUFFER}" | clipcopy
+    zvm_exit_visual_mode
+}
+
+function my_zvm_init() {
+    [ -f $XDG_CONFIG_HOME/fzf/fzf.zsh ] && source $XDG_CONFIG_HOME/fzf/fzf.zsh
+
+    bindkey -e
+    bindkey '^[[1;3C' forward-word
+    bindkey '^[[1;3D' backward-word
+
+    bindkey '^[[A' history-substring-search-up
+    bindkey '^[[B' history-substring-search-down
+
+}
+
+zvm_after_init_commands+=(my_zvm_init)
 
 # Directories
 # workplace is a dir with work code
@@ -157,4 +176,6 @@ autoload -Uz +X bashcompinit && bashcompinit
 
 source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+if [ -f "$HOME/.p10k.zsh" ]; then
+    source "$HOME/.p10k.zsh"
+fi
