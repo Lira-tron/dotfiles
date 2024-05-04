@@ -78,18 +78,36 @@ api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- show cursor line only in active window
-local cursorGrp = api.nvim_create_augroup("CursorLine", { clear = true })
-api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
-  pattern = "*",
-  command = "set cursorline",
-  group = cursorGrp,
+vim.api.nvim_create_autocmd({ "WinEnter", "FocusGained" }, {
+  desc = "Show the cursorline whenever the window gain focus",
+  group = vim.api.nvim_create_augroup("ShowCursorLineWhenLoseFocus", { clear = true }),
+  pattern = { "*" },
+  callback = function()
+    vim.o.cursorline = true
+  end,
 })
 
-api.nvim_create_autocmd(
-  { "InsertEnter", "WinLeave" },
-  { pattern = "*", command = "set nocursorline", group = cursorGrp }
-)
+vim.api.nvim_create_autocmd({ "WinLeave", "FocusLost" }, {
+  desc = "Hide the cursorline whenever the window loses focus",
+  group = vim.api.nvim_create_augroup("HideCursorLineWhenLoseFocus", { clear = true }),
+  pattern = { "*" },
+  callback = function()
+    vim.o.cursorline = false
+  end,
+})
+
+-- -- show cursor line only in active window
+-- local cursorGrp = api.nvim_create_augroup("CursorLine", { clear = true })
+-- api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
+--   pattern = "*",
+--   command = "set cursorline",
+--   group = cursorGrp,
+-- })
+--
+-- api.nvim_create_autocmd(
+--   { "InsertEnter", "WinLeave" },
+--   { pattern = "*", command = "set nocursorline", group = cursorGrp }
+-- )
 
 -- Enable spell checking for certain file types
 api.nvim_create_autocmd(

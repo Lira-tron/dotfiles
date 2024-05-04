@@ -40,22 +40,7 @@ return {
         -- Disable sections and component separators
         component_separators = "",
         section_separators = "",
-        theme = {
-          -- We are going to use lualine_c an lualine_x as left and
-          -- right section. Both are highlighted by c theme .  So we
-          -- are just setting default looks o statusline
-          normal = {
-            a = { fg = colors.fg, bg = colors.bg },
-            c = { fg = colors.fg, bg = colors.bg },
-          },
-          insert = { a = { fg = colors.fg, bg = colors.cyan } },
-          visual = { a = { fg = colors.fg, bg = colors.orange } },
-          replace = { a = { fg = colors.fg, bg = colors.red } },
-          inactive = {
-            a = { fg = colors.fg, bg = colors.bg },
-            c = { fg = colors.fg, bg = colors.bg },
-          },
-        },
+        theme = "gruvbox-material",
       },
       sections = {
         -- these are to remove the defaults
