@@ -100,7 +100,7 @@ alias tn='t new-session -As'
 # find-in-file - usage: fif <searchTerm>
 fg() {
   if [ ! "$#" -gt 0 ]; then echo "Need a string to search for!"; return 1; fi
-  rg --files-with-matches --hidden --no-messages "$1" | fzf --preview "highlight -O ansi -l {} 2> /dev/null | rg --colors 'match:bg:yellow' --ignore-case --hidden --pretty --context 10 '$1' || rg --ignore-case --hidden --pretty --context 10 '$1' {}"
+  selected_file=$(rg --files-with-matches --hidden --g '!.git/' --g '!.bemol/' --no-messages "$1"  | fzf --preview "highlight -O ansi -l {} 2> /dev/null | rg --colors 'match:bg:yellow' --ignore-case --hidden --pretty --context 10 '$1' || rg --ignore-case --hidden --pretty --context 10 '$1' {}"); if [ -n "$selected_file" ]; then vim "$selected_file"; fi
 }
 
 fcd() {
