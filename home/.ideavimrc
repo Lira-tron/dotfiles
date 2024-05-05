@@ -99,6 +99,9 @@ nmap <leader>sv :NERDTree<CR>
 " let g:NERDTreeMapActivateNode='l'
 " let g:NERDTreeMapJumpParent='h'
 
+nmap s :action KJumpAction<cr>
+nmap S :action KJumpAction.Word1<cr>
+
 " location
 map <C-o> <Action>(Back)
 map <C-i> <Action>(Forward)
