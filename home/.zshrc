@@ -88,7 +88,7 @@ alias gs='git status'
 
 alias ll="eza -alh"
 # alias ls="lsd -h --group-directories-first"
-alias ls="eza --color=always --long --no-filesize --icons=always --no-time --no-user --no-permissions"
+alias ls="eza --group-directories-first --color=always --long --no-filesize --icons=always --no-time --no-user --no-permissions"
 
 alias cd="z"
 alias cat="bat"
