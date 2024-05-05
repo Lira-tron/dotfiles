@@ -40,7 +40,7 @@ return {
         -- Disable sections and component separators
         component_separators = "",
         section_separators = "",
-        theme = "concoctis",
+        theme = "gruvbox-material",
       },
       sections = {
         -- these are to remove the defaults
