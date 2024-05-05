@@ -57,7 +57,7 @@ function zvm_vi_yank() {
 function my_zvm_init() {
     [ -f $XDG_CONFIG_HOME/fzf/fzf.zsh ] && source $XDG_CONFIG_HOME/fzf/fzf.zsh
 
-    bindkey -e
+    bindkey -r '\e/'
     bindkey '^[[1;3C' forward-word
     bindkey '^[[1;3D' backward-word
 
