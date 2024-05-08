@@ -167,6 +167,8 @@ FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 autoload -Uz +X compinit && compinit -C
 autoload -Uz +X bashcompinit && bashcompinit
 
+source <(kubectl completion zsh)
+
 source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 if [ -f "$HOME/.p10k.zsh" ]; then
