@@ -33,8 +33,8 @@ vim.keymap.set("n", "Q", "<nop>")
 vim.keymap.set("n", "<leader>ts", "<cmd>silent !tmux neww tmux-sessionizer<CR>", { desc = "change to session" })
 vim.keymap.set("n", "<leader>rf", vim.lsp.buf.format, { desc = "Format" })
 
-vim.keymap.set("n", "<leader>tn", ":bnext<CR>", { desc = "Next buffer" })
-vim.keymap.set("n", "<leader>tp", ":bprev<CR>", { desc = "Prev buffer" })
+vim.keymap.set("n", "<leader>tnb", ":bnext<CR>", { desc = "Next buffer" })
+vim.keymap.set("n", "<leader>tpb", ":bprev<CR>", { desc = "Prev buffer" })
 
 vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
 vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
@@ -45,8 +45,8 @@ vim.keymap.set("n", "<leader>xx", "<cmd>close<CR>", { desc = "Close current spli
 
 vim.keymap.set("n", "<leader>to", "<cmd>tabnew<CR>", { desc = "Open new tab" }) -- open new tab
 vim.keymap.set("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Close current tab" }) -- close current tab
-vim.keymap.set("n", "<leader>tgn", "<cmd>tabn<CR>", { desc = "Go to next tab" }) --  go to next tab
-vim.keymap.set("n", "<leader>tgp", "<cmd>tabp<CR>", { desc = "Go to previous tab" }) --  go to previous tab
+vim.keymap.set("n", "<leader>tng", "<cmd>tabn<CR>", { desc = "Go to next tab" }) --  go to next tab
+vim.keymap.set("n", "<leader>tpg", "<cmd>tabp<CR>", { desc = "Go to previous tab" }) --  go to previous tab
 vim.keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" }) --  move current buffer to new tab
 
 vim.keymap.set({ "n", "v" }, "<leader>rp", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
@@ -62,8 +62,8 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 -- vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
 -- vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
 -- vim.keymap.set("n", "ge", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
-vim.keymap.set("n", "gep", "<cmd>Lspsaga diagnostic_jump_prev<cr>", { desc = "Go to previous diagnostic message" })
-vim.keymap.set("n", "gen", "<cmd>Lspsaga diagnostic_jump_next<cr>", { desc = "Go to next diagnostic message" })
+vim.keymap.set("n", "gpe", "<cmd>Lspsaga diagnostic_jump_prev<cr>", { desc = "Go to previous diagnostic message" })
+vim.keymap.set("n", "gne", "<cmd>Lspsaga diagnostic_jump_next<cr>", { desc = "Go to next diagnostic message" })
 vim.keymap.set("n", "gel", "<cmd>Lspsaga show_line_diagnostics<cr>", { desc = "Open diagnostics line" })
 -- vim.keymap.set("n", "gle", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 vim.keymap.set("n", "geb", "<cmd>Lspsaga show_buf_diagnostics<cr>", { desc = "Open diagnostics buffer" })
