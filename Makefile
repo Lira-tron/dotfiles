@@ -21,6 +21,7 @@ install-brew-packages:
 	brew tap homebrew/cask-fonts
 	brew install font-meslo-lg-nerd-font
 	brew install font-jetbrains-mono
+	brew install --cask --no-quarantine syntax-highlight
 
 install-terminfo:
 	curl -LO https://invisible-island.net/datafiles/current/terminfo.src.gz && gunzip terminfo.src.gz && \

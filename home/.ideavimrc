@@ -49,7 +49,7 @@ xnoremap < <gv
 xnoremap > >gv
 
 " alias
-nmap <C-a> ggVG"+y
+" nmap <C-a> ggVG"+y
 
 let mapleader = " "
 nmap <Space> <Nop>
@@ -91,6 +91,9 @@ nmap N Nzzzv
 
 vmap < <gv
 vmap > >gv
+
+nmap <leader>rp :%s/\<\>//gI
+vmap <leader>rp :%s/\<\>//gI
 
 " keymaps
 
@@ -186,13 +189,14 @@ nmap <leader>dgt <Action>(GoToTest)
 " run
 nmap <leader>dR <Action>(ContextRun)
 nmap <leader>dC <Action>(chooseRunConfiguration)
+nmap <leader>dr <Action>(RunClass)
 nmap <leader>dtl <Action>(Rerun)
-nmap <leader>dt  <Action>(RunTests)
+nmap <leader>df  <Action>(RunFailedTests)
 nmap <leader>dx <Action>(Stop)
 
 " debug
-nmap <leader>dc <Action>(ContextDebug)
-nmap <leader>dRd <Action>(Debug)
+nmap <leader>dcd <Action>(ContextDebug)
+nmap <leader>dg <Action>(Debug)
 nmap <leader>db <Action>(ToggleLineBreakpoint)
 nmap <leader>de <Action>(EditBreakpoint)
 nmap <leader>dL <Action>(ViewBreakpoints)
@@ -203,6 +207,7 @@ nmap <leader>bb <Action>(BuildMenu)
 " refactor
 
 nmap <leader>rr <action>(Refactorings.QuickListPopupAction)
+vmap <leader>rr <action>(Refactorings.QuickListPopupAction)
 nmap <leader>rc <Action>(CodeMenu)
 nmap <leader>rn <Action>(RenameElement)
 nmap <leader>re <Action>(Refactorings.QuickListPopupAction)
