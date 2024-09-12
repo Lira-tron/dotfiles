@@ -26,6 +26,8 @@ set exchange
 " nerdtree (bundle plugin)
 set NERDTree
 
+set sneak
+
 " replace with register (bundle plugin)
 " usage: https://github.com/vim-scripts/ReplaceWithRegister
 " set ReplaceWithRegister
@@ -38,6 +40,8 @@ set argtextobj
 
 " jump-motion (required idea plugin: IdeaVim-EasyMotion, AceJump)
 " set easymotion
+" nmap s :action KJumpAction<cr>
+" nmap S :action KJumpAction.Word1<cr>
 
 " highlight yank (bundle plugin)
 set highlightedyank
@@ -99,8 +103,6 @@ nmap <leader>sv :NERDTree<CR>
 " let g:NERDTreeMapActivateNode='l'
 " let g:NERDTreeMapJumpParent='h'
 
-nmap s :action KJumpAction<cr>
-nmap S :action KJumpAction.Word1<cr>
 
 " location
 map <C-o> <Action>(Back)
