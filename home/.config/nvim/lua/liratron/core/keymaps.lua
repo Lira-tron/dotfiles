@@ -31,7 +31,7 @@ vim.keymap.set("i", "<C-c>", "<Esc>")
 
 vim.keymap.set("n", "Q", "<nop>")
 vim.keymap.set("n", "<leader>ts", "<cmd>silent !tmux neww tmux-sessionizer<CR>", { desc = "change to session" })
-vim.keymap.set("n", "<leader>rf", vim.lsp.buf.format, { desc = "Format" })
+vim.keymap.set({ "n", "v" }, "<leader>rf", vim.lsp.buf.format, { desc = "Format" })
 
 vim.keymap.set("n", "<leader>tnb", ":bnext<CR>", { desc = "Next buffer" })
 vim.keymap.set("n", "<leader>tpb", ":bprev<CR>", { desc = "Prev buffer" })

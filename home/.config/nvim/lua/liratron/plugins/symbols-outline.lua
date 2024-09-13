@@ -3,6 +3,6 @@ return {
   event = { "BufReadPre", "BufNewFile" },
   config = function ()
     require("symbols-outline").setup()
-    vim.keymap.set("n", "<leader>po", "<cmd>SymbolsOutline<CR>", { desc = "[P]roject [O]utline symbols" })
+    vim.keymap.set("n", "go", "<cmd>SymbolsOutline<CR>", { desc = "Project [O]utline symbols" })
   end
 }
