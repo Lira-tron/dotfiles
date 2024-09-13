@@ -20,7 +20,6 @@ set clipboard+=unnamed
 set surround
 
 " exchange (bundle plugin)
-" usage: https://github.com/tommcdo/vim-exchange
 set exchange
 
 " nerdtree (bundle plugin)
@@ -237,6 +236,11 @@ nmap gnm <Action>(MethodDown)
 nmap gpc <Action>(JumpToLastChange)
 nmap gnc <Action>(JumpToNextChange)
 
+map <C-Space> <Action>(EditorSelectWord)
+map <A-C-Space> <Action>(EditorUnSelectWord)
+nmap gna <Action>(MoveElementRight)
+nmap gpa <Action>(MoveElementLeft)
+
 " goto
 nmap ga <Action>(GotoAction)
 vmap ga <Action>(GotoAction)
@@ -313,4 +317,14 @@ nmap \\te <Action>($ExclusiveTranslateAction)
 
 " code screenshot (required idea plugin: Code Screenshots)
 " nmap <leader>cs <Action>(one.util.ideaplugin.screenshoter.CopyImageAction)
+" code screenshot (required idea plugin: code screenshots)
+" nmap <leader>cs <action>(one.util.ideaplugin.screenshoter.copyimageaction)
 
+" amazon q configuration
+" CodeWhispererRecommendationAction
+map glm <Action>(aws.toolkit.jetbrains.core.services.cwc.actions.ContextMenuActions)
+map gle <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.ExplainCodeAction)
+map glf <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.FixCodeAction)
+map glo <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.OptimizeCodeAction)
+map glr <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.RefactorCodeAction)
+map gls <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.SendToPromptAction)
