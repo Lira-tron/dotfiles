@@ -96,6 +96,8 @@ alias cat="bat"
 alias t='tmux'
 alias tn='t new-session -As'
 
+alias sizeorder="du -ah . | grep -v "/$" | sort -rh"
+
 # using ripgrep combined with preview
 # find-in-file - usage: fif <searchTerm>
 fg() {
