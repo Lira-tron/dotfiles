@@ -205,13 +205,19 @@ nmap <leader>bb <Action>(BuildMenu)
 " refactor
 
 nmap <leader>rr <action>(Refactorings.QuickListPopupAction)
+vmap <leader>rr <action>(Refactorings.QuickListPopupAction)
 nmap <leader>rc <Action>(CodeMenu)
+vmap <leader>rc <Action>(CodeMenu)
 nmap <leader>rn <Action>(RenameElement)
-nmap <leader>re <Action>(Refactorings.QuickListPopupAction)
+vmap <leader>rn <Action>(RenameElement)
 nmap <leader>ruw <Action>(Unwrap)
+vmap <leader>ruw <Action>(Unwrap)
 nmap <leader>rs <Action>(SurroundWith)
+vmap <leader>rs <Action>(SurroundWith)
 nmap <leader>rd <Action>(SafeDelete)
+hmap <leader>rd <Action>(SafeDelete)
 nmap <leader>ro <Action>(OptimizeImports)
+vmap <leader>ro <Action>(OptimizeImports)
 
 " hierarchy
 nmap <leader>ghi <Action>(CallHierarchy)
