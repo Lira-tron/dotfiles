@@ -193,7 +193,8 @@ nmap <leader>dR <Action>(ContextRun)
 nmap <leader>dC <Action>(chooseRunConfiguration)
 nmap <leader>dr <Action>(RunClass)
 nmap <leader>dtl <Action>(Rerun)
-nmap <leader>df  <Action>(RunFailedTests)
+nmap <leader>dtf  <Action>(RunFailedTests)
+nmap <leader>dta  <Action>(RunTests)
 nmap <leader>dx <Action>(Stop)
 
 " debug
