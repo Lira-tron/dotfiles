@@ -189,7 +189,7 @@ nmap <leader>dgt <Action>(GoToTest)
 nmap <leader>dR <Action>(ContextRun)
 nmap <leader>dC <Action>(chooseRunConfiguration)
 nmap <leader>dtl <Action>(Rerun)
-nmap <leader>dt  <Action>(RunTests)
+nmap <leader>dta  <Action>(RunTests)
 nmap <leader>dx <Action>(Stop)
 
 " debug
