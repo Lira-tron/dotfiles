@@ -23,17 +23,5 @@ return {
             },
         })
 
-        wk.register({
-            s = { name = 'Search' },
-            d = { name = 'Debug' },
-            u = { name = 'Utils' },
-            g = { name = 'Git' },
-            w = { name = 'Wiki' },
-            h = { name = 'Jump' },
-            l = {
-                name = 'LSP',
-                w = { name = 'Workspaces' }
-            },
-        }, { prefix = '<Leader>' })
     end
 }
