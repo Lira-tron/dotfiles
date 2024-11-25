@@ -111,8 +111,9 @@ alias cd="z"
 alias cat="bat"
 
 alias t='tmux'
-alias tn='sesh connect'
-# alias tn='t new-session -As'
+alias tm='t new-session -As'
+alias tc='sesh connect'
+alias tn='sesh connect $(sesh list | fzf)'
 
 alias sizeorder="du -ah . | grep -v "/$" | sort -rh"
 
