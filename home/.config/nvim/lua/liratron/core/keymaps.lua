@@ -11,9 +11,7 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "C-u keep cursor in middle" })
 vim.keymap.set("n", "n", "nzzzv", { desc = "search keep cursor in middle" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "search keep cursor in middle" })
 
--- Resize split
-vim.keymap.set("n", "<M-,>", "<c-w>5<")
-vim.keymap.set("n", "<M-.>", "<c-w>5>")
+-- Resize window
 vim.keymap.set("n", "<M-t>", "<C-W>+")
 vim.keymap.set("n", "<M-s>", "<C-W>-")
 
@@ -30,7 +28,6 @@ vim.keymap.set({ "n", "v" }, "<leader>D", [["_d]])
 vim.keymap.set("i", "<C-c>", "<Esc>")
 
 vim.keymap.set("n", "Q", "<nop>")
-vim.keymap.set("n", "<leader>ts", "<cmd>silent !tmux neww tmux-sessionizer<CR>", { desc = "change to session" })
 vim.keymap.set({ "n", "v" }, "<leader>rf", vim.lsp.buf.format, { desc = "Format" })
 
 vim.keymap.set("n", "<leader>tnb", ":bnext<CR>", { desc = "Next buffer" })

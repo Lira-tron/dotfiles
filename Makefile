@@ -22,6 +22,7 @@ install-brew-packages:
 	brew install font-meslo-lg-nerd-font
 	brew install font-jetbrains-mono
 	brew install --cask --no-quarantine syntax-highlight
+	brew install --cask wezterm
 
 install-terminfo:
 	curl -LO https://invisible-island.net/datafiles/current/terminfo.src.gz && gunzip terminfo.src.gz && \
