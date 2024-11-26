@@ -26,7 +26,7 @@ source $(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring
 source $(brew --prefix)/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 
-eval "$(fzf --zsh)"
+source <(fzf --zsh)
 eval "$(zoxide init zsh)"
 eval "$(thefuck --alias)"
 eval "$(thefuck --alias fk)"
