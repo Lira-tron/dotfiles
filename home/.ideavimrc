@@ -225,9 +225,12 @@ nmap <leader>ro <Action>(OptimizeImports)
 vmap <leader>ro <Action>(OptimizeImports)
 
 " hierarchy
-nmap <leader>ghi <Action>(CallHierarchy)
-nmap <leader>ghm <Action>(MethodHierarchy)
-nmap <leader>ght <Action>(TypeHierarchy)
+nmap ghi <Action>(CallHierarchy)
+nmap ghm <Action>(MethodHierarchy)
+nmap ght <Action>(TypeHierarchy)
+vmap ghi <Action>(CallHierarchy)
+vmap ghm <Action>(MethodHierarchy)
+vmap ght <Action>(TypeHierarchy)
 
 " collapse
 nmap zC <Action>(ExpandCollapseToggleAction)
