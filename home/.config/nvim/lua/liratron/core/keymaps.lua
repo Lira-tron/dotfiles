@@ -2,8 +2,9 @@ vim.g.mapleader = " "
 
 --vim.keymap.set("n", "<leader>pv", vim.cmd.Ex,  { desc = '[P]roject [V]iew')
 
-vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "When highlighted move the line down" })
-vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "When highlighted move the line up" })
+-- vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "When highlighted move the line up" })
+-- vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "When highlighted move the line down" })
+
 
 vim.keymap.set("n", "J", "mzJ`z", { desc = "Paste below line at the end of the line without moving cursor " })
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "C-d keep cursor in middle" })
@@ -12,8 +13,8 @@ vim.keymap.set("n", "n", "nzzzv", { desc = "search keep cursor in middle" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "search keep cursor in middle" })
 
 -- Resize window
-vim.keymap.set("n", "<M-t>", "<C-W>+")
-vim.keymap.set("n", "<M-s>", "<C-W>-")
+-- vim.keymap.set("n", "<M-t>", "<C-W>+")
+-- vim.keymap.set("n", "<M-s>", "<C-W>-")
 
 -- greatest remap ever
 vim.keymap.set("x", "<leader>p", [["_dP]], { desc = "Paste without having it in buffer" })
