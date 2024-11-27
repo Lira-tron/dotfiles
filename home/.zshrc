@@ -195,3 +195,7 @@ source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
 if [ -f "$HOME/.p10k.zsh" ]; then
     source "$HOME/.p10k.zsh"
 fi
+
+# if you wish to use IMDS set AWS_EC2_METADATA_DISABLED=false
+
+export AWS_EC2_METADATA_DISABLED=true
