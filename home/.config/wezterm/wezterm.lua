@@ -38,7 +38,7 @@ config.font = wezterm.font 'MesloLGS Nerd Font Mono'
 config.font_size = 16.0
 -- The leader is similar to how tmux defines a set of keys to hit in order to
 -- invoke tmux bindings. Binding to ctrl-a here to mimic tmux
-config.leader = { key = 'a', mods = 'CTRL', timeout_milliseconds = 2000 }
+config.leader = { key = 'b', mods = 'CTRL', timeout_milliseconds = 2000 }
 
 config.mouse_bindings = {
   -- Open URLs with Ctrl+Click
