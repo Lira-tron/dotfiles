@@ -25,5 +25,6 @@ return {
     require("mini.indentscope").setup()
     require("mini.splitjoin").setup()
     require("mini.sessions").setup()
+    require("mini.pairs").setup()
   end,
 }
