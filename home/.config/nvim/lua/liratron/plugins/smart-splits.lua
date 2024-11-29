@@ -18,9 +18,9 @@ return {
     vim.keymap.set("n", "<C-l>", splits.move_cursor_right)
     vim.keymap.set("n", "<C-,>", splits.move_cursor_previous)
     -- swapping buffers between windows
-    vim.keymap.set("n", "<C-S-M-h>", splits.swap_buf_left)
-    vim.keymap.set("n", "<C-S-M-j>", splits.swap_buf_down)
-    vim.keymap.set("n", "<C-S-M-k>", splits.swap_buf_up)
-    vim.keymap.set("n", "<C-S-M-l>", splits.swap_buf_right)
+    vim.keymap.set("n", "<C-w>H", splits.swap_buf_left)
+    vim.keymap.set("n", "<C-w>J", splits.swap_buf_down)
+    vim.keymap.set("n", "<C-w>K", splits.swap_buf_up)
+    vim.keymap.set("n", "<C-w>L", splits.swap_buf_right)
   end,
 }
