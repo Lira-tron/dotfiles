@@ -23,6 +23,7 @@ install-brew-packages:
 	brew install font-jetbrains-mono
 	brew install --cask --no-quarantine syntax-highlight
 	brew install --cask wezterm
+	brew install --cask nikitabobko/tap/aerospace
 
 
 install-terminfo:
