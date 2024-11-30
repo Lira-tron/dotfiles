@@ -99,6 +99,8 @@ vmap > >gv
 
 nmap <leader>sv :NERDTree<CR>
 
+nmap <leader>w :w<CR>
+
 " let g:NERDTreeMapActivateNode='l'
 " let g:NERDTreeMapJumpParent='h'
 
@@ -145,7 +147,7 @@ nmap <C-w>m <Action>(HideAllWindows)
 " nmap <leader>wj <Action>(StretchSplitToBottom)
 " nmap <leader>wh <Action>(StretchSplitToLeft)
 " nmap <leader>wl <Action>(StretchSplitToRight)
-" nmap <leader>wm <Action>(MaximizeEditorInSplit)
+nmap <leader>sm <Action>(MaximizeEditorInSplit)
 nmap <C-w>u <Action>(UnsplitAll)
 
 " menu
