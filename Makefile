@@ -22,8 +22,8 @@ install-brew-packages:
 	brew install font-meslo-lg-nerd-font
 	brew install font-jetbrains-mono
 	brew install --cask --no-quarantine syntax-highlight
-	brew install --cask wezterm
-	brew install --cask nikitabobko/tap/aerospace
+	# brew install --cask wezterm
+	# brew install --cask nikitabobko/tap/aerospace
 
 
 install-terminfo:
