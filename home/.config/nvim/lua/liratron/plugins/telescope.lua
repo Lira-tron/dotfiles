@@ -9,6 +9,7 @@ return {
     "nvim-telescope/telescope-ui-select.nvim",
     "kkharji/sqlite.lua",
     "nvim-telescope/telescope-file-browser.nvim",
+    "albenisolmos/telescope-oil.nvim",
   },
   config = function()
     local telescope = require("telescope")
@@ -80,6 +81,7 @@ return {
 
     telescope.load_extension("file_browser")
     telescope.load_extension("fzf")
+    require("telescope").load_extension("oil")
 
     -- set keymaps
     local builtin = require("telescope.builtin")
@@ -105,6 +107,8 @@ return {
     vim.keymap.set("n", "<leader>sv", function()
       require("telescope").extensions.file_browser.file_browser()
     end, { noremap = true }, { desc = "[P]roject [V]iew" })
+
+    vim.keymap.set("n", "<leader>so", "<cmd>Telescope oil<CR>", { noremap = true, silent = true })
 
     vim.keymap.set("n", "<leader>sG", function()
       builtin.grep_string({ search = vim.fn.input("Grep > ") })
