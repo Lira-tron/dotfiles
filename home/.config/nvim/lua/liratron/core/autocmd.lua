@@ -23,14 +23,14 @@ api.nvim_create_autocmd("Filetype", {
   end,
 })
 
-api.nvim_create_autocmd("Filetype", {
-  pattern = "java",
-  callback = function()
-    vim.opt.tabstop = 2
-    vim.opt.softtabstop = 2
-    vim.opt.shiftwidth = 2
-  end,
-})
+-- api.nvim_create_autocmd("Filetype", {
+--   pattern = "java",
+--   callback = function()
+--     vim.opt.tabstop = 2
+--     vim.opt.softtabstop = 2
+--     vim.opt.shiftwidth = 2
+--   end,
+-- })
 
 -- detect typst filetype
 api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
