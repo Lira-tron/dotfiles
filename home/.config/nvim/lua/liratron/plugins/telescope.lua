@@ -102,13 +102,9 @@ return {
     vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
     vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
     vim.keymap.set("n", "<leader>sk", builtin.keymaps, { desc = "[S]earch [K]eymaps" })
-    vim.keymap.set(
-      "n",
-      "<leader>sv",
-      ":Telescope file_browser path=%:p:h select_buffer=true<CR>",
-      { noremap = true },
-      { desc = "[P]roject [V]iew" }
-    )
+    vim.keymap.set("n", "<leader>sv", function()
+      require("telescope").extensions.file_browser.file_browser()
+    end, { noremap = true }, { desc = "[P]roject [V]iew" })
 
     vim.keymap.set("n", "<leader>sG", function()
       builtin.grep_string({ search = vim.fn.input("Grep > ") })
