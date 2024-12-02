@@ -81,7 +81,7 @@ return {
 
     telescope.load_extension("file_browser")
     telescope.load_extension("fzf")
-    require("telescope").load_extension("oil")
+    telescope.load_extension("oil")
 
     -- set keymaps
     local builtin = require("telescope.builtin")
