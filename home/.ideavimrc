@@ -102,7 +102,7 @@ vmap <leader>rp :%s/\<\>//gI
 
 nmap <leader>sv :NERDTree<CR>
 
-nmap <leader>w :w<CR>
+" nmap <leader>w :w<CR>
 
 " let g:NERDTreeMapActivateNode='l'
 " let g:NERDTreeMapJumpParent='h'
