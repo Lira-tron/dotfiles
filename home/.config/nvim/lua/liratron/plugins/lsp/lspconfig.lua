@@ -256,6 +256,7 @@ return {
           settings = servers[server_name],
         })
       end,
+      ["jdtls"] = function() end,
     })
 
     vim.diagnostic.config({
