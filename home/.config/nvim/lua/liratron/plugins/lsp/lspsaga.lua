@@ -2,7 +2,7 @@ return {
   "glepnir/lspsaga.nvim",
   dependencies = {
     "nvim-treesitter/nvim-treesitter", -- optional
-    "nvim-tree/nvim-web-devicons", -- optional
+    "nvim-tree/nvim-web-devicons",     -- optional
   },
   config = function()
     local lspsaga = require("lspsaga")
@@ -105,22 +105,25 @@ return {
         outgoing = " ",
         finder = "  ",
       },
-      -- diagnostic_header_icon = "   ",
-      -- -- code action title icon
-      -- code_action_icon = " ",
-      -- code_action_prompt = { enable = true, sign = true, sign_priority = 40, virtual_text = true },
-      -- finder_definition_icon = "  ",
-      -- finder_reference_icon = "  ",
-      -- max_preview_lines = 20,
-      --
-      -- hover = {
-      --   max_width = 0.7,
-      -- },
-      -- definition_preview_icon = "  ",
-      -- border_style = "single",
-      -- rename_prompt_prefix = "➤",
-      -- server_filetype_map = {},
-      -- diagnostic_prefix_format = "%d. ",
     })
+
+    local nmap = function(keys, func, desc)
+      if desc then
+        desc = "LSP: " .. desc
+      end
+
+      vim.keymap.set("n", keys, func, { desc = desc })
+    end
+
+    nmap("gld", "<cmd>Lspsaga goto_definition<cr>", "[G]oto [D]efinition")
+    nmap("gwf", "<cmd>Lspsaga finder<cr>", "[G]oto [W]ord [R]eferences ")
+    nmap("gwi", "<cmd>Lspsaga finder imp<cr>", "[G]oto [W]ord [I]mplementation ")
+    nmap("glhi", "<cmd>Lspsaga incoming_calls<cr>", "[G]o to [H]ierarchy [I]ncoming")
+    nmap("glho", "<cmd>Lspsaga outgoing_calls<cr>", "[G]o to [H]ierarchy [O]utgoing")
+    nmap("gpd", "<cmd>Lspsaga peek_definition<cr>", "[G]o to Peek Definition")
+    nmap("gpt", "<cmd>Lspsaga peek_type_definition<cr>", "[G]o to Peek Type Definition")
+    nmap("gt", "<cmd>Lspsaga goto_type_definition<cr>", "[G]oto [T]ype Definitions")
+    nmap("gle", "<cmd>Lspsaga show_line_diagnostics<cr>", "Open diagnostics line")
+    nmap("gwe", "<cmd>Lspsaga show_workspace_diagnostics<cr>", "Open diagnostics workspace")
   end,
 }

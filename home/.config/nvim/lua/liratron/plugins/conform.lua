@@ -14,19 +14,27 @@ return {
         svelte = { "prettier" },
         css = { "prettier" },
         html = { "prettier" },
+        json = { "prettier" },
         yaml = { "prettier" },
+        markdown = { "prettier" },
         graphql = { "prettier" },
         lua = { "stylua" },
         python = { "isort", "black" },
         go = { "goimports_reviser", "gofumpt", "golines" },
+        java = { "google-java-format" },
+        kotlin = {"ktfmt"}
       },
       format_on_save = function(bufnr)
         -- Disable with a global or buffer-local variable
-        return
+        if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+          return
+        end
+        return { timeout_ms = 1000, async = false, lsp_fallback = false }
       end,
+
     })
 
-    vim.keymap.set({ "n", "v" }, "<leader>rF", function()
+    vim.keymap.set({ "n", "v" }, "<leader>rf", function()
       conform.format({
         lsp_fallback = true,
         async = false,

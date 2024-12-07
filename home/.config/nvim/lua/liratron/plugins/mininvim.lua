@@ -24,7 +24,6 @@ return {
     require("mini.ai").setup()
     require("mini.indentscope").setup()
     require("mini.splitjoin").setup()
-    require("mini.sessions").setup()
     require("mini.pairs").setup()
   end,
 }

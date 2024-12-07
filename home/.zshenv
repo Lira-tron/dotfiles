@@ -29,7 +29,7 @@ fi
 
 export JAVA_HOME_LATEST=$HOMEBREW_PREFIX/opt/openjdk
 export JAVA_HOME_17=$HOMEBREW_PREFIX/opt/openjdk@17
-export JAVA_HOME_11=$HOMEBREW_PREFIX/optopenjdk@11
+export JAVA_HOME_11=$HOMEBREW_PREFIX/opt/openjdk@11
 export JAVA_HOME_8=/Library/Java/JavaVirtualMachines/amazon-corretto-8.jdk/Contents/Home
 
 export JAVA_HOME=$JAVA_HOME_LATEST
