@@ -2,15 +2,16 @@ return {
   "hrsh7th/nvim-cmp",
   event = "InsertEnter",
   dependencies = {
+    "hrsh7th/cmp-nvim-lsp",
     "hrsh7th/cmp-buffer", -- source for text in buffer
     "hrsh7th/cmp-path", -- source for file system paths
-    "hrsh7th/cmp-nvim-lsp",
     "hrsh7th/cmp-nvim-lua",
+    "hrsh7th/cmp-cmdline",
+    "hrsh7th/cmp-nvim-lsp-signature-help",
     "L3MON4D3/LuaSnip", -- snippet engine
     "saadparwaiz1/cmp_luasnip", -- for autocompletion
     "rafamadriz/friendly-snippets", -- useful snippets
     "onsails/lspkind.nvim", -- vs-code like pictograms
-    "hrsh7th/cmp-cmdline",
   },
   config = function()
     local cmp = require("cmp")
@@ -27,7 +28,7 @@ return {
         completeopt = "menu,menuone,preview,noselect",
       },
       experimental = {
-        ghost_text = true, -- this feature conflict with copilot.vim's preview.
+        ghost_text = false, -- this feature conflict with copilot.vim's preview.
       },
       snippet = { -- configure how nvim-cmp interacts with snippet engine
         expand = function(args)
@@ -56,7 +57,7 @@ return {
         ["<C-y>"] = cmp.mapping.confirm({ select = true }),
         ["<C-Space>"] = cmp.mapping.complete(),
         ["<C-d>"] = cmp.mapping.scroll_docs(-4),
-        ["<C-f>"] = cmp.mapping.scroll_docs(4),
+        ["<C-u>"] = cmp.mapping.scroll_docs(4),
         ["<C-e>"] = cmp.mapping.abort(), -- close completion window
       }),
       -- sources for autocompletion
@@ -67,11 +68,12 @@ return {
         { name = "path" }, -- file system paths
         { name = "nvim-cmp" },
         { name = "nvim-lua" },
+        { name = "nvim_lsp_signature_help" },
       }),
       -- configure lspkind for vs-code like pictograms in completion menu
       formatting = {
         format = lspkind.cmp_format({
-          maxwidth = 50,
+          maxwidth = 80,
           ellipsis_char = "...",
         }),
       },

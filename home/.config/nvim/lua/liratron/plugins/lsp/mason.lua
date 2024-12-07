@@ -51,6 +51,7 @@ return {
         "markdownlint",
         "write-good",
         "yamllint",
+        "selene",
       },
     })
   end,

@@ -1,6 +1,9 @@
 return {
   "mfussenegger/nvim-jdtls",
   ft = "java",
+  dependencies = {
+    "mfussenegger/nvim-dap",
+  },
   config = function()
     local jdtls = require("jdtls")
     local java_cmds = vim.api.nvim_create_augroup("java_cmds", { clear = true })
@@ -9,19 +12,6 @@ return {
 
     local root_dir = jdtls.setup.find_root({ "packageInfo" }, "Config")
 
-    local home = os.getenv("HOME")
-
-    -- configure formatprg if google-java-format is in ~/.java/ folder
-    if vim.fn.filereadable(home .. "/.java/google-java-format.jar") > 0 then
-      vim.bo.formatprg = "java -jar " .. home .. "/.java/google-java-format.jar -a -"
-    end
-
-    -- vim.bo.makeprg = "brazil-build format && brazil-build"
-    --
-    -- -- Examples:
-    -- -- [checkstyle] [ERROR] /path/to/file/Main.java:15:29: Variable 'annotation' should be declared final. [FinalLocalVariable]
-    -- -- [checkstyle] [ERROR] /path/to/file/Main.java:15: Variable 'annotation' should be declared final. [FinalLocalVariable]
-    -- vim.bo.errorformat = "[%.%#checkstyle] [%t%.%#] %f:%l:%c: %m,[%.%#checkstyle] [%t%.%#] %f:%l: %r"
     local ws_folders_jdtls = {}
 
     if root_dir then
@@ -104,10 +94,11 @@ return {
         {
           name = "JavaSE-11",
           path = vim.fn.expandcmd("$JAVA_HOME_11"),
-          default = true,
+          default = false,
         },
       }
 
+      path.java_runtime = vim.fn.expandcmd("$JAVA_HOME_17")
       cache_vars.paths = path
 
       return path
@@ -129,10 +120,6 @@ return {
     local function enable_debugger(bufnr)
       require("jdtls").setup_dap({ hotcodereplace = "auto" })
       require("jdtls.dap").setup_dap_main_class_configs()
-
-      local opts = { buffer = bufnr }
-      vim.keymap.set("n", "<leader>dt", "<cmd>lua require('jdtls').test_class()<cr>", opts)
-      vim.keymap.set("n", "<leader>dT", "<cmd>lua require('jdtls').test_nearest_method()<cr>", opts)
     end
 
     local function jdtls_on_attach(client, bufnr)
@@ -147,7 +134,6 @@ return {
       -- The following mappings are based on the suggested usage of nvim-jdtls
       -- https://github.com/mfussenegger/nvim-jdtls#usage
 
-      local opts = { buffer = bufnr }
       local nmap = function(keys, func, desc)
         if desc then
           desc = "LSP: " .. desc
@@ -156,43 +142,17 @@ return {
         vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
       end
 
-      -- nmap("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-      nmap("<leader>rn", "<cmd>Lspsaga rename<cr>", "[R]e[n]ame")
-      -- nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
-      nmap("<leader>ca", "<cmd>Lspsaga code_action<cr>", "[C]ode [A]ction")
-
-      nmap("gd", "<cmd>Lspsaga goto_definition<cr>", "[G]oto [D]efinition")
-      nmap("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
-      nmap("gwf", "<cmd>Lspsaga finder<cr>", "[G]oto [W]ord [R]eferences ")
-      nmap("gwi", "<cmd>Lspsaga finder imp<cr>", "[G]oto [W]ord [I]mplementation ")
+      nmap("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
+      nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
       nmap("gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
-      nmap("gs", require("telescope.builtin").lsp_document_symbols, "[G]o to [D]ocument [S]ymbols")
-      nmap("gws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[G]o to [D]ynamic  workspace [S]ymbols")
-
-      -- See `:help K` for why this keymap
-      -- nmap("K", vim.lsp.buf.hover, "Hover Documentation")
-      nmap("K", "<cmd>Lspsaga hover_doc<cr>", "Hover Documentation")
+      nmap("K", vim.lsp.buf.hover, "Hover Documentation")
       nmap("gk", vim.lsp.buf.signature_help, "Signature Documentation")
-
-      nmap("ghi", "<cmd>Lspsaga incoming_calls<cr>", "[G]o to [H]ierarchy [I]ncoming")
-      nmap("gho", "<cmd>Lspsaga outgoing_calls<cr>", "[G]o to [H]ierarchy [O]utgoing")
-
-      nmap("gpd", "<cmd>Lspsaga peek_definition<cr>", "[G]o to Peek Definition")
-      nmap("gpt", "<cmd>Lspsaga peek_type_definition<cr>", "[G]o to Peek Type Definition")
-
-      -- Lesser used LSP functionality
       nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-      nmap("gt", "<cmd>Lspsaga goto_type_definition<cr>", "[G]oto [T]ype Definitions")
       nmap("gwa", vim.lsp.buf.add_workspace_folder, "[W]orkspace [A]dd Folder")
       nmap("gwr", vim.lsp.buf.remove_workspace_folder, "[W]orkspace [R]emove Folder")
       nmap("gwl", function()
         print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
       end, "[W]orkspace [L]ist Folders")
-
-      -- Create a command `:Format` local to the LSP buffer
-      vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
-        vim.lsp.buf.format()
-      end, { desc = "Format current buffer with LSP" })
 
       -- Unique to jdtls
       vim.keymap.set(
@@ -206,7 +166,7 @@ return {
       vim.keymap.set("n", "<leader>ro", jdtls.organize_imports, { buffer = true, desc = "Organize imports" })
       vim.keymap.set("n", "<leader>rC", jdtls.extract_constant, { buffer = true, desc = "Extract constant" })
       vim.keymap.set("n", "<leader>rV", jdtls.extract_variable, { buffer = true, desc = "Extract variable" })
-      vim.keymap.set("x", "<leader>rm", function()
+      vim.keymap.set("v", "<leader>rm", function()
         jdtls.extract_method(true)
       end, { buffer = true, desc = "Extract to method" })
     end
@@ -227,20 +187,20 @@ return {
           ok_cmp and cmp_lsp.default_capabilities() or {}
         )
       end
-
+  local java_path = path.java_runtime .. '/bin/java'
       -- The command that starts the language server
       -- See: https://github.com/eclipse/eclipse.jdt.ls#running-from-the-command-line
       local cmd = {
         -- 💀
-        "java",
-
+        java_path,
         "-Declipse.application=org.eclipse.jdt.ls.core.id1",
         "-Dosgi.bundles.defaultStartLevel=4",
         "-Declipse.product=org.eclipse.jdt.ls.core.product",
         "-Dlog.protocol=true",
         "-Dlog.level=ALL",
         "-javaagent:" .. path.java_agent,
-        "-Xms1g",
+        "-Xms2g", 
+        "-Xmx4g",
         "--add-modules=ALL-SYSTEM",
         "--add-opens",
         "java.base/java.util=ALL-UNNAMED",

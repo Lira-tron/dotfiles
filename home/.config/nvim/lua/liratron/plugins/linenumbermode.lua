@@ -11,22 +11,22 @@ return {
       mode = {
         i = {
           bg = palette.green,
-          fg = palette.mantle,
+          fg = '#374141',
           bold = true,
         },
         n = {
           bg = palette.blue,
-          fg = palette.mantle,
+          fg = '#374141',
           bold = true,
         },
         R = {
-          bg = palette.maroon,
-          fg = palette.mantle,
+          bg = '#ea6962',
+          fg = '#374141',
           bold = true,
         },
         v = {
-          bg = palette.mauve,
-          fg = palette.mantle,
+          bg = '#c18f41',
+          fg = '#374141',
           bold = true,
         },
         V = {

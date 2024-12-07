@@ -22,6 +22,7 @@ return {
         python = { "isort", "black" },
         go = { "goimports_reviser", "gofumpt", "golines" },
         java = { "google-java-format" },
+        kotlin = {"ktfmt"}
       },
       format_on_save = function(bufnr)
         -- Disable with a global or buffer-local variable
@@ -30,9 +31,10 @@ return {
         end
         return { timeout_ms = 1000, async = false, lsp_fallback = false }
       end,
+
     })
 
-    vim.keymap.set({ "n", "v" }, "<leader>rF", function()
+    vim.keymap.set({ "n", "v" }, "<leader>rf", function()
       conform.format({
         lsp_fallback = true,
         async = false,
