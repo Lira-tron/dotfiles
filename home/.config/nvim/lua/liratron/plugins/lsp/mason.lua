@@ -31,7 +31,7 @@ return {
         "gopls",
         "jdtls",
         "pyright",
-        "kotlin",
+        "kotlin_language_server",
       },
 
       -- auto-install configured servers (with lspconfig)
