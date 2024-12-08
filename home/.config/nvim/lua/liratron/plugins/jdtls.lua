@@ -187,7 +187,7 @@ return {
           ok_cmp and cmp_lsp.default_capabilities() or {}
         )
       end
-  local java_path = path.java_runtime .. '/bin/java'
+      local java_path = path.java_runtime .. "/bin/java"
       -- The command that starts the language server
       -- See: https://github.com/eclipse/eclipse.jdt.ls#running-from-the-command-line
       local cmd = {
