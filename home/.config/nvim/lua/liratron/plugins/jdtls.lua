@@ -164,9 +164,9 @@ return {
 
       vim.keymap.set("n", "<leader>dT", jdtls.test_class, { buffer = true, desc = "[D]ebug [T]est class" })
       vim.keymap.set("n", "<leader>ro", jdtls.organize_imports, { buffer = true, desc = "Organize imports" })
-      vim.keymap.set("n", "<leader>rC", jdtls.extract_constant, { buffer = true, desc = "Extract constant" })
-      vim.keymap.set("n", "<leader>rV", jdtls.extract_variable, { buffer = true, desc = "Extract variable" })
-      vim.keymap.set("v", "<leader>rm", function()
+      vim.keymap.set("n", "<leader>rec", jdtls.extract_constant, { buffer = true, desc = "Extract constant" })
+      vim.keymap.set("n", "<leader>rev", jdtls.extract_variable, { buffer = true, desc = "Extract variable" })
+      vim.keymap.set("v", "<leader>rem", function()
         jdtls.extract_method(true)
       end, { buffer = true, desc = "Extract to method" })
     end
@@ -199,7 +199,7 @@ return {
         "-Dlog.protocol=true",
         "-Dlog.level=ALL",
         "-javaagent:" .. path.java_agent,
-        "-Xms2g", 
+        "-Xms2g",
         "-Xmx4g",
         "--add-modules=ALL-SYSTEM",
         "--add-opens",
