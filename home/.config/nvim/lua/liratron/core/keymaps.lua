@@ -9,7 +9,7 @@ vim.keymap.set("n", "n", "nzzzv", { desc = "search keep cursor in middle" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "search keep cursor in middle" })
 
 -- greatest remap ever
-vim.keymap.set("x", "<leader>p", [["_dP]], { desc = "Paste without having it in buffer" })
+vim.keymap.set("x", "<leader>P", [["_dP]], { desc = "Paste without having it in buffer" })
 
 vim.keymap.set({ "n", "v" }, "<leader>D", [["_d]])
 
@@ -51,4 +51,8 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 -- Diagnostic keymaps
 vim.keymap.set("n", "gpe", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
 vim.keymap.set("n", "gne", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
+
+vim.keymap.set("n", "<leader>Xa", "<cmd>source %<CR>", {desc = "Reloads lua config"})
+vim.keymap.set("n", "<leader>Xf", ":.lua<CR>", {desc = "Reloads current line"})
+vim.keymap.set("v", "<leader>Xf", ":lua<CR>", {desc = "Reloads selected"})
 
