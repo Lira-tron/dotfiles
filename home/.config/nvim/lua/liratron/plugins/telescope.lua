@@ -142,8 +142,8 @@ return {
     vim.keymap.set("n", "gi", builtin.lsp_implementations, { desc = "[G]oto [I]mplementation" })
     vim.keymap.set("n", "gs", builtin.lsp_document_symbols, { desc = "[G]o to document [S]ymbols" })
     vim.keymap.set("n", "gws", builtin.lsp_workspace_symbols, { desc = "[G]o to [W]orkspace [S]ymbols" })
-    vim.keymap.set("n", "ghi", builtin.lsp_outgoing_calls, { desc = "[G]o to [H]ierarchy [I]ncoming" })
-    vim.keymap.set("n", "gho", builtin.lsp_incoming_calls, { desc = "[G]o to [H]ierarchy [O]utgoing" })
+    vim.keymap.set("n", "gho", builtin.lsp_outgoing_calls, { desc = "[G]o to [H]ierarchy [I]ncoming" })
+    vim.keymap.set("n", "ghi", builtin.lsp_incoming_calls, { desc = "[G]o to [H]ierarchy [O]utgoing" })
     vim.keymap.set("n", "gt", builtin.lsp_type_definitions, { desc = "[G]oto [T]ype Definitions" })
   end,
 }

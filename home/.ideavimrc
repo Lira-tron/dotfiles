@@ -38,6 +38,7 @@ set textobj-entire
 set argtextobj
 
 " jump-motion (required idea plugin: IdeaVim-EasyMotion, AceJump)
+" let g:WhichKeyDesc_windows_easymotion_search = "<Space>f  EasyMotion Search"
 " set easymotion
 " nmap s :action KJumpAction<cr>
 " nmap S :action KJumpAction.Word1<cr>
@@ -63,10 +64,11 @@ nmap <C-j> <C-w>j
 nmap <C-k> <C-w>k
 nmap <C-l> <C-w>l
 
-nmap <leader>z <Action>(ToggleDistractionFreeMode)
+nmap <leader>Z <Action>(ToggleDistractionFreeMode)
+nmap <leader>z <Action>(ToggleZenMode)
 
 " system clipboard
-xmap <leader>p "_dP
+xmap <leader>P "_dP
 
 nmap <leader>D "_d
 vmap <leader>D "_d
@@ -77,12 +79,9 @@ nmap Y "+Y
 
 imap <C-c> <Esc>
 
- " { desc = "When highlighted move the line down" })
-vmap J :m '>+1<CR>gv=gv
-" { desc = "When highlighted move the line up" })
-vmap K :m '>-2<CR>gv=gv
-" { desc = "Paste below line at the end of the line without moving cursor " })
-nmap J mzJ`z
+vmap J <Action>(MoveLineDown)
+vmap K <Action>(MoveLineUp)
+
  "{ desc = "C-d keep cursor in middle" })
 nnoremap <C-d> <C-d>zz
 "{ desc = "C-u keep cursor in middle" })
@@ -100,23 +99,23 @@ vmap <leader>rp :%s/\<\>//gI
 
 " keymaps
 
-nmap <leader>sv :NERDTree<CR>
-
-" nmap <leader>w :w<CR>
-
-" let g:NERDTreeMapActivateNode='l'
-" let g:NERDTreeMapJumpParent='h'
-
+nmap <leader>pv :NERDTreeToggle<CR>
+nmap <leader>pf :NERDTreeFind<CR>
+nmap <leader>pr :NERDTreeRefreshRoot<CR>
+" Initial tree width:
+let g:NERDTreeWinSize=35
+" Show hidden files by default:
+let NERDTreeShowHidden=1
 
 " location
 map <C-o> <Action>(Back)
 map <C-i> <Action>(Forward)
 
 " buffer (buffer < window < tab)
-nmap <leader>xx <Action>(CloseContent)
-nmap <leader>xa <Action>(CloseAllEditors)
-nmap <leader>xo <Action>(CloseAllEditorsButActive)
-nmap <leader>xp <Action>(CloseAllUnpinnedEditors)
+nmap <leader>x <Action>(CloseContent)
+" nmap <leader>xa <Action>(CloseAllEditors)
+" nmap <leader>xo <Action>(CloseAllEditorsButActive)
+" nmap <leader>xp <Action>(CloseAllUnpinnedEditors)
 
 " window
 nmap <leader>tp <Action>(PreviousTab)
@@ -142,15 +141,16 @@ map <C-w>s <Action>(SplitHorizontally)
 map <C-w>v <Action>(SplitVertically)
 
 " nmap <C-p> <Action>(JumpToLastWindow)
-" nmap <M-i> <Action>(PrevSplitter)
+nmap <C-,> <Action>(PrevSplitter)
 " nmap <M-o> <Action>(NextSplitter)
 
 nmap <C-w>m <Action>(HideAllWindows)
-" nmap <leader>wk <Action>(StretchSplitToTop)
-" nmap <leader>wj <Action>(StretchSplitToBottom)
-" nmap <leader>wh <Action>(StretchSplitToLeft)
-" nmap <leader>wl <Action>(StretchSplitToRight)
-nmap <leader>sm <Action>(MaximizeEditorInSplit)
+nmap <C-w>M <Action>(MaximizeEditorInSplit)
+nmap <C-M-k> <Action>(StretchSplitToTop)
+nmap <C-M-j> <Action>(StretchSplitToBottom)
+nmap <C-M-h> <Action>(StretchSplitToLeft)
+nmap <C-M-l> <Action>(StretchSplitToRight)
+nmap <C-w>M <Action>(MaximizeEditorInSplit)
 nmap <C-w>u <Action>(UnsplitAll)
 
 " menu
@@ -165,22 +165,23 @@ nmap <leader>mw <Action>(ToolWindowsGroup)
 
 
 " tag
-" nmap <leader>gr <Action>(FindUsages)
+nmap gR <Action>(FindUsages)
 nmap gr <Action>(ShowUsages)
 " nmap <leader>hl <Action>(HighlightUsagesInFile)
-" nmap <leader>qp <Action>(QuickPreview)
+nmap gpd <Action>(QuickPreview)
 nmap K <Action>(QuickDefinition)
 nmap gk <Action>(QuickTypeDefinition)
 
 " intellij
 
-nmap <leader>xi <action>(IdeaVim.ReloadVimRc.reload)
+nmap <leader>Xa <Action>(IdeaVim.ReloadVimRc.reload)
 
 " code
-nmap gc <Action>(CommentByLineComment)
-nmap gC <Action>(CommentByBlockComment)
+
+nmap gcc <Action>(CommentByLineComment)
+nmap gcb <Action>(CommentByBlockComment)
 nmap <leader>ca <Action>(ShowIntentionActions)
-nmap geb <Action>(ShowErrorDescription)
+nmap gle <Action>(ShowErrorDescription)
 nmap <leader>rmo <Action>(OverrideMethods)
 nmap <leader>rmi <Action>(ImplementMethods)
 nmap <leader>rf <Action>(ReformatCode)
@@ -188,26 +189,23 @@ vmap <leader>rf <Action>(ReformatCode)
 nmap <leader>ci <Action>(InspectCode)
 " nmap <leader>so <Action>(SelectAllOccurrences)
 nmap <leader>rg <Action>(Generate)
-nmap <leader>dgt <Action>(GoToTest)
 
 " run
-nmap <leader>dR <Action>(ContextRun)
+nmap <leader>dt <Action>(ContextRun)
 nmap <leader>dC <Action>(chooseRunConfiguration)
 nmap <leader>dr <Action>(RunClass)
 nmap <leader>dtl <Action>(Rerun)
 nmap <leader>dtf  <Action>(RunFailedTests)
+nmap <leader>dg <Action>(GoToTest)
 nmap <leader>dta  <Action>(RunTests)
 nmap <leader>dx <Action>(Stop)
 
 " debug
-nmap <leader>dcd <Action>(ContextDebug)
-nmap <leader>dg <Action>(Debug)
+nmap <leader>dc <Action>(ContextDebug)
+nmap <leader>dt <Action>(Debug)
 nmap <leader>db <Action>(ToggleLineBreakpoint)
 nmap <leader>de <Action>(EditBreakpoint)
-nmap <leader>dL <Action>(ViewBreakpoints)
-
-" build
-nmap <leader>bb <Action>(BuildMenu)
+nmap <leader>dlb <Action>(ViewBreakpoints)
 
 " refactor
 
@@ -222,7 +220,7 @@ vmap <leader>ruw <Action>(Unwrap)
 nmap <leader>rs <Action>(SurroundWith)
 vmap <leader>rs <Action>(SurroundWith)
 nmap <leader>rd <Action>(SafeDelete)
-hmap <leader>rd <Action>(SafeDelete)
+vmap <leader>rd <Action>(SafeDelete)
 nmap <leader>ro <Action>(OptimizeImports)
 vmap <leader>ro <Action>(OptimizeImports)
 
@@ -236,16 +234,13 @@ vmap ght <Action>(TypeHierarchy)
 
 " collapse
 nmap zC <Action>(ExpandCollapseToggleAction)
-nmap zE <Action>(CollapseAllRegions)
+nmap zx <Action>(CollapseAllRegions)
 nmap zA <Action>(ExpandAllRegions)
 
-" zen
-" nmap <leader>z <Action>(ToggleZenMode)
-
-" []
-nmap * <Action>(GotoPrevElementUnderCaretUsage)
-nmap # <Action>(GotoNextElementUnderCaretUsage)
+nmap # <Action>(GotoPrevElementUnderCaretUsage)
+nmap * <Action>(GotoNextElementUnderCaretUsage)
 imap <C-y> <Action>(EditorChooseLookupItem)
+map <C-y> <Action>(EditorChooseLookupItem)
 map <C-n> <Action>(NextOccurence)
 map <C-p> <Action>(PreviousOccurence)
 nmap gpm <Action>(MethodUp)
@@ -259,13 +254,10 @@ nmap gna <Action>(MoveElementRight)
 nmap gpa <Action>(MoveElementLeft)
 
 " goto
-nmap ga <Action>(GotoAction)
-vmap ga <Action>(GotoAction)
-nmap gC <Action>(GotoClass)
+map <leader>sa <Action>(GotoAction)
+nmap gwc <Action>(GotoClass)
 nmap <leader>sf <Action>(GotoFile)
 nmap gws <Action>(GotoSymbol)
-" nmap gt <Action>(GoToTest)
-" nmap gT <Action>(TextSearchAction)
 " nmap go <Action>(GotoSuperMethod)
 nmap gd <Action>(GotoDeclaration)
 nmap gD <Action>(GotoTypeDeclaration)
@@ -287,7 +279,8 @@ nmap <leader>s? <Action>(RecentEditedFiles)
 " nmap <leader>sf <Action>(ShowFilePath)
 " nmap <leader>si <Action>(SelectIn)
 " nmap <leader>sg <Action>(FindInPath)
-nmap <leader>sg <Action>(SearchEverywhere)
+nmap <leader>ss <Action>(SearchEverywhere)
+nmap <leader>sS <Action>(TextSearchAction)
 nmap <leader>rp <Action>(ReplaceInPath)
 " nmap <leader>sw <Action>($SearchWeb)
 nmap <leader>sc <action>(Find)
@@ -297,37 +290,31 @@ nmap <leader>tt <Action>(ActivateTerminalToolWindow)
 nmap <leader>tc <Action>(Terminal.OpenInTerminal)
 
 " bookmark
-nmap mm <Action>(ToggleBookmark)
-nmap ms <Action>(ShowBookmarks)
+nmap ma <Action>(ToggleBookmark)
+nmap mm <Action>(ShowBookmarks)
 
 " Git
 nmap <leader>gg <Action>(Vcs.Show.Log)
 
 
 " todo
-nmap <leader>to <Action>(ActivateTODOToolWindow)
+nmap <leader>st <Action>(ActivateTODOToolWindow)
 
 " task
-nmap <leader>ts <Action>(tasks.goto)
+" nmap <leader>ts <Action>(tasks.goto)
 
 " idea join
 nmap J <Action>(EditorJoinLines)
 
-" gist
-nmap \\cg <Action>(Github.Create.Gist)
-
-" vcs
-" nmap <leader>v <Action>(VcsGroups)
 
 " open IdeaVim settings
-" nmap \\v <Action>(VimActions)
-nmap <leader>xv <Action>(VimActions)
+nmap <leader>Xv <Action>(VimActions)
 
 " translation (required idea plugin: Translation)
-nmap \\tt <Action>($ShowTranslationDialogAction)
-nmap \\ts <Action>($TranslateTextComponent)
-nmap \\ti <Action>($InclusiveTranslateAction)
-nmap \\te <Action>($ExclusiveTranslateAction)
+nmap <leader>Td <Action>($ShowTranslationDialogAction)
+nmap <leader>Tc <Action>($TranslateTextComponent)
+nmap <leader>Ti <Action>($InclusiveTranslateAction)
+nmap <leader>Te <Action>($ExclusiveTranslateAction)
 
 " string manipulate (required idea plugin: String Manipulation)
 " nmap <leader>ss <Action>(osmedile.intellij.stringmanip.PopupChoiceAction)
@@ -339,9 +326,16 @@ nmap \\te <Action>($ExclusiveTranslateAction)
 
 " amazon q configuration
 " CodeWhispererRecommendationAction
+map <M-c> <Action>(CodeWhispererRecommendationAction)
+imap <M-c> <Action>(CodeWhispererRecommendationAction)
+map glt <Action>aws.toolkit.jetbrains.core.services.cwc.commands.GenerateUnitTestsAction
 map glm <Action>(aws.toolkit.jetbrains.core.services.cwc.actions.ContextMenuActions)
 map gle <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.ExplainCodeAction)
 map glf <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.FixCodeAction)
 map glo <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.OptimizeCodeAction)
 map glr <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.RefactorCodeAction)
 map gls <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.SendToPromptAction)
+map glw <Action>(q.openchat)
+map glc <Action>(aws.toolkit.jetbrains.core.services.cwc.inline.openChat)
+
+
