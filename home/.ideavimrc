@@ -64,8 +64,8 @@ nmap <C-j> <C-w>j
 nmap <C-k> <C-w>k
 nmap <C-l> <C-w>l
 
-nmap <leader>Z <Action>(ToggleDistractionFreeMode)
-nmap <leader>z <Action>(ToggleZenMode)
+nmap <leader>z <Action>(ToggleDistractionFreeMode)
+nmap <leader>Z <Action>(ToggleZenMode)
 
 " system clipboard
 xmap <leader>P "_dP
