@@ -5,7 +5,7 @@ return {
     {
       "junegunn/gv.vim",
       config = function()
-        vim.keymap.set("n", "<Leader>gl", ":GV<CR>", { silent = true, desc = "Git log tree" })
+        vim.keymap.set("n", "<leader>gl", ":GV<CR>", { silent = true, desc = "Git log tree" })
         vim.keymap.set("n", "<Leader>ga", ":GV --all<CR>", { silent = true, desc = "Git log tree --all" })
       end,
     },
