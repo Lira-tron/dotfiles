@@ -20,7 +20,7 @@ return {
       lua = { "selene" },
     }
 
-    vim.keymap.set("n", "gll", function()
+    vim.keymap.set("n", "<leader>rl", function()
       lint.try_lint()
     end, { desc = "Trigger linting for current file" })
   end,
