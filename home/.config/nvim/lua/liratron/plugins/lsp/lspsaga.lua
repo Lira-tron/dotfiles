@@ -115,15 +115,15 @@ return {
       vim.keymap.set("n", keys, func, { desc = desc })
     end
 
-    nmap("gld", "<cmd>Lspsaga goto_definition<cr>", "[G]oto [D]efinition")
+    nmap("gd", "<cmd>Lspsaga goto_definition<cr>", "[G]oto [D]efinition")
     nmap("gwf", "<cmd>Lspsaga finder<cr>", "[G]oto [W]ord [R]eferences ")
     nmap("gwi", "<cmd>Lspsaga finder imp<cr>", "[G]oto [W]ord [I]mplementation ")
-    nmap("glhi", "<cmd>Lspsaga incoming_calls<cr>", "[G]o to [H]ierarchy [I]ncoming")
-    nmap("glho", "<cmd>Lspsaga outgoing_calls<cr>", "[G]o to [H]ierarchy [O]utgoing")
+    nmap("ghi", "<cmd>Lspsaga incoming_calls<cr>", "[G]o to [H]ierarchy [I]ncoming")
+    nmap("gho", "<cmd>Lspsaga outgoing_calls<cr>", "[G]o to [H]ierarchy [O]utgoing")
     nmap("gpd", "<cmd>Lspsaga peek_definition<cr>", "[G]o to Peek Definition")
     nmap("gpt", "<cmd>Lspsaga peek_type_definition<cr>", "[G]o to Peek Type Definition")
     nmap("gt", "<cmd>Lspsaga goto_type_definition<cr>", "[G]oto [T]ype Definitions")
-    nmap("gle", "<cmd>Lspsaga show_line_diagnostics<cr>", "Open diagnostics line")
+    nmap("gel", "<cmd>Lspsaga show_line_diagnostics<cr>", "Open diagnostics line")
     nmap("gwe", "<cmd>Lspsaga show_workspace_diagnostics<cr>", "Open diagnostics workspace")
   end,
 }
