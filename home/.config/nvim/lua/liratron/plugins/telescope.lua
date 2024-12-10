@@ -25,15 +25,17 @@ return {
           telescopeThemes.get_ivy({}),
         },
       },
-      layout_config = {
-        width = 0.80,
-        prompt_position = "top",
-        preview_cutoff = 120,
-        horizontal = { mirror = false },
-        vertical = { mirror = false },
-      },
-      layout_strategy = "horizontal",
       defaults = telescopeThemes.get_ivy({
+        -- layout_strategy = "horizontal",
+        layout_config = {
+          height = 0.90,
+          width =1 ,
+          prompt_position = "top",
+          preview_width = .55,
+          preview_cutoff = 120,
+          horizontal = { mirror = false },
+          vertical = { mirror = false },
+        },
         vimgrep_arguments = {
           "rg",
           "--color=never",
@@ -69,11 +71,11 @@ return {
         file_ignore_patterns = { "node_modules", "^./.git/" },
       }),
       pickers = {
-        live_grep = {
-          layout_config = {
-            width = 0.95,
-          },
-        },
+        -- live_grep = {
+        --   layout_config = {
+        --     width = 0.95,
+        --   },
+        -- },
         find_files = {
           hidden = true,
           follow = true,
@@ -91,12 +93,7 @@ return {
 
     vim.keymap.set("n", "<leader>s?", builtin.oldfiles, { desc = "[?] Find recently opened files" })
     vim.keymap.set("n", "<leader>sb", builtin.buffers, { desc = "[ ] Find existing buffers" })
-    vim.keymap.set(
-      "n",
-      "<leader>sc",
-      builtin.current_buffer_fuzzy_find,
-      { desc = "[S]earch  in current buffer" }
-    )
+    vim.keymap.set("n", "<leader>sc", builtin.current_buffer_fuzzy_find, { desc = "[S]earch  in current buffer" })
 
     vim.keymap.set("n", "<leader>sgf", builtin.git_files, { desc = "Search Git [F]iles" })
     vim.keymap.set("n", "<leader>sgb", builtin.git_branches, { desc = "Search [G]it [B]ranches" })
