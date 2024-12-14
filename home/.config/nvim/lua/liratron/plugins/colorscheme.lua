@@ -11,7 +11,7 @@ return {
         transparent = true,
       })
       -- load the colorscheme here
-      vim.cmd([[colorscheme concoctis]])
+      vim.cmd.colorscheme "concoctis"
     end,
   },
 }

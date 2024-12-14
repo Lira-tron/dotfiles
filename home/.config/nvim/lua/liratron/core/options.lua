@@ -2,7 +2,7 @@
 
 vim.opt.nu = true
 vim.opt.relativenumber = true
-vim.o.numberwidth = 2                      -- set number column width to 2 {default 4}
+vim.opt.numberwidth = 2                      -- set number column width to 2 {default 4}
 
 vim.opt.cmdheight = 0  -- more space in the neovim command line for displaying messages
 vim.opt.tabstop = 4 -- insert 2 spaces for a tab
@@ -24,38 +24,39 @@ vim.opt.undofile = true  -- enable persistent undo
 vim.opt.hlsearch = false  -- highlight all matches on previous search pattern
 vim.opt.incsearch = true
 
-vim.o.mouse = "a"  -- allow the mouse to be used in neovim
+vim.opt.mouse = "a"  -- allow the mouse to be used in neovim
 
-vim.o.clipboard = "unnamedplus"  -- allows neovim to access the system clipboard
+vim.opt.clipboard = "unnamedplus"  -- allows neovim to access the system clipboard
 
 -- Case-insensitive searching UNLESS \C or capital in search
-vim.o.ignorecase = true -- ignore case in search patterns
-vim.o.smartcase = true -- smart case
+vim.opt.ignorecase = true -- ignore case in search patterns
+vim.opt.smartcase = true -- smart case
 
 vim.wo.signcolumn = "yes" -- always show the sign column, otherwise it would shift the text each time
 
-vim.o.completeopt = "menuone,noselect"  -- mostly just for cmp
+vim.opt.completeopt = "menuone,noselect"  -- mostly just for cmp
 
 -- Enable break indent
-vim.o.breakindent = true
+vim.opt.breakindent = true
 
--- Decrease update time
+-- Decrease update tim:
 vim.opt.updatetime = 250 -- faster completion (4000ms default)
-vim.o.timeoutlen = 300 -- time to wait for a mapped sequence to complete (in milliseconds)
+vim.opt.timeoutlen = 300 -- time to wait for a mapped sequence to complete (in milliseconds)
 
 vim.opt.termguicolors = true -- set term gui colors (most terminals support this)
 
 vim.opt.scrolloff = 8  -- minimal number of screen lines to keep above and below the cursor
-vim.o.sidescrolloff = 8                       -- minimal number of screen columns either side of cursor if wrap is `false`
+vim.opt.sidescrolloff = 8                       -- minimal number of screen columns either side of cursor if wrap is `false`
 
 vim.opt.signcolumn = "yes"
 vim.opt.isfname:append("@-@")
 
 vim.opt.colorcolumn = "100"
 
-vim.o.cursorline = true -- highlight the current line
+vim.opt.cursorline = true -- highlight the current line
+vim.opt.cursorcolumn = true -- highlight the current column
 
-vim.o.guifont = "monospace:h17"               -- the font used in graphical neovim applications
+vim.opt.guifont = "monospace:h17"               -- the font used in graphical neovim applications
 
 vim.g.disable_autoformat = true
 
