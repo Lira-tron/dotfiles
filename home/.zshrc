@@ -54,7 +54,7 @@ function zvm_vi_yank() {
 }
 
 function my_zvm_init() {
-    [ -f $XDG_CONFIG_HOME/fzf/fzf.zsh ] && source $XDG_CONFIG_HOME/fzf/fzf.zsh
+    # [ -f $XDG_CONFIG_HOME/fzf/fzf.zsh ] && source $XDG_CONFIG_HOME/fzf/fzf.zsh
 
     bindkey -r '\e/'
     bindkey '^[[1;3C' forward-word
@@ -63,6 +63,7 @@ function my_zvm_init() {
     bindkey '^[[A' history-substring-search-up
     bindkey '^[[B' history-substring-search-down
 
+    bindkey '^r' fzf-history-widget
 }
 
 zvm_after_init_commands+=(my_zvm_init)
