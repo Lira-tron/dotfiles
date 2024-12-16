@@ -20,8 +20,14 @@ return {
     vim.keymap.set(
       { "v", "n" },
       "<leader>th",
-      "<cmd>ToggleTerm direction=horizontal<cr>",
-      { desc = "[T]erminal [T]erminal Horizontal" }
+      "<cmd>ToggleTerm direction=horizontal <cr>",
+      { desc = "[T]erminal [H]orizontal" }
+    )
+    vim.keymap.set(
+      { "v", "n" },
+      "<leader>tv",
+      "<cmd>ToggleTerm direction=vertical size=" .. vim.o.columns * .4 .. " <CR>" ,
+      { desc = "[T]erminal [V]ertical" }
     )
   end,
 }
