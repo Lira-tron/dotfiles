@@ -31,10 +31,10 @@ return {
       return lazygit:toggle()
     end
     vim.keymap.set({ "v", "n" }, "<leader>gg", toggle_lazygit, { desc = "[T]erminal [L]azygit" })
-    vim.keymap.set({ "v", "n" }, "<leader>tt", toggle_float, { desc = "[T]erminal [T]erminal" })
+    vim.keymap.set({ "v", "n" }, "<leader>tf", toggle_float, { desc = "[T]erminal [T]erminal" })
     vim.keymap.set(
       { "v", "n" },
-      "<leader>th",
+      "<leader>tt",
       "<cmd>ToggleTerm direction=horizontal <cr>",
       { desc = "[T]erminal [H]orizontal" }
     )
