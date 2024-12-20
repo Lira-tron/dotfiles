@@ -3,10 +3,8 @@ return {
     -- "jnurmine/Zenburn",
     -- "sainnhe/gruvbox-material",
     -- "eddyekofo94/gruvbox-flat.nvim"
+    -- "GwHisHere/concoctis.nvim",
     "sainnhe/everforest",
-    dependencies = {
-      "GwHisHere/concoctis.nvim",
-    },
     lazy = false,
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
