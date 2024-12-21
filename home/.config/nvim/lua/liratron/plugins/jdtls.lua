@@ -6,11 +6,12 @@ return {
   },
   config = function()
     local jdtls = require("jdtls")
-    local java_cmds = vim.api.nvim_create_augroup("java_cmds", { clear = true })
 
     local cache_vars = {}
 
     local root_dir = jdtls.setup.find_root({ "packageInfo" }, "Config")
+
+    local java_cmds = vim.api.nvim_create_augroup("java_cmds", { clear = true })
 
     local ws_folders_jdtls = {}
 
@@ -27,7 +28,7 @@ return {
 
     local features = {
       -- change this to `true` to enable codelens
-      codelens = false,
+      codelens = true,
 
       -- change this to `true` if you have `nvim-dap`,
       -- `java-test` and `java-debug-adapter` installed
@@ -97,8 +98,6 @@ return {
           default = false,
         },
       }
-
-      path.java_runtime = vim.fn.expandcmd("$JAVA_HOME_17")
       cache_vars.paths = path
 
       return path
@@ -155,25 +154,18 @@ return {
       end, "[W]orkspace [L]ist Folders")
 
       -- Unique to jdtls
-      vim.keymap.set(
-        "n",
-        "<leader>dt",
-        jdtls.test_nearest_method,
-        { buffer = true, desc = "[D]ebug [T]est nearest method" }
-      )
+      nmap("<leader>dt", jdtls.test_nearest_method, "[D]ebug [T]est nearest method")
 
-      vim.keymap.set("n", "<leader>dT", jdtls.test_class, { buffer = true, desc = "[D]ebug [T]est class" })
-      vim.keymap.set("n", "<leader>ro", jdtls.organize_imports, { buffer = true, desc = "Organize imports" })
-      vim.keymap.set("n", "<leader>rec", jdtls.extract_constant, { buffer = true, desc = "Extract constant" })
-      vim.keymap.set("n", "<leader>rev", jdtls.extract_variable, { buffer = true, desc = "Extract variable" })
+      nmap("<leader>dT", jdtls.test_class, "[D]ebug [T]est class")
+      nmap("<leader>ro", jdtls.organize_imports, "Organize imports")
+      nmap("<leader>rec", jdtls.extract_constant, "Extract constant")
+      nmap("<leader>rev", jdtls.extract_variable, "Extract variable")
       vim.keymap.set("v", "<leader>rem", function()
         jdtls.extract_method(true)
       end, { buffer = true, desc = "Extract to method" })
     end
 
     local function jdtls_setup(event)
-      local jdtls = require("jdtls")
-
       local path = get_jdtls_paths()
       local data_dir = path.data_dir .. "/" .. vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
 
@@ -187,12 +179,12 @@ return {
           ok_cmp and cmp_lsp.default_capabilities() or {}
         )
       end
-      local java_path = path.java_runtime .. "/bin/java"
+
       -- The command that starts the language server
       -- See: https://github.com/eclipse/eclipse.jdt.ls#running-from-the-command-line
       local cmd = {
         -- 💀
-        java_path,
+        "java",
         "-Declipse.application=org.eclipse.jdt.ls.core.id1",
         "-Dosgi.bundles.defaultStartLevel=4",
         "-Declipse.product=org.eclipse.jdt.ls.core.product",
@@ -222,18 +214,6 @@ return {
 
       local lsp_settings = {
         java = {
-          -- jdt = {
-          --   ls = {
-          --     vmargs = "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx1G -Xms100m"
-          --   }
-          -- },
-          jdt = {
-            ls = {
-              lombokSupport = {
-                enabled = true,
-              },
-            },
-          },
           eclipse = {
             downloadSources = true,
           },
@@ -268,74 +248,71 @@ return {
           implementationsCodeLens = {
             enabled = true,
           },
-          referencesCodeLens = {
+          referenceCodeLens = {
             enabled = true,
           },
           inlayHints = {
             parameterNames = {
-              enabled = "all", -- literals, all, none
+              enabled = true, -- literals, all, none
             },
           },
           saveActions = {
             organizeImports = true,
           },
           format = {
+            settings = {
+              url = "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
+              profile = "GoogleStyle",
+            },
+          },
+          signatureHelp = {
             enabled = true,
-            -- settings = {
-            --   profile = 'asdf'
-            -- },
+            description = {
+              enabled = true,
+            },
           },
-        },
-        signatureHelp = {
-          enabled = true,
-          description = {
+          completion = {
+            favoriteStaticMembers = {
+              "org.hamcrest.MatcherAssert.assertThat",
+              "org.hamcrest.Matchers.*",
+              "org.hamcrest.CoreMatchers.*",
+              "io.crate.testing.Asserts.assertThat",
+              "org.assertj.core.api.Assertions.assertThat",
+              "org.assertj.core.api.Assertions.assertThatThrownBy",
+              "org.assertj.core.api.Assertions.assertThatExceptionOfType",
+              "org.assertj.core.api.Assertions.catchThrowable",
+              "org.junit.jupiter.api.Assertions.*",
+              "java.util.Objects.requireNonNull",
+              "java.util.Objects.requireNonNullElse",
+              "org.mockito.Mockito.*",
+            },
+            filteredTypes = {},
+            importOrder = {},
+          },
+          extendedClientCapabilities = jdtls.extendedClientCapabilities,
+
+          contentProvider = {
+            preferred = "fernflower",
+          },
+          references = {
+            includeAccessors = true,
+            includeDecompiledSources = true,
+          },
+          rename = {
             enabled = true,
           },
-        },
-        completion = {
-          favoriteStaticMembers = {
-            "io.crate.testing.Asserts.assertThat",
-            "org.assertj.core.api.Assertions.assertThat",
-            "org.assertj.core.api.Assertions.assertThatThrownBy",
-            "org.assertj.core.api.Assertions.assertThatExceptionOfType",
-            "org.assertj.core.api.Assertions.catchThrowable",
-            "org.hamcrest.MatcherAssert.assertThat",
-            "org.hamcrest.Matchers.*",
-            "org.hamcrest.CoreMatchers.*",
-            "org.junit.jupiter.api.Assertions.*",
-            "java.util.Objects.requireNonNull",
-            "java.util.Objects.requireNonNullElse",
-            "org.mockito.Mockito.*",
+          sources = {
+            organizeImports = {
+              starThreshold = 9999,
+              staticStarThreshold = 9999,
+            },
           },
-          filteredTypes = {
-            "com.sun.*",
-            "io.micrometer.shaded.*",
-            "java.awt.*",
-            "jdk.*",
-            "sun.*",
+          codeGeneration = {
+            toString = {
+              template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}",
+            },
+            useBlocks = true,
           },
-          importOrder = {
-            "java",
-            "javax",
-            "org",
-            "com",
-          },
-        },
-        contentProvider = {
-          preferred = "fernflower",
-        },
-        extendedClientCapabilities = jdtls.extendedClientCapabilities,
-        sources = {
-          organizeImports = {
-            starThreshold = 9999,
-            staticStarThreshold = 9999,
-          },
-        },
-        codeGeneration = {
-          toString = {
-            template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}",
-          },
-          useBlocks = true,
         },
       }
 
