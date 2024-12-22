@@ -8,13 +8,6 @@ return {
     "nvim-telescope/telescope-ui-select.nvim",
     "nvim-telescope/telescope-file-browser.nvim",
     "albenisolmos/telescope-oil.nvim",
-    {
-      "danielfalk/smart-open.nvim",
-      branch = "0.2.x",
-      dependencies = {
-        "kkharji/sqlite.lua",
-      },
-    },
   },
   config = function()
     local telescope = require("telescope")
@@ -94,7 +87,6 @@ return {
     telescope.load_extension("fzf")
     telescope.load_extension("oil")
     telescope.load_extension("ui-select")
-    telescope.load_extension("smart_open")
 
     -- set keymaps
     local builtin = require("telescope.builtin")
@@ -140,11 +132,6 @@ return {
 
     -- OIL
     vim.keymap.set("n", "<leader>so", "<cmd>Telescope oil<CR>", { noremap = true, silent = true })
-
-    -- Smart open
-    vim.keymap.set("n", "<leader>sa", function()
-      telescope.extensions.smart_open.smart_open()
-    end, { noremap = true, silent = true, desc = "Smart open" })
 
     -- LSP
     vim.keymap.set("n", "gr", builtin.lsp_references, { desc = "[G]oto [R]eferences" })
