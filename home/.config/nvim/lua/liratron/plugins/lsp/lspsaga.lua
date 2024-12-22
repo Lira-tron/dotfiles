@@ -123,7 +123,7 @@ return {
     nmap("gpd", "<cmd>Lspsaga peek_definition<cr>", "[G]o to Peek Definition")
     nmap("gpt", "<cmd>Lspsaga peek_type_definition<cr>", "[G]o to Peek Type Definition")
     nmap("gt", "<cmd>Lspsaga goto_type_definition<cr>", "[G]oto [T]ype Definitions")
-    nmap("gel", "<cmd>Lspsaga show_line_diagnostics<cr>", "Open diagnostics line")
+    nmap("gld", "<cmd>Lspsaga show_line_diagnostics<cr>", "Open diagnostics line")
     nmap("gwe", "<cmd>Lspsaga show_workspace_diagnostics<cr>", "Open diagnostics workspace")
   end,
 }

@@ -144,7 +144,7 @@ return {
     -- Smart open
     vim.keymap.set("n", "<leader>sa", function()
       telescope.extensions.smart_open.smart_open()
-    end, { noremap = true, silent = true })
+    end, { noremap = true, silent = true, desc = "Smart open" })
 
     -- LSP
     vim.keymap.set("n", "gr", builtin.lsp_references, { desc = "[G]oto [R]eferences" })

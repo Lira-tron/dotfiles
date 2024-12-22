@@ -74,7 +74,7 @@ return {
       end
 
       nmap("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-      nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+      nmap("gca", vim.lsp.buf.code_action, "[C]ode [A]ction")
       nmap("K", vim.lsp.buf.hover, "Hover Documentation")
       nmap("gk", vim.lsp.buf.signature_help, "Signature Documentation")
       nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
