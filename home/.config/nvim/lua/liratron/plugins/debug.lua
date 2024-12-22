@@ -29,8 +29,6 @@ return {
             { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Toggle Breakpoint", },
             { "<leader>dx", function() require("dap").terminate() end, desc = "Terminate", },
             { "<F3>", function() require("dap").step_out() end, desc = "Step Out", },
-            -- { "<leader>dtn", function() require("dap-go").debug_test() end, desc = 'Debug: Start debug test' },
-            -- { "<leader>dtl", function() require("dap-go").debug_last_test() end, desc = 'Debug: Start debug last test' },
             { "<leader>dlb", function() require("telescope").extensions.dap.list_breakpoints() end, desc = 'Debug: List breakpoints' },
             { "<leader>dlv", function() require("telescope").extensions.dap.variables() end, desc = 'Debug: Open Variables' },
             { "<leader>dV", function() require("dapui").float_element("scopes") end, desc = 'Debug: Open Variables' },
@@ -70,9 +68,14 @@ return {
   },
   {
     "leoluz/nvim-dap-go",
+    ft = "go",
     dependencies = { "mfussenegger/nvim-dap" },
     build = "go install github.com/go-delve/delve/cmd/dlv@latest",
-    config = true,
+    config = function ()
+      require('dap-go').setup()
+      vim.keymap.set("n", "<leader>u", "<leader>dtn", function() require("dap-go").debug_test() end, { desc = 'Debug: Start debug test' })
+      vim.keymap.set("n", "<leader>dtl", function() require("dap-go").debug_last_test() end,{ desc = 'Debug: Start debug last test' })
+    end,
   },
   {
     "theHamsta/nvim-dap-virtual-text",
