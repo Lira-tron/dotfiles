@@ -35,6 +35,50 @@ return {
       debugger = true,
     }
 
+    local function get_jar_bundles()
+      local home = os.getenv("HOME")
+      local jar_patterns = {
+        "/.java/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar",
+        "/.java/vscode-java-decompiler/server/*.jar",
+        "/.java/vscode-java-test/server/*.jar",
+      }
+      local bundles = {}
+
+      for _, jar_pattern in ipairs(jar_patterns) do
+        for _, bundle in ipairs(vim.split(vim.fn.glob(home .. jar_pattern, 1), "\n")) do
+          if bundle ~= "" then
+            table.insert(bundles, bundle)
+          end
+        end
+      end
+
+            -- ---
+      -- -- Include java-test bundle if present
+      -- ---
+      -- local java_test_path = require("mason-registry").get_package("java-test"):get_install_path()
+      --
+      -- local java_test_bundle = vim.split(vim.fn.glob(java_test_path .. "/extension/server/*.jar"), "\n")
+      --
+      -- if java_test_bundle[1] ~= "" then
+      --   vim.list_extend(path.bundles, java_test_bundle)
+      -- end
+      --
+      -- ---
+      -- -- Include java-debug-adapter bundle if present
+      -- ---
+      -- local java_debug_path = require("mason-registry").get_package("java-debug-adapter"):get_install_path()
+      --
+      -- local java_debug_bundle =
+      --   vim.split(vim.fn.glob(java_debug_path .. "/extension/server/com.microsoft.java.debug.plugin-*.jar"), "\n")
+      --
+      -- if java_debug_bundle[1] ~= "" then
+      --   vim.list_extend(path.bundles, java_debug_bundle)
+      -- end
+
+      -- vim.print(vim.inspect(bundles))
+      return bundles
+    end
+
     local function get_jdtls_paths()
       if cache_vars.paths then
         return cache_vars.paths
@@ -57,44 +101,21 @@ return {
         path.platform_config = jdtls_install .. "/config_win"
       end
 
-      path.bundles = {}
+      path.bundles = get_jar_bundles()
 
-      ---
-      -- Include java-test bundle if present
-      ---
-      local java_test_path = require("mason-registry").get_package("java-test"):get_install_path()
-
-      local java_test_bundle = vim.split(vim.fn.glob(java_test_path .. "/extension/server/*.jar"), "\n")
-
-      if java_test_bundle[1] ~= "" then
-        vim.list_extend(path.bundles, java_test_bundle)
-      end
-
-      ---
-      -- Include java-debug-adapter bundle if present
-      ---
-      local java_debug_path = require("mason-registry").get_package("java-debug-adapter"):get_install_path()
-
-      local java_debug_bundle =
-        vim.split(vim.fn.glob(java_debug_path .. "/extension/server/com.microsoft.java.debug.plugin-*.jar"), "\n")
-
-      if java_debug_bundle[1] ~= "" then
-        vim.list_extend(path.bundles, java_debug_bundle)
-      end
-
-      ---
+      --
       -- Useful if you're starting jdtls with a Java version that's
       -- different from the one the project uses.
       ---
       path.runtimes = {
         {
           name = "JavaSE-17",
-          path = vim.fn.expandcmd("$JAVA_HOME_17"),
+          path = vim.fn.expandcmd("$JAVA_HOME_17") .. "/libexec",
           default = true,
         },
         {
           name = "JavaSE-11",
-          path = vim.fn.expandcmd("$JAVA_HOME_11"),
+          path = vim.fn.expandcmd("$JAVA_HOME_11") .. "/libexec",
           default = false,
         },
       }
