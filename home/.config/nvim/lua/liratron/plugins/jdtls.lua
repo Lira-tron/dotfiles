@@ -175,9 +175,10 @@ return {
       end, "[W]orkspace [L]ist Folders")
 
       -- Unique to jdtls
-      nmap("<leader>dt", jdtls.test_nearest_method, "[D]ebug [T]est nearest method")
+      nmap("<leader>dtn", jdtls.test_nearest_method, "[D]ebug [T]est nearest method")
+      nmap("<leader>dtc", jdtls.test_class, "[D]ebug [T]est class")
+      nmap("<leader>dtt", require('jdtls.tests').goto_subjects, "Toggle between test file and source")
 
-      nmap("<leader>dT", jdtls.test_class, "[D]ebug [T]est class")
       nmap("<leader>ro", jdtls.organize_imports, "Organize imports")
       nmap("<leader>rec", jdtls.extract_constant, "Extract constant")
       nmap("<leader>rev", jdtls.extract_variable, "Extract variable")
