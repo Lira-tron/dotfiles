@@ -3,7 +3,7 @@ return {
   event = { "BufReadPre", "BufNewFile" },
   ft = { "markdown" },
   keys = {
-    { "<leader>mg", "<cmd>Glow<CR>", { desc = "Mardown preview" } },
+    { "<leader>md", "<cmd>Glow<CR>", { desc = "[M]ardown [D]isplay Glow" } },
   },
   config = true,
   cmd = "Glow",
