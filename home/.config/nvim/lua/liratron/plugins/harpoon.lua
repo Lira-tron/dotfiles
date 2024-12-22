@@ -33,30 +33,30 @@ return {
 
     vim.keymap.set("n", "<leader>ma", function()
       harpoon:list():add()
-    end, { desc = "Add"})
+    end, { desc = "Harpoon Add"})
     vim.keymap.set("n", "mm", function()
       harpoon.ui:toggle_quick_menu(harpoon:list())
-    end, { desc = "Menu"})
+    end, { desc = "Harpoon Menu"})
 
     vim.keymap.set("n", "<leader>mr", function()
       harpoon:list():select(1)
-    end, { desc = "Go to 1"})
+    end, { desc = "Harpoon Go to 1"})
     vim.keymap.set("n", "<leader>ms", function()
       harpoon:list():select(2)
-    end, { desc = "Go to 2"})
+    end, { desc = "Harpoon Go to 2"})
     vim.keymap.set("n", "<leader>mt", function()
       harpoon:list():select(3)
-    end, { desc = "Go to 3"})
+    end, { desc = "Harpoon Go to 3"})
     vim.keymap.set("n", "<leader>mg", function()
       harpoon:list():select(4)
-    end, { desc = "Go to 4"})
+    end, { desc = "Harpoon Go to 4"})
 
     -- Toggle previous & next buffers stored within Harpoon list
     vim.keymap.set("n", "<leader>mp", function()
       harpoon:list():prev()
-    end, { desc = "prev"})
+    end, { desc = "Harpoon Prev"})
     vim.keymap.set("n", "<leader>mn", function()
       harpoon:list():next()
-    end, { desc = "Next"})
+    end, { desc = "Harpoon Next"})
   end,
 }
