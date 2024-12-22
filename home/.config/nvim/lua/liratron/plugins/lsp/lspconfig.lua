@@ -6,15 +6,24 @@ return {
     { "antosha417/nvim-lsp-file-operations", config = true },
     -- Lsp inlay hints
     "lvimuser/lsp-inlayhints.nvim",
-    "folke/neodev.nvim",
     "williamboman/mason.nvim",
-
+    {
+      "folke/lazydev.nvim",
+      ft = "lua", -- only load on lua files
+      opts = {
+        library = {
+          -- See the configuration section for more details
+          -- Load luvit types when the `vim.uv` word is found
+          { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+        },
+      },
+    },
   },
   opts = {
     diagnostics = {
       underline = false,
       virtual_text = {
-        prefix =  "icons" ,
+        prefix = "icons",
       },
       severity_sort = true,
     },
@@ -184,7 +193,7 @@ return {
           workspace = { checkThirdParty = false },
           telemetry = { enable = false },
           hint = {
-            enable = false,
+            enable = true,
           },
           diagnostics = {
             disable = { "missing-fields", "incomplete-signature-doc" },
@@ -196,7 +205,7 @@ return {
           workspace = { checkThirdParty = false },
           telemetry = { enable = false },
           hint = {
-            enable = false,
+            enable = true,
           },
           diagnostics = {
             disable = { "missing-fields", "incomplete-signature-doc" },
@@ -236,7 +245,7 @@ return {
       },
     }
 
-        -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
+    -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
     local capabilities = vim.lsp.protocol.make_client_capabilities()
     -- for nvim-ufo fold
     capabilities.textDocument.foldingRange = {
@@ -245,7 +254,7 @@ return {
     }
     capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 
-  -- Ensure the servers above are installed
+    -- Ensure the servers above are installed
     local mason_lspconfig = require("mason-lspconfig")
 
     mason_lspconfig.setup_handlers({
