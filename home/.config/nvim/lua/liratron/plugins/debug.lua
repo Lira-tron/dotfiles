@@ -13,7 +13,7 @@ return {
             { "<leader>dR", function() require("dap").run_to_cursor() end, desc = "Run to Cursor", },
             { "<leader>de", function() require("dapui").eval(vim.fn.input "[Expression] > ") end, desc = "Evaluate Input", },
             { "<leader>dB", function() require("dap").set_breakpoint(vim.fn.input "[Condition] > ") end, desc = "Conditional Breakpoint", },
-            { "<leader>dU", function() require("dapui").toggle() end, desc = "Toggle UI", },
+            { "<leader>dv", function() require("dapui").toggle() end, desc = "Toggle UI", },
             { "<leader>ds", function() require("dap").step_back() end, desc = "Step Back", },
             { "<leader>dc", function() require("dap").continue() end, desc = "Continue", },
             { "<leader>dd", function() require("dap").disconnect() end, desc = "Disconnect", },
@@ -33,7 +33,7 @@ return {
             -- { "<leader>dtl", function() require("dap-go").debug_last_test() end, desc = 'Debug: Start debug last test' },
             { "<leader>dlb", function() require("telescope").extensions.dap.list_breakpoints() end, desc = 'Debug: List breakpoints' },
             { "<leader>dlv", function() require("telescope").extensions.dap.variables() end, desc = 'Debug: Open Variables' },
-            { "<leader>dv", function() require("dapui").float_element("scopes") end, desc = 'Debug: Open Variables' },
+            { "<leader>dV", function() require("dapui").float_element("scopes") end, desc = 'Debug: Open Variables' },
         },
   },
   {
@@ -64,8 +64,8 @@ return {
       })
 
       dap.listeners.after.event_initialized["dapui_config"] = dapui.open
-      dap.listeners.before.event_terminated["dapui_config"] = dapui.close
-      dap.listeners.before.event_exited["dapui_config"] = dapui.close
+      -- dap.listeners.before.event_terminated["dapui_config"] = dapui.close
+      -- dap.listeners.before.event_exited["dapui_config"] = dapui.close
     end,
   },
   {
