@@ -21,6 +21,7 @@ return {
         { "<leader>X", group = "Reload" },
         { "<leader>z", group = "Focus" },
         { "<leader>sg", group = "Git" },
+        { "<leader>mb", group = "Markdown Browser" },
         { "gp", group = "Prev/Peek" },
         { "gn", group = "Next" },
         { "gh", group = "Hierarchy" },
