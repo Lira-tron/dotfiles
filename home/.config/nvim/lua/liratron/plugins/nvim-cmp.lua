@@ -55,7 +55,7 @@ return {
           end
         end, { "i", "s" }),
         ["<C-y>"] = cmp.mapping.confirm({ select = true }),
-        ["<C-Space>"] = cmp.mapping.complete(),
+        ["<M-c>"] = cmp.mapping.complete(),
         ["<C-d>"] = cmp.mapping.scroll_docs(-4),
         ["<C-u>"] = cmp.mapping.scroll_docs(4),
         ["<C-e>"] = cmp.mapping.abort(), -- close completion window
