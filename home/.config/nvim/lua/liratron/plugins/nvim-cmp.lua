@@ -28,7 +28,7 @@ return {
         completeopt = "menu,menuone,preview,noselect",
       },
       experimental = {
-        ghost_text = true, -- this feature conflict with copilot.vim's preview.
+        ghost_text = false, -- this feature conflict with copilot.vim's preview.
       },
       snippet = { -- configure how nvim-cmp interacts with snippet engine
         expand = function(args)
