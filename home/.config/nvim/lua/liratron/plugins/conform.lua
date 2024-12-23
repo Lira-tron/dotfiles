@@ -22,7 +22,8 @@ return {
         python = { "isort", "black" },
         go = { "goimports_reviser", "gofumpt", "golines" },
         java = { "google-java-format" },
-        kotlin = {"ktfmt"}
+        kotlin = {"ktfmt"},
+        sh = {"shfmt"}
       },
       format_on_save = function(bufnr)
         -- Disable with a global or buffer-local variable
