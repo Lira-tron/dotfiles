@@ -28,7 +28,7 @@ return {
         completeopt = "menu,menuone,preview,noselect",
       },
       experimental = {
-        ghost_text = false, -- this feature conflict with copilot.vim's preview.
+        ghost_text = true, -- this feature conflict with copilot.vim's preview.
       },
       snippet = { -- configure how nvim-cmp interacts with snippet engine
         expand = function(args)
@@ -55,7 +55,7 @@ return {
           end
         end, { "i", "s" }),
         ["<C-y>"] = cmp.mapping.confirm({ select = true }),
-        ["<C-Space>"] = cmp.mapping.complete(),
+        ["<M-c>"] = cmp.mapping.complete(),
         ["<C-d>"] = cmp.mapping.scroll_docs(-4),
         ["<C-u>"] = cmp.mapping.scroll_docs(4),
         ["<C-e>"] = cmp.mapping.abort(), -- close completion window
@@ -67,6 +67,7 @@ return {
           -- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
           group_index = 0,
         },
+        { name = "amazonq"},
         { name = "nvim_lsp" },
         { name = "luasnip" }, -- snippets
         { name = "buffer" }, -- text within current buffer
