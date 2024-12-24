@@ -2,7 +2,6 @@ return {
   "neovim/nvim-lspconfig",
   event = { "BufReadPre", "BufNewFile" },
   dependencies = {
-    "hrsh7th/cmp-nvim-lsp",
     { "antosha417/nvim-lsp-file-operations", config = true },
     -- Lsp inlay hints
     "lvimuser/lsp-inlayhints.nvim",
@@ -43,8 +42,6 @@ return {
     -- import lspconfig plugin
     local lspconfig = require("lspconfig")
 
-    -- import cmp-nvim-lsp plugin
-    local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
     -- configure lsp inlay hints
     local ih = require("lsp-inlayhints")
@@ -245,21 +242,14 @@ return {
       },
     }
 
-    -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-    local capabilities = vim.lsp.protocol.make_client_capabilities()
-    -- for nvim-ufo fold
-    capabilities.textDocument.foldingRange = {
-      dynamicRegistration = false,
-      lineFoldingOnly = true,
-    }
-    capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+    local capabilities = require('blink.cmp').get_lsp_capabilities()
 
     -- Ensure the servers above are installed
     local mason_lspconfig = require("mason-lspconfig")
 
     mason_lspconfig.setup_handlers({
       function(server_name)
-        require("lspconfig")[server_name].setup({
+        lspconfig[server_name].setup({
           capabilities = capabilities,
           on_attach = on_attach,
           settings = servers[server_name],
