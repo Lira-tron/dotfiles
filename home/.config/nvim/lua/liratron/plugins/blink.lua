@@ -40,14 +40,14 @@ return {
               { "source_name" },
             },
           },
-          winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:BlinkCmpMenuSelection,Search:None",
-        },
+          winhighlight = "Normal:None",
+        }, 
         documentation = {
           auto_show = true,
           auto_show_delay_ms = 100,
           window = {
-            border = "rounded",
-            winhighlight = "Normal:None,FloatBorder:None,CursorLine:None,BlinkCmpDocSeparator:None,Search:None",
+            border = "single",
+            winhighlight = "Normal:None,FloatBorder:None,CursorLine:None,BlinkCmpDocSeparator:None",
           },
         },
         ghost_text = {
