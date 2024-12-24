@@ -22,7 +22,7 @@ return {
         ["<Down>"] = { "select_next", "fallback" },
       },
       appearance = {
-        use_nvim_cmp_as_default = false,
+        use_nvim_cmp_as_default = true,
         nerd_font_variant = "mono",
       },
       completion = {
@@ -41,7 +41,7 @@ return {
             },
           },
           winhighlight = "Normal:None",
-        }, 
+        },
         documentation = {
           auto_show = true,
           auto_show_delay_ms = 100,
