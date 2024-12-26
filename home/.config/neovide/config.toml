@@ -5,7 +5,7 @@ fork = false
 # (macOS only) transparent: Transparent decorations including a transparent bar.
 # (macOS only) buttonless: All decorations, but without quit, minimize or fullscreen buttons.
 # frame = "full"
-frame = "transparent"
+frame = "buttonless"
 idle = true
 maximized = false
 # neovim-bin = "/usr/bin/nvim" # in reality found dynamically on $PATH if unset
@@ -22,6 +22,6 @@ vsync = false
 wsl = false
 
 [font]
-normal = ["JetBrains Mono"] # Will use the bundled Fira Code Nerd Font by default
-size = 16.0
+normal = [] # Will use the bundled Fira Code Nerd Font by default
+size = 15.0
 
