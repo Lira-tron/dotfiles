@@ -23,6 +23,8 @@ install-brew-packages:
 	brew install --cask --no-quarantine syntax-highlight
 	brew install --cask alacritty
 	brew install --cask mouseless
+	brew install --cask neovide
+	brew install --cask font-fira-code-nerd-font
 	# brew install --cask wezterm
 	# brew install --cask nikitabobko/tap/aerospace
 

@@ -56,7 +56,17 @@ vim.opt.colorcolumn = "100"
 vim.opt.cursorline = true -- highlight the current line
 vim.opt.cursorcolumn = true -- highlight the current column
 
-vim.opt.guifont = "monospace:h17"               -- the font used in graphical neovim applications
+-- vim.opt.guifont = "monospace:h17"               -- the font used in graphical neovim applications
+if vim.fn.has('unix') == 1 then
+  local uname = vim.fn.system('uname')
+  if uname == "Darwin\n" then
+    vim.opt.guifont = 'JetBrains Mono:h14'
+  elseif vim.g.neovide then
+    vim.opt.guifont = 'JetBrains Mono:h14'
+  else
+    vim.opt.guifont = 'JetBrains Mono 14'
+  end
+end
 
 vim.g.disable_autoformat = true
 
