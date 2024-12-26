@@ -33,7 +33,7 @@ grid_rgba:
 hide_cursor_on_click: false
 hide_location: bottom_left
 keymap:
-  close dialog: Shift
+  close dialog: ":"
   cycle click count: null
   cycle mouse action type: null
   cycle mouse button: null
@@ -46,9 +46,10 @@ keymap:
   release hold/drag: null
   repeat last mouse action: null
   show overlay: cmd+alt+shift+ctrl+Space tap
-  switch monitor left: Control+h tap
-  switch monitor right: Control+l tap
+  switch monitor left: 1 tap
+  switch monitor right: 2 tap
   toggle overlay: null
+monitor_assignments: auto
 mouse_action_keys: ABCDEFGHIJKLMNOPQRSTUVWXYZ
 move_duration_ms: 100
 move_real_cursor_with_virtual: false
