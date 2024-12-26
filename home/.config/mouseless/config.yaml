@@ -65,7 +65,7 @@ keymaps:
     hold for right button: CommandRight
     release hold/drag: OptionRight
     repeat last mouse action: null
-    show overlay: Hyper+space tap
+    show overlay: Hyper+Space tap
     switch monitor left: ShiftLeft tap
     switch monitor right: ShiftRight tap
     toggle overlay: null
