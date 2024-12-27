@@ -89,6 +89,7 @@ background-opacity = .95
 background-blur-radius = 5
 
 font-family = "JetBrainsMono Nerd Font"
+# font-family = "MesloLGS Nerd Font Mono"
 font-size = 15
 
 # Valid values:
