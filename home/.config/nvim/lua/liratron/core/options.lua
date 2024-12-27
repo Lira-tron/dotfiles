@@ -71,6 +71,16 @@ vim.opt.textwidth = 100 -- When text reaches this limit, it automatically wraps 
 
 vim.g.disable_autoformat = true
 
+--Fold
+vim.opt.foldcolumn = "0"
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldtext = ""
+
+vim.opt.foldnestmax = 3
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 99
+
 if vim.g.neovide then
   vim.keymap.set("v", "<D-c>", '"+y') -- Copy
   vim.keymap.set("n", "<D-v>", '"+P') -- Paste normal mode
