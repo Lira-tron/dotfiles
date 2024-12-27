@@ -5,7 +5,6 @@ return {
     "nvim-lua/plenary.nvim",
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     "nvim-tree/nvim-web-devicons",
-    "nvim-telescope/telescope-ui-select.nvim",
     "nvim-telescope/telescope-file-browser.nvim",
     "albenisolmos/telescope-oil.nvim",
   },
@@ -21,20 +20,19 @@ return {
           override_file_sorter = true, -- override the file sorter
           case_mode = "smart_case", -- or "ignore_case" or "respect_case"                                 -- the default case_mode is "smart_case"
         },
-        ["ui-select"] = {
-          telescopeThemes.get_ivy({}),
-        },
       },
       defaults = telescopeThemes.get_ivy({
         -- layout_strategy = "horizontal",
         layout_config = {
-          height = 0.90,
-          width = 1,
-          prompt_position = "top",
-          preview_width = 0.55,
-          preview_cutoff = 120,
-          horizontal = { mirror = false },
-          vertical = { mirror = false },
+          bottom_pane = {
+            height = 0.90,
+            width = 1,
+            prompt_position = "top",
+            preview_width = 0.55,
+            preview_cutoff = 120,
+            horizontal = { mirror = false },
+            vertical = { mirror = false },
+          },
         },
         vimgrep_arguments = {
           "rg",
@@ -86,7 +84,6 @@ return {
     telescope.load_extension("file_browser")
     telescope.load_extension("fzf")
     telescope.load_extension("oil")
-    telescope.load_extension("ui-select")
 
     -- set keymaps
     local builtin = require("telescope.builtin")
