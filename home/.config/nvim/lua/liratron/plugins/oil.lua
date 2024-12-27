@@ -22,9 +22,6 @@ return {
         ["<C-j>"] = false,
         ["<M-h>"] = "actions.select_split",
       },
-      win_options = {
-        winbar = "%{v:lua.CustomOilBar()}",
-      },
       view_options = {
         show_hidden = true,
         is_always_hidden = function(name, _)
