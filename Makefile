@@ -13,6 +13,7 @@ link::
 unlink::
 	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --delete home
 
+UNAME_S := $(shell uname -s)
 
 install-brew-packages:
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -20,13 +21,16 @@ install-brew-packages:
 	brew tap homebrew/cask-fonts
 	brew install font-meslo-lg-nerd-font
 	brew install font-jetbrains-mono
-	brew install --cask --no-quarantine syntax-highlight
-	brew install --cask alacritty
-	brew install --cask mouseless
-	brew install --cask neovide
-	brew install --cask font-fira-code-nerd-font
-	# brew install --cask wezterm
-	# brew install --cask nikitabobko/tap/aerospace
+	ifeq ($(UNAME_S),Darwin)
+		brew install --cask --no-quarantine syntax-highlight
+		brew install --cask ghostty
+		brew install --cask mouseless
+		brew install --cask neovide
+		brew install --cask font-fira-code-nerd-font
+		# brew install --cask alacritty
+		# brew install --cask wezterm
+		# brew install --cask nikitabobko/tap/aerospace
+	endif
 
 setup-java:: download-jdtls setup-java-debug setup-vscode-java-test setup-vscode-java-decompiler
 
