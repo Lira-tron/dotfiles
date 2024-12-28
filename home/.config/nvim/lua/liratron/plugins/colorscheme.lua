@@ -33,8 +33,7 @@ return {
       local function setConcoctis()
         require("concoctis").setup({
           -- override_highlights = {
-          --   CursorLine = { bg = "#45403d" },
-          -- ConcoctisOrangeBold = { fg = "#e78a4e", style = "bold", bg = "#45403d"  },
+          --   CursorLine = { bg = "#434443" },
           -- },
           transparent = true,
         })
