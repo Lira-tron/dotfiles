@@ -66,7 +66,7 @@ return {
         --   },
         -- },
         sorting_strategy = "ascending",
-        file_ignore_patterns = { "node_modules", "^./.git/" },
+        file_ignore_patterns = { "node_modules", "^./.git/", ".git/", ".cache", "%.o", "%.a", "%.out", "%.class" },
       }),
       pickers = {
         -- live_grep = {
