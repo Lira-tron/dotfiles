@@ -73,7 +73,7 @@ return {
     build = "go install github.com/go-delve/delve/cmd/dlv@latest",
     config = function ()
       require('dap-go').setup()
-      vim.keymap.set("n", "<leader>u", "<leader>dtn", function() require("dap-go").debug_test() end, { desc = 'Debug: Start debug test' })
+      vim.keymap.set("n", "<leader>dtn", function() require("dap-go").debug_test() end, { desc = 'Debug: Start debug test' })
       vim.keymap.set("n", "<leader>dtl", function() require("dap-go").debug_last_test() end,{ desc = 'Debug: Start debug last test' })
     end,
   },
