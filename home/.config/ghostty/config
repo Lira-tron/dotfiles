@@ -21,8 +21,13 @@
 # theme = zenwritten_dark
 # theme = Everforest Dark - Hard
 # theme = GruvboxDark
-# theme = gruvbox-material
-theme = GruvboxDarkHard
+theme = gruvbox-material
+# theme = GruvboxDarkHard
+
+# palette = 8=#44403d
+# palette = 8=#928374
+palette = 8=#666666
+# cursor-color = #ea6965
 
 # Some shaders can be found in this repo, they're usually uploaded to discord
 # https://github.com/hackrmomo/ghostty-shaders
