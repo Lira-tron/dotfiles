@@ -40,8 +40,8 @@ return {
         -- Disable sections and component separators
         component_separators = "",
         section_separators = "",
-        -- theme = "concoctis",
-        theme = "everforest",
+        theme = "concoctis",
+        -- theme = "everforest",
       },
       sections = {
         -- these are to remove the defaults
