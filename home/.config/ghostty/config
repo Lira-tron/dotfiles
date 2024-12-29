@@ -22,8 +22,12 @@
 # theme = Everforest Dark - Hard
 # theme = GruvboxDark
 theme = gruvbox-material
+ # theme = gruvbox-material-soft-dark
 # theme = GruvboxDarkHard
 
+# This fixes the gruvbox-material
+selection-invert-fg-bg = true
+# ghost text color
 # palette = 8=#44403d
 # palette = 8=#928374
 palette = 8=#666666
@@ -83,7 +87,7 @@ custom-shader = shaders/bloom025.glsl
 #
 # This assumes you installed tmux through brew if using macos
 # command = zsh --login -c "if command -v tmux >/dev/null 2>&1; then tmux attach || tmux; else zsh; fi"
-
+window-padding-balance = true
 window-padding-x = 9,6
 window-padding-y = 12,0
 
@@ -185,3 +189,5 @@ quick-terminal-animation-duration = 0.08
 # This doesn't work when in tmux, if outside tmux the regular ctrl+l works
 # keybind = super+k=clear_screen
 
+# required for the term info thing
+shell-integration-features = sudo
