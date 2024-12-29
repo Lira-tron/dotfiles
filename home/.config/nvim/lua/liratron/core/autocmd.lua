@@ -78,6 +78,27 @@ api.nvim_create_autocmd("FileType", {
   end,
 })
 
+local cursorline_hide = {
+  "TelescopePrompt",
+  "TelescopeResults",
+}
+local function toggle_cursorline(types)
+  for _, type in pairs(types) do
+    if vim.o.filetype == type then
+      vim.o.cursorline = false
+      break
+    else
+      vim.o.cursorline = true
+    end
+  end
+end
+
+vim.api.nvim_create_autocmd({ "FileType", "BufEnter" }, {
+  callback = function()
+    toggle_cursorline(cursorline_hide)
+  end,
+})
+
 vim.api.nvim_create_autocmd({ "WinEnter", "FocusGained" }, {
   desc = "Show the cursorline whenever the window gain focus",
   group = vim.api.nvim_create_augroup("ShowCursorLineWhenLoseFocus", { clear = true }),
