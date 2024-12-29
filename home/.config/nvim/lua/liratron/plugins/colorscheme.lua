@@ -38,13 +38,6 @@ return {
           transparent = true,
         })
 
-        -- vim.api.nvim_create_autocmd("User", {
-        --   pattern = "TelescopeFindPre",
-        --   callback = function(args)
-        --     vim.api.nvim_set_hl(0, "CursorLine", { bg = nil })
-        --   end,
-        -- })
-
         -- load the colorscheme here
         vim.cmd.colorscheme("concoctis")
       end
