@@ -71,7 +71,7 @@ custom-shader = shaders/bloom025.glsl
 #
 # This assumes you installed tmux through brew if using macos
 # command = zsh --login -c "if command -v tmux >/dev/null 2>&1; then tmux attach || tmux; else zsh; fi"
-window-padding-balance = true
+window-padding-balance = false
 window-padding-x = 9,6
 window-padding-y = 12,0
 
