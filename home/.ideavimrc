@@ -145,6 +145,7 @@ nmap <C-,> <Action>(PrevSplitter)
 " nmap <M-o> <Action>(NextSplitter)
 
 nmap <C-w>m <Action>(HideAllWindows)
+nmap <M-m> <Action>(HideAllWindows)
 nmap <C-w>M <Action>(MaximizeEditorInSplit)
 nmap <C-M-k> <Action>(StretchSplitToTop)
 nmap <C-M-j> <Action>(StretchSplitToBottom)
