@@ -1,22 +1,6 @@
 # To get the default values
 # ghostty +show-config --default --docs > ~/github/dotfiles-latest/ghostty/config-default
 
-# No way of reloading config via command yet, only via keymap cmd+shift+,
-# Created a script to do it so that its reloaded with my colorscheme selector
-
-# Additional configuration files to read. This configuration can be repeated
-# to read multiple configuration files. Configuration files themselves can
-# load more configuration files. Paths are relative to the file containing the
-# `config-file` directive. For command-line arguments, paths are relative to
-# the current working directory.
-#
-# Prepend a ? character to the file path to suppress errors if the file does
-# not exist. If you want to include a file that begins with a literal ?
-# character, surround the file path in double quotes (").
-#
-# Cycles are not allowed. If a cycle is detected, an error will be logged and
-# the configuration file will be ignored.
-# config-file = ghostty-theme
 # To see a list of available themes, run `ghostty +list-themes`.
 # theme = zenwritten_dark
 # theme = Everforest Dark - Hard
@@ -121,26 +105,6 @@ macos-titlebar-style = hidden
 # true. If set to false, surfaces will close without any confirmation.
 confirm-close-surface = false
 
-# Toggle the "quick" terminal. The quick terminal is a terminal that
-# appears on demand from a keybinding, often sliding in from a screen
-# edge such as the top. This is useful for quick access to a terminal
-# without having to open a new window or tab.
-#
-# When the quick terminal loses focus, it disappears. The terminal state
-# is preserved between appearances, so you can always press the keybinding
-# to bring it back up.
-#
-# The quick terminal has some limitations:
-#
-#   - It is a singleton; only one instance can exist at a time.
-#   - It does not support tabs.
-#   - It will not be restored when the application is restarted
-#     (for systems that support window restoration).
-#   - It supports fullscreen, but fullscreen will always be a non-native
-#     fullscreen (macos-non-native-fullscreen = true). This only applies
-#     to the quick terminal window. This is a requirement due to how
-#     the quick rerminal is rendered.
-#
 # See the various configurations for the quick terminal in the
 # configuration file to customize its behavior.
 #
@@ -188,6 +152,8 @@ quick-terminal-animation-duration = 0.08
 
 # This doesn't work when in tmux, if outside tmux the regular ctrl+l works
 # keybind = super+k=clear_screen
+
+# ssh for remote linux run infocmp -x | ssh YOUR-SERVER -- /usr/bin/tic -x -
 
 # required for the term info thing
 shell-integration-features = sudo
