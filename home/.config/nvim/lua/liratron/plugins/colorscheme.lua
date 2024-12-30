@@ -35,7 +35,7 @@ return {
           -- override_highlights = {
           --   CursorLine = { bg = "#434443" },
           -- },
-          transparent = true,
+          transparent = not vim.g.neovide,
         })
 
         -- load the colorscheme here
