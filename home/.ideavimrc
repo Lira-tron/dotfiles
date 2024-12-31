@@ -331,7 +331,7 @@ nmap <leader>Te <Action>($ExclusiveTranslateAction)
 " CodeWhispererRecommendationAction
 map <M-c> <Action>(CodeWhispererRecommendationAction)
 imap <C-space> <Action>(CodeWhispererRecommendationAction)
-map glt <Action>aws.toolkit.jetbrains.core.services.cwc.commands.GenerateUnitTestsAction
+map glt <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.GenerateUnitTestsAction)
 map glm <Action>(aws.toolkit.jetbrains.core.services.cwc.actions.ContextMenuActions)
 map gle <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.ExplainCodeAction)
 map glf <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.FixCodeAction)
