@@ -181,7 +181,7 @@ nmap <leader>Xa <Action>(IdeaVim.ReloadVimRc.reload)
 
 nmap gcc <Action>(CommentByLineComment)
 nmap gcb <Action>(CommentByBlockComment)
-nmap <leader>ca <Action>(ShowIntentionActions)
+nmap gca <Action>(ShowIntentionActions)
 nmap gle <Action>(ShowErrorDescription)
 " run
 nmap <leader>dt <Action>(ContextRun)
@@ -334,7 +334,7 @@ nmap <leader>Te <Action>($ExclusiveTranslateAction)
 " amazon q configuration
 " CodeWhispererRecommendationAction
 map <M-c> <Action>(CodeWhispererRecommendationAction)
-imap <M-c> <Action>(CodeWhispererRecommendationAction)
+imap <C-space> <Action>(CodeWhispererRecommendationAction)
 map glt <Action>aws.toolkit.jetbrains.core.services.cwc.commands.GenerateUnitTestsAction
 map glm <Action>(aws.toolkit.jetbrains.core.services.cwc.actions.ContextMenuActions)
 map gle <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.ExplainCodeAction)
