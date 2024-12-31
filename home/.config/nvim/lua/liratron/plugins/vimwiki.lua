@@ -3,6 +3,7 @@ return {
   ft = "vimwiki",
   keys = {
     { "<space>w<space>w", "<Plug>VimwikiMakeDiaryNote", desc = "VimwikiMakeDiaryNote" },
+    { "<space>wm", "<Plug>VimwikiToggleListItem", desc = "VimwikiToggleListItem" },
   },
   init = function()
     vim.g.vimwiki_list = {
@@ -35,7 +36,7 @@ return {
 
     vim.g.vimwiki_markdown_link_ext = 1
 
-    -- Add highlight groups to headers
+    vim.g.vimwiki_listsyms = "  ◐●✓"
     vim.g.vimwiki_hl_headers = 1
   end,
 }
