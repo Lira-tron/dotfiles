@@ -6,5 +6,6 @@
 return {
   "ghostty",
   dir = "/Applications/Ghostty.app/Contents/Resources/vim/vimfiles/",
+  enabled = vim.fn.has("linux") ~= 1,
   lazy = false,
 }
