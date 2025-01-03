@@ -36,44 +36,53 @@ return {
     }
 
     local function get_jar_bundles()
-      local home = os.getenv("HOME")
-      local jar_patterns = {
-        "/.java/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar",
-        "/.java/vscode-java-decompiler/server/*.jar",
-        "/.java/vscode-java-test/server/*.jar",
-      }
       local bundles = {}
+      -- local home = os.getenv("HOME")
+      -- local jar_patterns = {
+      --   "/.java/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar",
+      --   "/.java/vscode-java-decompiler/server/*.jar",
+      --   "/.java/vscode-java-test/server/*.jar",
+      -- }
+      --
+      -- for _, jar_pattern in ipairs(jar_patterns) do
+      --   for _, bundle in ipairs(vim.split(vim.fn.glob(home .. jar_pattern, 1), "\n")) do
+      --     if bundle ~= "" then
+      --       table.insert(bundles, bundle)
+      --     end
+      --   end
+      -- end
 
-      for _, jar_pattern in ipairs(jar_patterns) do
-        for _, bundle in ipairs(vim.split(vim.fn.glob(home .. jar_pattern, 1), "\n")) do
-          if bundle ~= "" then
-            table.insert(bundles, bundle)
-          end
-        end
+      ---
+      -- Include java-test bundle if present
+      ---
+      local java_test_path = require("mason-registry").get_package("java-test"):get_install_path()
+
+      local java_test_bundle = vim.split(vim.fn.glob(java_test_path .. "/extension/server/*.jar"), "\n")
+
+      if java_test_bundle[1] ~= "" then
+        vim.list_extend(bundles, java_test_bundle)
       end
 
-            -- ---
-      -- -- Include java-test bundle if present
-      -- ---
-      -- local java_test_path = require("mason-registry").get_package("java-test"):get_install_path()
-      --
-      -- local java_test_bundle = vim.split(vim.fn.glob(java_test_path .. "/extension/server/*.jar"), "\n")
-      --
-      -- if java_test_bundle[1] ~= "" then
-      --   vim.list_extend(path.bundles, java_test_bundle)
-      -- end
-      --
-      -- ---
-      -- -- Include java-debug-adapter bundle if present
-      -- ---
-      -- local java_debug_path = require("mason-registry").get_package("java-debug-adapter"):get_install_path()
-      --
-      -- local java_debug_bundle =
-      --   vim.split(vim.fn.glob(java_debug_path .. "/extension/server/com.microsoft.java.debug.plugin-*.jar"), "\n")
-      --
-      -- if java_debug_bundle[1] ~= "" then
-      --   vim.list_extend(path.bundles, java_debug_bundle)
-      -- end
+      ---
+      -- Include java-debug-adapter bundle if present
+      ---
+      local java_debug_path = require("mason-registry").get_package("java-debug-adapter"):get_install_path()
+
+      local java_debug_bundle =
+        vim.split(vim.fn.glob(java_debug_path .. "/extension/server/com.microsoft.java.debug.plugin-*.jar"), "\n")
+
+      if java_debug_bundle[1] ~= "" then
+        vim.list_extend(bundles, java_debug_bundle)
+      end
+
+      local java_decompiler_path = require("mason-registry").get_package("vscode-java-decompiler"):get_install_path()
+
+      local java_decompiler_bundle =
+        vim.split(vim.fn.glob(java_decompiler_path .. "/server/*.jar"), "\n")
+
+      if java_decompiler_bundle[1] ~= "" then
+        vim.list_extend(bundles, java_decompiler_bundle)
+      end
 
       -- vim.print(vim.inspect(bundles))
       return bundles
@@ -107,7 +116,7 @@ return {
         if vim.fn.has("mac") == 1 then
           return vim.fn.expandcmd("$" .. jdkName) .. "/libexec/openjdk.jdk/Contents/Home"
         end
-        return vim.fn.expandcmd("$".. jdkName) .. "/libexec"
+        return vim.fn.expandcmd("$" .. jdkName) .. "/libexec"
       end
       --
       -- Useful if you're starting jdtls with a Java version that's
@@ -183,7 +192,7 @@ return {
       -- Unique to jdtls
       nmap("<leader>dtn", jdtls.test_nearest_method, "[D]ebug [T]est nearest method")
       nmap("<leader>dtc", jdtls.test_class, "[D]ebug [T]est class")
-      nmap("<leader>dtt", require('jdtls.tests').goto_subjects, "Toggle between test file and source")
+      nmap("<leader>dtt", require("jdtls.tests").goto_subjects, "Toggle between test file and source")
 
       nmap("<leader>ro", jdtls.organize_imports, "Organize imports")
       nmap("<leader>rec", jdtls.extract_constant, "Extract constant")

@@ -53,6 +53,10 @@ return {
         "write-good",
         "yamllint",
         "selene",
+        -- java
+        "java-debug-adapter",
+        "vscode-java-decompiler",
+        "java-test",
       },
     })
   end,
