@@ -103,6 +103,12 @@ return {
 
       path.bundles = get_jar_bundles()
 
+      local function getJavaRuntimePath(jdkName)
+        if vim.fn.has("mac") == 1 then
+          return vim.fn.expandcmd("$".. jdkName)
+        end
+        return vim.fn.expandcmd("$".. jdkName) .. "/libexec"
+      end
       --
       -- Useful if you're starting jdtls with a Java version that's
       -- different from the one the project uses.
@@ -110,12 +116,12 @@ return {
       path.runtimes = {
         {
           name = "JavaSE-17",
-          path = vim.fn.expandcmd("$JAVA_HOME_17") .. "/libexec",
+          path = getJavaRuntimePath("JAVA_HOME_17"),
           default = true,
         },
         {
           name = "JavaSE-11",
-          path = vim.fn.expandcmd("$JAVA_HOME_11") .. "/libexec",
+          path = getJavaRuntimePath("JAVA_HOME_11"),
           default = false,
         },
       }
