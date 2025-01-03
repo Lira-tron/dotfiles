@@ -7,6 +7,7 @@ return {
     "nvim-tree/nvim-web-devicons",
     "nvim-telescope/telescope-file-browser.nvim",
     "albenisolmos/telescope-oil.nvim",
+
   },
   config = function()
     local telescope = require("telescope")
@@ -84,6 +85,7 @@ return {
     telescope.load_extension("file_browser")
     telescope.load_extension("fzf")
     telescope.load_extension("oil")
+    telescope.load_extension("dap")
 
     -- set keymaps
     local builtin = require("telescope.builtin")
