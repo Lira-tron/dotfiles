@@ -105,7 +105,7 @@ return {
 
       local function getJavaRuntimePath(jdkName)
         if vim.fn.has("mac") == 1 then
-          return vim.fn.expandcmd("$".. jdkName)
+          return vim.fn.expandcmd("$" .. jdkName) .. "/libexec/openjdk.jdk/Contents/Home"
         end
         return vim.fn.expandcmd("$".. jdkName) .. "/libexec"
       end
