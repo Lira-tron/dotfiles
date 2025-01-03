@@ -36,17 +36,72 @@ return {
   },
   {
     "rcarriga/nvim-dap-ui",
-    dependencies = {"mfussenegger/nvim-dap", "nvim-neotest/nvim-nio"},
+    dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
     config = function()
       local dap = require("dap")
       local dapui = require("dapui")
+      -- Function to calculate dap-ui sidebar width with min and max constraints
+      local function calculate_sidebar_width()
+        local width = vim.o.columns
+        local min_width = 20
+        local max_width = 40
+        if width > 160 then
+          return max_width
+        elseif width > 120 then
+          return math.floor(min_width + (width - 120) / 40 * (max_width - min_width))
+        else
+          return min_width
+        end
+      end
 
+      local sidebar_width = calculate_sidebar_width()
+
+      -- Function to determine dap-ui layouts based on terminal size
+      local function get_dapui_layout()
+        local width = vim.o.columns
+        local height = vim.o.lines
+        local sidebar_width = calculate_sidebar_width()
+
+        if width > 120 then
+          return {
+            {
+              elements = { "scopes", "breakpoints", "stacks", "watches" },
+              size = sidebar_width, -- Width for left panel
+              position = "left",
+            },
+            {
+              elements = { "repl", "console" },
+              size = math.floor(height * 0.3), -- Height for bottom panel
+              position = "bottom",
+            },
+          }
+        elseif width > 80 then
+          return {
+            {
+              elements = { "scopes", "breakpoints", "stacks" },
+              size = sidebar_width, -- Width for left panel
+              position = "left",
+            },
+            -- REPL and console are hidden on medium screens
+          }
+        else
+          return {
+            {
+              elements = { "scopes", "breakpoints" },
+              size = sidebar_width, -- Width for left panel
+              position = "left",
+            },
+            -- REPL and console are hidden on small screens
+          }
+        end
+      end
+
+      -- Setup dap-ui with dynamic layout
       dapui.setup({
-        -- Set icons to characters that are more likely to work in every terminal.
-        --    Feel free to remove or use ones that you like more! :)
-        --    Don't feel like these are good choices.
-        icons = { expanded = "▾", collapsed = "▸", current_frame = "*" },
-        controls = {
+        icons = { expanded = "▾", collapsed = "▸", current_frame = "*" }, -- Custom icons
+        controls = { -- Custom control icons
+          element = "repl",
+          enabled = true,
           icons = {
             pause = "⏸",
             play = "▶",
@@ -59,6 +114,13 @@ return {
             disconnect = "⏏",
           },
         },
+        floating = {
+          border = "single",
+          mappings = {
+            close = { "q", "<Esc>" },
+          },
+        },
+        layouts = get_dapui_layout(), -- Apply dynamic layout
       })
 
       dap.listeners.after.event_initialized["dapui_config"] = dapui.open
@@ -71,10 +133,14 @@ return {
     ft = "go",
     dependencies = { "mfussenegger/nvim-dap" },
     build = "go install github.com/go-delve/delve/cmd/dlv@latest",
-    config = function ()
-      require('dap-go').setup()
-      vim.keymap.set("n", "<leader>dtn", function() require("dap-go").debug_test() end, { desc = 'Debug: Start debug test' })
-      vim.keymap.set("n", "<leader>dtl", function() require("dap-go").debug_last_test() end,{ desc = 'Debug: Start debug last test' })
+    config = function()
+      require("dap-go").setup()
+      vim.keymap.set("n", "<leader>dtn", function()
+        require("dap-go").debug_test()
+      end, { desc = "Debug: Start debug test" })
+      vim.keymap.set("n", "<leader>dtl", function()
+        require("dap-go").debug_last_test()
+      end, { desc = "Debug: Start debug last test" })
     end,
   },
   {
