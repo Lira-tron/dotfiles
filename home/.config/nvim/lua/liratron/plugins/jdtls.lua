@@ -1,6 +1,7 @@
 return {
   "mfussenegger/nvim-jdtls",
   ft = "java",
+  lazy = true,
   dependencies = {
     "mfussenegger/nvim-dap",
   },
@@ -77,8 +78,7 @@ return {
 
       local java_decompiler_path = require("mason-registry").get_package("vscode-java-decompiler"):get_install_path()
 
-      local java_decompiler_bundle =
-        vim.split(vim.fn.glob(java_decompiler_path .. "/server/*.jar"), "\n")
+      local java_decompiler_bundle = vim.split(vim.fn.glob(java_decompiler_path .. "/server/*.jar"), "\n")
 
       if java_decompiler_bundle[1] ~= "" then
         vim.list_extend(bundles, java_decompiler_bundle)
@@ -202,19 +202,16 @@ return {
       end, { buffer = true, desc = "Extract to method" })
     end
 
-    local function jdtls_setup(event)
+    local function jdtls_setup()
       local path = get_jdtls_paths()
       local data_dir = path.data_dir .. "/" .. vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
 
       if cache_vars.capabilities == nil then
         jdtls.extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
+        local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-        local ok_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
-        cache_vars.capabilities = vim.tbl_deep_extend(
-          "force",
-          vim.lsp.protocol.make_client_capabilities(),
-          ok_cmp and cmp_lsp.default_capabilities() or {}
-        )
+        cache_vars.capabilities =
+          vim.tbl_deep_extend("force", vim.lsp.protocol.make_client_capabilities(), capabilities)
       end
 
       -- The command that starts the language server
@@ -373,12 +370,6 @@ return {
         },
       })
     end
-
-    vim.api.nvim_create_autocmd("FileType", {
-      group = java_cmds,
-      pattern = { "java" },
-      desc = "Setup jdtls",
-      callback = jdtls_setup,
-    })
+    jdtls_setup()
   end,
 }

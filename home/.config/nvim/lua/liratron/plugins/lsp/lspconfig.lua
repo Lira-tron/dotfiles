@@ -242,7 +242,11 @@ return {
       },
     }
 
-    local capabilities = require('blink.cmp').get_lsp_capabilities()
+    local capabilities = vim.tbl_deep_extend(
+          "force",
+          vim.lsp.protocol.make_client_capabilities(),
+          require('blink.cmp').get_lsp_capabilities()
+        )
 
     -- Ensure the servers above are installed
     local mason_lspconfig = require("mason-lspconfig")
