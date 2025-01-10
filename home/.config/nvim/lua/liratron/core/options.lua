@@ -81,6 +81,8 @@ vim.opt.foldnestmax = 3
 vim.opt.foldlevel = 99
 vim.opt.foldlevelstart = 99
 
+vim.g.notesdir = "/Users/lira/Documents/Notes"
+
 if vim.g.neovide then
   vim.keymap.set("v", "<D-c>", '"+y') -- Copy
   vim.keymap.set("n", "<D-v>", '"+P') -- Paste normal mode

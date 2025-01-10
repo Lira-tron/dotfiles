@@ -63,39 +63,18 @@ return {
           emoji = {
             module = "blink-emoji",
             name = "Emoji",
-            score_offset = 15, -- the higher the number, the higher the priority
+            score_offset = -20, -- the higher the number, the higher the priority
             opts = { insert = true }, -- Insert emoji (default) or complete its name
           },
           dictionary = {
             module = "blink-cmp-dictionary",
             name = "Dict",
-            score_offset = 20, -- the higher the number, the higher the priority
+            score_offset = -20, -- the higher the number, the higher the priority
             enabled = true,
             max_items = 8,
             min_keyword_length = 3,
             opts = {
-              get_command = {
-                "rg", -- make sure this command is available in your system
-                "--color=never",
-                "--no-line-number",
-                "--no-messages",
-                "--no-filename",
-                "--ignore-case",
-                "--",
-                "${prefix}", -- this will be replaced by the result of 'get_prefix' function
-                vim.fn.expand("~/.config/dictionary/words"), -- where you dictionary is
-              },
-              documentation = {
-                enable = true, -- enable documentation to show the definition of the word
-                get_command = {
-                  -- For the word definitions feature
-                  -- make sure "wn" is available in your system
-                  -- brew install wordnet
-                  "wn",
-                  "${word}", -- this will be replaced by the word to search
-                  "-over",
-                },
-              },
+              dictionary_directories = { vim.fn.expand("~/.config/dictionaries") },
             },
           },
         },
