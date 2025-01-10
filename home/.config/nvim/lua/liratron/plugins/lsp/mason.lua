@@ -50,6 +50,7 @@ return {
         "cspell",
         "checkstyle",
         "markdownlint",
+        "markdown-toc",
         "write-good",
         "yamllint",
         "selene",
