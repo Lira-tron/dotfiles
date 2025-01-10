@@ -154,13 +154,52 @@ return {
       })
     end, { desc = "[P]roject [V]iew" })
 
-    vim.keymap.set("n", "<leader>st", "<cmd>TodoTelescope keywords=TODO<cr>", { desc = "[T]odo" })
+    vim.keymap.set("n", "<leader>stt", "<cmd>TodoTelescope keywords=TODO<cr>", { desc = "[T]odo" })
     vim.keymap.set(
       "n",
-      "<leader>sT",
+      "<leader>stT",
       "<cmd>TodoTelescope keywords=PERF,HACK,TODO,NOTE,FIX<cr>",
       { desc = "[T]odo ALL" }
     )
+
+    -- Iterate through incomplete tasks in telescope
+    -- You can confirm in your teminal lamw25wmal with:
+    -- rg "^\s*-\s\[ \]" test-markdown.md
+    vim.keymap.set("n", "<leader>sti", function()
+      require("telescope.builtin").grep_string(require("telescope.themes").get_ivy({
+        prompt_title = "Incomplete Tasks",
+        -- search = "- \\[ \\]", -- Fixed search term for tasks
+        search = "^- \\[ \\]", -- Ensure "- [ ]" is at the beginning of the line
+        search_dirs = { vim.g.notesdir }, -- Restrict search to the current working directory
+        use_regex = true, -- Enable regex for the search term
+        initial_mode = "normal", -- Start in normal mode
+        layout_config = {
+          preview_width = 0.5, -- Adjust preview width
+        },
+        additional_args = function()
+          return { "--no-ignore" } -- Include files ignored by .gitignore
+        end,
+      }))
+    end, { desc = "[P]Search for incomplete tasks" })
+
+    -- Iterate throuth completed tasks in telescope lamw25wmal
+    vim.keymap.set("n", "<leader>stc", function()
+      require("telescope.builtin").grep_string(require("telescope.themes").get_ivy({
+        prompt_title = "Completed Tasks",
+        -- search = [[- \[x\] `done:]], -- Regex to match the text "`- [x] `done:"
+        search = "^- \\[x\\] `done:", -- Matches lines starting with "- [x] `done:"
+        search_dirs = { vim.g.notesdir }, -- Restrict search to the current working directory
+        use_regex = true, -- Enable regex for the search term
+        initial_mode = "normal", -- Start in normal mode
+        layout_config = {
+          preview_width = 0.5, -- Adjust preview width
+        },
+        additional_args = function()
+          return { "--no-ignore" } -- Include files ignored by .gitignore
+        end,
+      }))
+    end, { desc = "Search for completed tasks" })
+
     -- OIL
     vim.keymap.set("n", "<leader>so", "<cmd>Telescope oil<CR>", { noremap = true, silent = true })
 

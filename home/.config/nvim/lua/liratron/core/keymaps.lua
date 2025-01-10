@@ -812,7 +812,7 @@ local function create_note(full_path, type)
   if vim.fn.filereadable(full_path) == 0 then
     local file = io.open(full_path, "w")
     if file then
-      file:write("# Contents\n\n<!-- toc -->\n\n- [" .. type .. " note](#" .. type .. "-note)\n\n<!-- tocstop -->\n\n## " .. type .. " note\n")
+      file:write("# Contents\n<!-- toc -->\n- [" .. type .. " note](#" .. type .. "-note)\n\n<!-- tocstop -->\n## Tasks \n- [ ] \n\n## " .. type .. " note\n\n")
       file:close()
       vim.cmd("edit " .. vim.fn.fnameescape(full_path))
       vim.cmd("bd!")

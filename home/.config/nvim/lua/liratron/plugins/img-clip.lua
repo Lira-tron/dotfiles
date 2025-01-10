@@ -36,11 +36,6 @@ return {
       --   return vim.fn.expand("%:t:r") .. "-img"
       -- end,
 
-      -- Conditional dir_path based on skitty mode
-      dir_path = vim.g.neovim_mode == "skitty" and "img" or function()
-        return vim.fn.expand("%:t:r") .. "-img"
-      end,
-
       -- If you want to get prompted for the filename when pasting an image
       -- This is the actual name that the physical file will have
       -- If you set it to true, enter the name without spaces or extension `test-image-1`
@@ -108,11 +103,9 @@ return {
         --
         -- -- This will just statically type "Image" in the alternative text
         -- template = "![Image]($FILE_PATH)", ---@type string
-        -- Conditional template for skitty mode
-        -- template = vim.g.neovim_mode == "skitty" and "![i]($FILE_PATH)" or "![Image]($FILE_PATH)",
         --
         -- I want to use blink.cmp to easily find images with the LSP, so adding ./ lamw25wmal
-        template = vim.g.neovim_mode == "skitty" and "![i](./$FILE_PATH)" or "![Image](./$FILE_PATH)",
+        template = "![Image](./$FILE_PATH)",
         --
         -- -- This will dynamically configure the alternative text to show the
         -- -- same that you configured as the "file_name" above
@@ -134,11 +127,9 @@ return {
         --
         -- -- This will just statically type "Image" in the alternative text
         -- template = "![Image]($FILE_PATH)", ---@type string
-        -- Conditional template for skitty mode
-        -- template = vim.g.neovim_mode == "skitty" and "![i]($FILE_PATH)" or "![Image]($FILE_PATH)",
         --
         -- I want to use blink.cmp to easily find images with the LSP, so adding ./ lamw25wmal
-        template = vim.g.neovim_mode == "skitty" and "![i](./$FILE_PATH)" or "![Image](./$FILE_PATH)",
+        template = "![Image](./$FILE_PATH)",
         --
         -- -- This will dynamically configure the alternative text to show the
         -- -- same that you configured as the "file_name" above
