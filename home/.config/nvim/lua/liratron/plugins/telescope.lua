@@ -91,7 +91,7 @@ return {
     local builtin = require("telescope.builtin")
 
     local function telescope_buffer_dir()
-      local path = vim.fn.expand("%:p:h"):match("oil:///(.*)")
+      local path = vim.fn.expand("%:p:h"):match("oil://(.*)")
       if path then
         return path
       else
@@ -117,7 +117,20 @@ return {
     end, { desc = "[S]earch [F]iles in current dir" })
     vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
     vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
+    vim.keymap.set("n", "<leader>sW", function()
+      -- Use Telescope's find_files with a specific cwd
+      builtin.grep_string({
+        cwd = telescope_buffer_dir(),
+        prompt_title = "Search currenty word in " .. telescope_buffer_dir(),
+      })
+    end, { desc = "[S]earch current [W]ord in current dir" })
     vim.keymap.set("n", "<leader>ss", builtin.live_grep, { desc = "[S]earch by [G]rep" })
+    vim.keymap.set("n", "<leader>sS", function()
+      builtin.live_grep({
+        cwd = telescope_buffer_dir(),
+        prompt_title = "Search by Grep in " .. telescope_buffer_dir(),
+      })
+    end, { desc = "[S]earch by [G]rep in current dir" })
     vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
     vim.keymap.set("n", "<leader>sk", builtin.keymaps, { desc = "[S]earch [K]eymaps" })
     vim.keymap.set("n", "<leader>sp", builtin.spell_suggest, { desc = "[S][P]ell" })
