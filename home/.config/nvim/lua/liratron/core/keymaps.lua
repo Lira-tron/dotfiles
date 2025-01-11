@@ -777,9 +777,9 @@ local function insert_date()
   local dateLine = "[[" .. date .. "]]" -- Formatted date line
   local row, _ = unpack(vim.api.nvim_win_get_cursor(0)) -- Get the current row number
   -- Insert both lines: heading and dateLine
-  vim.api.nvim_buf_set_lines(0, row, row, false, { dateLine })
+  vim.api.nvim_buf_set_lines(0, row - 1, row, false, { dateLine })
   -- Enter insert mode at the end of the current line
-  vim.cmd("startinsert!")
+  -- vim.cmd("startinsert!")
   return dateLine
   -- vim.api.nvim_win_set_cursor(0, { row, #heading })
 end
@@ -869,8 +869,6 @@ local function switch_to_daily_note(date_line)
   end
   vim.cmd("edit " .. vim.fn.fnameescape(full_path))
 end
-
-
 
 local function switch_to_monthly_note(date_line)
   local full_path = get_monthly_note_path(date_line)
