@@ -18,9 +18,9 @@ UNAME_S := $(shell uname -s)
 install-brew-packages:
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew install $(BREW_PACKAGES)
-	brew install font-meslo-lg-nerd-font
 	brew install font-jetbrains-mono
 ifeq ($(UNAME_S),Darwin)
+	brew install font-meslo-lg-nerd-font
 	brew install reattach-to-user-namespace pngpaste trash
 	brew install --cask --no-quarantine syntax-highlight
 	brew install --cask ghostty
