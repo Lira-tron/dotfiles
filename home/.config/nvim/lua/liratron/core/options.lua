@@ -79,7 +79,7 @@ vim.opt.foldnestmax = 3
 vim.opt.foldlevel = 99
 vim.opt.foldlevelstart = 99
 
-vim.g.notesdir = "/Users/lira/Documents/Notes"
+vim.g.notesdir = "/Users/limonoct/workplace/LimonoctNvim/src/LimonoctNvim/notes/journal"
 
 if vim.g.neovide then
   vim.keymap.set("v", "<D-c>", '"+y') -- Copy
