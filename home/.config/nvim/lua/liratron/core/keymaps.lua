@@ -18,14 +18,22 @@ vim.keymap.set("i", "<C-c>", "<Esc>")
 vim.keymap.set("n", "Q", "<nop>")
 -- vim.keymap.set({ "n", "v" }, "<leader>rf", vim.lsp.buf.format, { desc = "Format" })
 
-
 -- Movment remaps to deal with wordwrap
-vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true, desc = "Fixes word wrapping for k" })
-vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true, desc = "Fixes word wrapping for j" })
+vim.keymap.set(
+  "n",
+  "k",
+  "v:count == 0 ? 'gk' : 'k'",
+  { expr = true, silent = true, desc = "Fixes word wrapping for k" }
+)
+vim.keymap.set(
+  "n",
+  "j",
+  "v:count == 0 ? 'gj' : 'j'",
+  { expr = true, silent = true, desc = "Fixes word wrapping for j" }
+)
 
 vim.keymap.set("v", "<", "<gv", { desc = "Stay in visual mode after indenting with <" })
 vim.keymap.set("v", ">", ">gv", { desc = "Stay in visual mode after indenting with >" })
-
 
 -- vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
 -- vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
@@ -52,9 +60,9 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 vim.keymap.set("n", "gpe", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
 vim.keymap.set("n", "gne", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
 
-vim.keymap.set("n", "<leader>Xa", "<cmd>source %<CR>", {desc = "Reloads lua config"})
-vim.keymap.set("n", "<leader>Xf", ":.lua<CR>", {desc = "Reloads current line"})
-vim.keymap.set("v", "<leader>Xf", ":lua<CR>", {desc = "Reloads selected"})
+vim.keymap.set("n", "<leader>Xa", "<cmd>source %<CR>", { desc = "Reloads lua config" })
+vim.keymap.set("n", "<leader>Xf", ":.lua<CR>", { desc = "Reloads current line" })
+vim.keymap.set("v", "<leader>Xf", ":lua<CR>", { desc = "Reloads selected" })
 
 -- Markdown
 
@@ -609,7 +617,6 @@ vim.keymap.set("v", "gsml", function()
   -- vim.cmd("startinsert")
 end, { desc = "[P]Convert to link" })
 
-
 -- Function to delete the current file with confirmation
 local function delete_current_file()
   local current_file = vim.fn.expand("%:p")
@@ -662,7 +669,6 @@ vim.keymap.set("n", "<leader>fD", function()
   delete_current_file()
 end, { desc = "[F]ile [D]elete current" })
 
-
 -- Function to fold all headings of a specific level
 local function fold_headings_of_level(level)
   -- Move to the top of the file
@@ -707,7 +713,6 @@ vim.keymap.set("n", "z2", function()
   vim.cmd("edit!")
   vim.cmd("normal! zR") -- Unfold all headings
 end, { desc = "Unfold all headings level 2 or above" })
-
 
 -- Keymap for folding markdown headings of level 1 or above
 vim.keymap.set("n", "z1", function()
@@ -767,6 +772,18 @@ local function insert_heading_and_date(level)
   -- vim.api.nvim_win_set_cursor(0, { row, #heading })
 end
 
+local function insert_date()
+  local date = os.date("%Y-%m-%d-%A")
+  local dateLine = "[[" .. date .. "]]" -- Formatted date line
+  local row, _ = unpack(vim.api.nvim_win_get_cursor(0)) -- Get the current row number
+  -- Insert both lines: heading and dateLine
+  vim.api.nvim_buf_set_lines(0, row, row, false, { dateLine })
+  -- Enter insert mode at the end of the current line
+  vim.cmd("startinsert!")
+  return dateLine
+  -- vim.api.nvim_win_set_cursor(0, { row, #heading })
+end
+
 -- parse date line and generate file path components for the daily note
 local function parse_date_line(date_line)
   local year, month, day, weekday = date_line:match("%[%[(%d+)%-(%d+)%-(%d+)%-(%w+)%]%]")
@@ -790,7 +807,7 @@ local function get_daily_note_path(date_line)
 end
 
 local function get_monthly_note_path(date_line)
-  local note_dir, _ , monthly_note_name = parse_date_line(date_line)
+  local note_dir, _, monthly_note_name = parse_date_line(date_line)
   if not note_dir or not monthly_note_name then
     return nil
   end
@@ -812,7 +829,15 @@ local function create_note(full_path, type)
   if vim.fn.filereadable(full_path) == 0 then
     local file = io.open(full_path, "w")
     if file then
-      file:write("# Contents\n\n<!-- toc -->\n\n- [" .. type .. " note](#" .. type .. "-note)\n\n<!-- tocstop -->\n\n## Tasks \n- [ ] \n\n## " .. type .. " note\n\n")
+      file:write(
+        "# Contents\n\n<!-- toc -->\n\n- ["
+          .. type
+          .. " note](#"
+          .. type
+          .. "-note)\n\n<!-- tocstop -->\n\n## Tasks \n- [ ] \n\n## "
+          .. type
+          .. " note\n\n"
+      )
       file:close()
       vim.cmd("edit " .. vim.fn.fnameescape(full_path))
       vim.cmd("bd!")
@@ -828,15 +853,24 @@ local function create_note(full_path, type)
   end
 end
 
--- Function to switch to the daily note or create it if it does not exist
-local function switch_to_daily_note(date_line)
+local function create_daily_note(date_line)
   local full_path = get_daily_note_path(date_line)
   if not full_path then
-    return
+    return nil
   end
   create_note(full_path, "Daily")
+  return full_path
+end
+
+local function switch_to_daily_note(date_line)
+  local full_path = create_daily_note(date_line)
+  if not full_path then
+    return nil
+  end
   vim.cmd("edit " .. vim.fn.fnameescape(full_path))
 end
+
+
 
 local function switch_to_monthly_note(date_line)
   local full_path = get_monthly_note_path(date_line)
@@ -846,7 +880,6 @@ local function switch_to_monthly_note(date_line)
   create_note(full_path, "Monthly")
   vim.cmd("edit " .. vim.fn.fnameescape(full_path))
 end
-
 
 -- Keymap to switch to the daily note or create it if it does not exist
 vim.keymap.set("n", "<leader>w<leader>w", function()
@@ -862,35 +895,46 @@ vim.keymap.set("n", "<leader>w<leader>m", function()
   switch_to_monthly_note(date_line)
 end, { desc = "Go to or create monthly note" })
 
+vim.keymap.set("n", "<leader>wn", function()
+  local date_line = insert_date()
+  create_daily_note(date_line)
+end, { desc = "Create and Add bookmark to daily note" })
+
 -- These create the the markdown heading
 -- H1
 vim.keymap.set("n", "<leader>wha", function()
-  insert_heading_and_date(1)
+  local date_line = insert_heading_and_date(1)
+  create_note(date_line, "Daily")
 end, { desc = "H1 heading and date" })
 
 -- H2
 vim.keymap.set("n", "<leader>whb", function()
-  insert_heading_and_date(2)
+  local date_line = insert_heading_and_date(2)
+  create_note(date_line, "Daily")
 end, { desc = "H2 heading and date" })
 
 -- H3
 vim.keymap.set("n", "<leader>wht", function()
-  insert_heading_and_date(3)
+  local date_line = insert_heading_and_date(3)
+  create_note(date_line, "Daily")
 end, { desc = "[P]H3 heading and date" })
 
 -- H4
 vim.keymap.set("n", "<leader>whg", function()
-  insert_heading_and_date(4)
+  local date_line = insert_heading_and_date(4)
+  create_note(date_line, "Daily")
 end, { desc = "[P]H4 heading and date" })
 
 -- H5
 vim.keymap.set("n", "<leader>whm", function()
-   insert_heading_and_date(5)
+  local date_line = insert_heading_and_date(5)
+  create_note(date_line, "Daily")
 end, { desc = "[P]H5 heading and date" })
 
 -- H6
 vim.keymap.set("n", "<leader>whn", function()
-   insert_heading_and_date(6)
+  local date_line = insert_heading_and_date(6)
+  create_note(date_line, "Daily")
 end, { desc = "[P]H6 heading and date" })
 
 -- - There are some old ones that have more than one H1 heading in them, so when I
@@ -917,4 +961,3 @@ vim.keymap.set("n", "<leader>whI", function()
   -- Clear search highlight
   vim.cmd("nohlsearch")
 end, { desc = "[P]Decrease headings without confirmation" })
-
