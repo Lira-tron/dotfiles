@@ -50,8 +50,6 @@ vim.opt.sidescrolloff = 8 -- minimal number of screen columns either side of cur
 vim.opt.signcolumn = "yes"
 vim.opt.isfname:append("@-@")
 
-vim.opt.colorcolumn = "100"
-
 vim.opt.cursorline = true -- highlight the current line
 vim.opt.cursorcolumn = true -- highlight the current column
 
