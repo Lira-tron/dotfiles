@@ -1,0 +1,76 @@
+{
+  "bash code block": {
+    "prefix": "bash",
+    "body": ["```bash", "$1", "```"],
+    "description": "Insert a bash code block"
+  },
+
+  "yaml code block": {
+    "prefix": "yaml",
+    "body": ["```yaml", "$1", "```"],
+    "description": "Insert a yaml code block"
+  },
+
+  "go code block": {
+    "prefix": "go",
+    "body": ["```go", "$1", "```"],
+    "description": "Insert a go code block"
+  },
+
+  "java code block": {
+    "prefix": "java",
+    "body": ["```java", "$1", "```"],
+    "description": "Insert a kotlin code block"
+  },
+
+  "kotlin code block": {
+    "prefix": "kotlin",
+    "body": ["```kotlin", "$1", "```"],
+    "description": "Insert a kotlin code block"
+  },
+
+  "sql code block": {
+    "prefix": "sql",
+    "body": ["```sql", "$1", "```"],
+    "description": "Insert a sql code block"
+  },
+
+  "markdownlint": {
+    "prefix": "markdownlint",
+    "body": [
+      " ",
+      "<!-- markdownlint-disable -->",
+      " ",
+      "> $1",
+      " ",
+      "<!-- markdownlint-restore -->"
+    ],
+    "description": "Markdownlint disable range"
+  },
+
+  "prettier ignore": {
+    "prefix": "prettier-ignore",
+    "body": [
+      " ",
+      "<!-- prettier-ignore-start -->",
+      " ",
+      "> $1",
+      " ",
+      "<!-- prettier-ignore-end -->"
+    ],
+    "description": "Prettier ignore range"
+  },
+
+  "link in new tab": {
+    "prefix": "linkt",
+    "body": ["[$1]($2){:target=\"_blank\"}"],
+    "description": "Link with target"
+  },
+
+  "todo item": {
+    "prefix": "todo",
+    "body": ["<!-- TODO: $1 -->"],
+    "description": "Create a todo item"
+  },
+
+}
