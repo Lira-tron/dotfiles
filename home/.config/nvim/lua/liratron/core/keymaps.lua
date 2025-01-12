@@ -598,7 +598,7 @@ end, { desc = "[P]Toggle checkbox" })
 
 -- In visual mode, surround the selected text with markdown link syntax
 vim.keymap.set("v", "gsml", function()
-  -- Copy what's currently in my clipboard to the register "a lamw25wmal
+  -- Copy what's currently in my clipboard to the register l
   vim.cmd("let @a = getreg('+')")
   -- delete selected text
   vim.cmd("normal d")
@@ -663,6 +663,17 @@ local function delete_current_file()
     }, false, {})
   end
 end
+
+-- Function to copy file path to clipboard
+local function copy_filepath_to_clipboard()
+  local filePath = vim.fn.expand("%:~") -- Gets the file path relative to the home directory
+  vim.fn.setreg("+", filePath) -- Copy the file path to the clipboard register
+  vim.notify(filePath, vim.log.levels.INFO)
+  vim.notify("Path copied to clipboard: ", vim.log.levels.INFO)
+end
+-- Keymaps for copying file path to clipboard
+vim.keymap.set("n", "<leader>fp", copy_filepath_to_clipboard, { desc = "[P]Copy file path to clipboard" })
+
 
 -- Keymap to delete the current file
 vim.keymap.set("n", "<leader>fD", function()
@@ -753,6 +764,18 @@ vim.keymap.set("n", "z4", function()
   vim.cmd("normal! zR")
   fold_markdown_headings({ 6, 5, 4 })
 end, { desc = "Fold all headings level 4 or above" })
+
+-- jummps to the markdown hedading above and then folds it
+-- zi by default toggles folding
+vim.keymap.set("n", "zi", function()
+  -- Difference between normal and normal!
+  -- - `normal` executes the command and respects any mappings that might be defined.
+  -- - `normal!` executes the command in a "raw" mode, ignoring any mappings.
+  vim.cmd("normal <esc>")
+  -- This is to fold the line under the cursor
+  vim.cmd("normal! za")
+  vim.cmd("normal! zz") -- center the cursor line on screen
+end, { desc = "[P]Fold the heading cursor currently on" })
 
 --- Markdown headers
 -- These create the a markdown heading based on the level specified, and also
@@ -900,40 +923,10 @@ end, { desc = "Create and Add bookmark to daily note" })
 
 -- These create the the markdown heading
 -- H1
-vim.keymap.set("n", "<leader>wha", function()
+vim.keymap.set("n", "<leader>wh1", function()
   local date_line = insert_heading_and_date(1)
   create_note(date_line, "Daily")
 end, { desc = "H1 heading and date" })
-
--- H2
-vim.keymap.set("n", "<leader>whb", function()
-  local date_line = insert_heading_and_date(2)
-  create_note(date_line, "Daily")
-end, { desc = "H2 heading and date" })
-
--- H3
-vim.keymap.set("n", "<leader>wht", function()
-  local date_line = insert_heading_and_date(3)
-  create_note(date_line, "Daily")
-end, { desc = "[P]H3 heading and date" })
-
--- H4
-vim.keymap.set("n", "<leader>whg", function()
-  local date_line = insert_heading_and_date(4)
-  create_note(date_line, "Daily")
-end, { desc = "[P]H4 heading and date" })
-
--- H5
-vim.keymap.set("n", "<leader>whm", function()
-  local date_line = insert_heading_and_date(5)
-  create_note(date_line, "Daily")
-end, { desc = "[P]H5 heading and date" })
-
--- H6
-vim.keymap.set("n", "<leader>whn", function()
-  local date_line = insert_heading_and_date(6)
-  create_note(date_line, "Daily")
-end, { desc = "[P]H6 heading and date" })
 
 -- - There are some old ones that have more than one H1 heading in them, so when I
 --   open one of those old documents, I want to add one more `#` to each heading
@@ -946,7 +939,7 @@ vim.keymap.set("n", "<leader>whi", function()
   vim.api.nvim_win_set_cursor(0, cursor_pos)
   -- Clear search highlight
   vim.cmd("nohlsearch")
-end, { desc = "[P]Increase headings without confirmation" })
+end, { desc = "Increase headings without confirmation" })
 
 vim.keymap.set("n", "<leader>whI", function()
   -- Save the current cursor position
@@ -958,4 +951,4 @@ vim.keymap.set("n", "<leader>whI", function()
   vim.api.nvim_win_set_cursor(0, cursor_pos)
   -- Clear search highlight
   vim.cmd("nohlsearch")
-end, { desc = "[P]Decrease headings without confirmation" })
+end, { desc = "Decrease headings without confirmation" })
