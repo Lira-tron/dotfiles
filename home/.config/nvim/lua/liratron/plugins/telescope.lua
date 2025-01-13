@@ -23,11 +23,8 @@ return {
           case_mode = "smart_case", -- or "ignore_case" or "respect_case"                                 -- the default case_mode is "smart_case"
         },
         frecency = {
-          show_scores = false, -- Default: false
-          db_safe_mode = false, -- Default: true
-          auto_validate = true, -- Default: true
-          db_validate_threshold = 10, -- Default: 10
           show_filter_column = false, -- Default: true
+          matcher = "fuzzy",
         },
       },
       defaults = telescopeThemes.get_ivy({
