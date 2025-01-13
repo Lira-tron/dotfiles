@@ -931,11 +931,13 @@ local function switch_to_monthly_note(date_line)
     .. "- [Important](#important)\n"
     .. "- [Daily Notes](#daily-notes)\n"
     .. "- [Tasks](#Tasks)\n"
-    .. "- [Notes](#notes)\n<!-- tocstop -->\n"
+    .. "- [Notes](#notes)\n"
+    .. "- [Meetings](#meetings)\n<!-- tocstop -->\n"
     .. "## Important \n- \n\n"
     .. "## Daily Notes \n- \n\n"
     .. "## Tasks \n- [ ] \n\n"
-    .. "## Notes\n\n- "
+    .. "## Notes\n- \n\n"
+    .. "## Meetings\n- \n\n"
   create_note(full_path, content)
   vim.cmd("edit " .. vim.fn.fnameescape(full_path))
 end
