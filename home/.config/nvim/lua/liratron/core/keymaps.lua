@@ -653,7 +653,6 @@ end
 -- Keymaps for copying file path to clipboard
 vim.keymap.set("n", "<leader>fp", copy_filepath_to_clipboard, { desc = "[P]Copy file path to clipboard" })
 
-
 -- Keymap to delete the current file
 vim.keymap.set("n", "<leader>fD", function()
   delete_current_file()

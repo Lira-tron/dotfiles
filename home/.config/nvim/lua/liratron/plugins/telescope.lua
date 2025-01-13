@@ -100,7 +100,45 @@ return {
     end
 
     vim.keymap.set("n", "<leader>s?", builtin.oldfiles, { desc = "[?] Find recently opened files" })
-    vim.keymap.set("n", "<leader>sb", builtin.buffers, { desc = "[ ] Find existing buffers" })
+    vim.keymap.set("n", "<leader>sb", function()
+      builtin.buffers({
+        sort_mru = true,
+        -- -- Sorts current and last buffer to the top and selects the lastused (default: false)
+        -- -- Leave this at false, otherwise when put in normal mode, the buffer
+        -- -- below is selected, not the one at the top
+        sort_lastused = false,
+        attach_mappings = function(prompt_bufnr, map)
+              local action_state = require("telescope.actions.state")
+              local bd = require("mini.bufremove").delete
+              local delete_buffer = function()
+                local current_picker = action_state.get_current_picker(prompt_bufnr)
+                current_picker:delete_selection(function(selection)
+                  local bufnr = selection.bufnr
+                  local force = vim.api.nvim_buf_get_option(bufnr, "buftype") == "terminal"
+                  if force then
+                    return pcall(vim.api.nvim_buf_delete, bufnr, { force = force })
+                  elseif vim.fn.getbufvar(bufnr, "&modified") == 1 then
+                    local choice =
+                      vim.fn.confirm(("Save changes to %q?"):format(vim.fn.bufname(bufnr)), "&Yes\n&No\n&Cancel")
+                    if choice == 1 then -- Yes
+                      vim.api.nvim_buf_call(bufnr, function()
+                        vim.cmd("write")
+                      end)
+                      return bd(bufnr)
+                    elseif choice == 2 then -- No
+                      return bd(bufnr, true)
+                    end
+                  else
+                    return bd(bufnr)
+                  end
+                end)
+              end
+              map("n", "<M-d>", delete_buffer)
+              map("i", "<M-d>", delete_buffer)
+              return true
+            end,
+      })
+    end, { desc = "[ ] Find existing buffers" })
     vim.keymap.set("n", "<leader>sc", builtin.current_buffer_fuzzy_find, { desc = "[S]earch  in current buffer" })
 
     vim.keymap.set("n", "<leader>sgf", builtin.git_files, { desc = "Search Git [F]iles" })
