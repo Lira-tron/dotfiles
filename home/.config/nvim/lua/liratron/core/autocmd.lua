@@ -134,7 +134,7 @@ vim.api.nvim_create_autocmd({ "WinLeave", "FocusLost" }, {
 api.nvim_create_autocmd(
   { "BufRead", "BufNewFile" },
   {
-    pattern = { "*.txt", "*.md", "*.tex" },
+    pattern = { "*.txt", "*.md", "*.tex", "plaintex", "text", "gitcommit" },
     callback = function()
       vim.opt.spell = true
       vim.opt.spelllang = "en"

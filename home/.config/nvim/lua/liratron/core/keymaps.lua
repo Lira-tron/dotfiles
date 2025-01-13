@@ -434,6 +434,8 @@ vim.keymap.set("n", "<leader>wt", function()
   vim.cmd("loadview")
 end, { desc = "[P]Toggle task and move it to 'done'" })
 
+-- SPELL
+
 -- Keymap to switch spelling language to English lamw25wmal
 -- To save the language settings configured on each buffer, you need to add
 -- "localoptions" to vim.opt.sessionoptions in the `lua/config/options.lua` file
@@ -453,6 +455,18 @@ vim.keymap.set("n", "<leader>wsb", function()
   vim.opt.spelllang = "en,es"
   vim.cmd("echo 'Spell language set to Spanish and English'")
 end, { desc = "[P]Spelling language Spanish and English" })
+
+-- markdown good, accept spell suggestion
+-- Add word under the cursor as a good word
+vim.keymap.set("n", "<leader>wsa", function()
+  vim.cmd("normal! zg")
+end, { desc = "[P]Spelling add word to spellfile" })
+
+-- Undo zw, remove the word from the entry in 'spellfile'.
+vim.keymap.set("n", "<leader>wsd", function()
+  vim.cmd("normal! zug")
+end, { desc = "[P]Spelling undo, remove word from list" })
+
 
 -- Surround the http:// url that the cursor is currently in with ``
 vim.keymap.set("n", "gsmu", function()
@@ -595,6 +609,8 @@ vim.keymap.set("n", "<leader>wc", function()
   -- Insert the checkbox
   vim.api.nvim_put({ "- [ ] " }, "c", true, true)
 end, { desc = "[P]Toggle checkbox" })
+
+-- FILES
 
 -- Function to delete the current file with confirmation
 local function delete_current_file()
