@@ -853,7 +853,7 @@ local function create_note(full_path, type)
     local file = io.open(full_path, "w")
     if file then
       file:write(
-        "# Contents\n\n<!-- toc -->\n\n- ["
+        "## Contents\n\n<!-- toc -->\n\n- ["
           .. type
           .. " note](#"
           .. type
@@ -864,10 +864,10 @@ local function create_note(full_path, type)
       file:close()
       vim.cmd("edit " .. vim.fn.fnameescape(full_path))
       vim.cmd("bd!")
-      vim.api.nvim_echo({
-        { "CREATED DAILY NOTE\n", "WarningMsg" },
-        { full_path, "WarningMsg" },
-      }, false, {})
+      -- vim.api.nvim_echo({
+      --   { "CREATED DAILY NOTE\n", "WarningMsg" },
+      --   { full_path, "WarningMsg" },
+      -- }, false, {})
     else
       print("Failed to create file: " .. full_path)
     end
