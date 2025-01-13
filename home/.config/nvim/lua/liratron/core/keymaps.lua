@@ -596,27 +596,6 @@ vim.keymap.set("n", "<leader>wc", function()
   vim.api.nvim_put({ "- [ ] " }, "c", true, true)
 end, { desc = "[P]Toggle checkbox" })
 
--- In visual mode, surround the selected text with markdown link syntax
-vim.keymap.set("v", "gsml", function()
-  -- Copy what's currently in my clipboard to the register l
-  vim.cmd("let @a = getreg('+')")
-  -- delete selected text
-  vim.cmd("normal d")
-  -- Insert the following in insert mode
-  vim.cmd("startinsert")
-  vim.api.nvim_put({ "[]() " }, "c", true, true)
-  -- Move to the left, paste, and then move to the right
-  vim.cmd("normal F[pf(")
-  -- Copy what's on the "a register back to the clipboard
-  vim.cmd("call setreg('+', @a)")
-  -- Paste what's on the clipboard
-  vim.cmd("normal p")
-  -- Leave me in normal mode or command mode
-  vim.cmd("stopinsert")
-  -- Leave me in insert mode to start typing
-  -- vim.cmd("startinsert")
-end, { desc = "[P]Convert to link" })
-
 -- Function to delete the current file with confirmation
 local function delete_current_file()
   local current_file = vim.fn.expand("%:p")
@@ -849,6 +828,7 @@ local function create_note(full_path, type)
   -- Ensure the directory exists
   vim.fn.mkdir(note_dir, "p")
   -- Check if the file exists and create it if it doesn't
+
   if vim.fn.filereadable(full_path) == 0 then
     local file = io.open(full_path, "w")
     if file then
@@ -871,8 +851,6 @@ local function create_note(full_path, type)
     else
       print("Failed to create file: " .. full_path)
     end
-  else
-    print("Daily note already exists: " .. full_path)
   end
 end
 

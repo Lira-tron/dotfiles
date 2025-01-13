@@ -32,6 +32,8 @@ return {
         { "gh", group = "Hierarchy" },
         { "gl", group = "Line/Gen AI" },
         { "gc", group = "Comment/Code" },
+        { "gsm", group = "Custom surround" },
+        { "gs", group = "Surround" },
       },
     })
   end,
