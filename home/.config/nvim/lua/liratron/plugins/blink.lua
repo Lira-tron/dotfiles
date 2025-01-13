@@ -46,7 +46,7 @@ return {
         },
         documentation = {
           auto_show = true,
-          auto_show_delay_ms = 50,
+          auto_show_delay_ms = 10,
           window = {
             border = "single",
             winhighlight = "Normal:None,FloatBorder:None,CursorLine:None,BlinkCmpDocSeparator:None",
@@ -63,7 +63,7 @@ return {
           emoji = {
             module = "blink-emoji",
             name = "Emoji",
-            score_offset = -20, -- the higher the number, the higher the priority
+            score_offset = -24, -- the higher the number, the higher the priority
             opts = { insert = true }, -- Insert emoji (default) or complete its name
           },
           dictionary = {

@@ -650,6 +650,7 @@ local function copy_filepath_to_clipboard()
   vim.notify(filePath, vim.log.levels.INFO)
   vim.notify("Path copied to clipboard: ", vim.log.levels.INFO)
 end
+
 -- Keymaps for copying file path to clipboard
 vim.keymap.set("n", "<leader>fp", copy_filepath_to_clipboard, { desc = "[P]Copy file path to clipboard" })
 
@@ -657,6 +658,23 @@ vim.keymap.set("n", "<leader>fp", copy_filepath_to_clipboard, { desc = "[P]Copy 
 vim.keymap.set("n", "<leader>fD", function()
   delete_current_file()
 end, { desc = "[F]ile [D]elete current" })
+
+-- Function to open current file in Finder or ForkLift
+local function open_in_file_manager()
+  local file_path = vim.fn.expand("%:p")
+  if file_path ~= "" then
+    -- -- Open in Finder or in ForkLift
+    local command = "open -R " .. vim.fn.shellescape(file_path)
+    vim.fn.system(command)
+    print("Opened file in Finder: " .. file_path)
+  else
+    print("No file is currently open")
+  end
+end
+
+vim.keymap.set("n", "<leader>fO", open_in_file_manager, { desc = "Open current file in file explorer" })
+
+--- FOLDS
 
 -- Function to fold all headings of a specific level
 local function fold_headings_of_level(level)
