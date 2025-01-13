@@ -211,10 +211,12 @@ return {
     end, { desc = "[P]roject [V]iew" })
 
     vim.keymap.set("n", "<leader>stt", "<cmd>TodoTelescope keywords=TODO<cr>", { desc = "[T]odo" })
+        vim.keymap.set("n", "<leader>stp", "<cmd>TodoTelescope cwd=" .. vim.g.notesdir
+      .. " keywords=TODO<cr>", { desc = "[T]odo for [P]lanning" })
     vim.keymap.set(
       "n",
-      "<leader>stT",
-      "<cmd>TodoTelescope keywords=PERF,HACK,TODO,NOTE,FIX<cr>",
+      "<leader>sta",
+      "<cmd>TodoTelescope keywords=PERF,HACK,TODO,NOTE,TEAM,FIX<cr>",
       { desc = "[T]odo ALL" }
     )
 

@@ -90,9 +90,33 @@ vim.keymap.set("v", "<leader>wd", function()
   end
 end, { desc = "[P]Delete newlines in selected text (join)" })
 
+-- Detect todos and toggle between ":" and ";", or show a message if not found
+-- This is to "mark them as done"
+vim.keymap.set("n", "<leader>std", function()
+  -- Get the current line
+  local current_line = vim.fn.getline(".")
+  -- Get the current line number
+  local line_number = vim.fn.line(".")
+  if string.find(current_line, "TODO:") then
+    -- Replace the first occurrence of ":" with ";"
+    local new_line = current_line:gsub("TODO:", "TODO;")
+    -- Set the modified line
+    vim.fn.setline(line_number, new_line)
+  elseif string.find(current_line, "TODO;") then
+    -- Replace the first occurrence of ";" with ":"
+    local new_line = current_line:gsub("TODO;", "TODO:")
+    -- Set the modified line
+    vim.fn.setline(line_number, new_line)
+  else
+    vim.cmd("echo 'todo item not detected'")
+  end
+end, { desc = "TODO toggle item done or not" })
+
+
+
 -- Generate/update a Markdown TOC
 -- And the markdown-toc plugin installed in Mason
-local function update_markdown_toc(heading2, heading3)
+local function update_markdown_toc(heading2)
   local path = vim.fn.expand("%") -- Expands the current file name to a full path
   local bufnr = 0 -- The current buffer number, 0 references the current active buffer
   -- Save the current view
@@ -121,7 +145,7 @@ local function update_markdown_toc(heading2, heading3)
   end
   -- Inserts H2 and H3 headings and <!-- toc --> at the appropriate position
   if not toc_exists then
-    local insertion_line = 1 -- Default insertion point after first line
+    local insertion_line = 0 -- Default insertion point after first line
     if frontmatter_end > 0 then
       -- Find H1 after frontmatter
       for i = frontmatter_end + 1, #lines do
@@ -140,8 +164,8 @@ local function update_markdown_toc(heading2, heading3)
       end
     end
     -- Insert the specified headings and <!-- toc --> without blank lines
-    -- Insert the TOC inside a H2 and H3 heading right below the main H1 at the top lamw25wmal
-    vim.api.nvim_buf_set_lines(bufnr, insertion_line, insertion_line, false, { heading2, heading3, "<!-- toc -->" })
+    -- Insert the TOC inside a H2 below H1
+    vim.api.nvim_buf_set_lines(bufnr, insertion_line, insertion_line, false, { heading2, "<!-- toc -->" })
   end
   -- Silently save the file, in case TOC is being created for the first time
   vim.cmd("silent write")
@@ -159,7 +183,7 @@ end
 
 -- Keymap for English TOC
 vim.keymap.set("n", "<leader>wT", function()
-  update_markdown_toc("## Contents", "### Table of contents")
+  update_markdown_toc("## Contents")
 end, { desc = "Insert/update Markdown [T]OC (English)" })
 
 vim.keymap.set({ "n", "v" }, "gpw", function()
@@ -466,7 +490,6 @@ end, { desc = "[P]Spelling add word to spellfile" })
 vim.keymap.set("n", "<leader>wsd", function()
   vim.cmd("normal! zug")
 end, { desc = "[P]Spelling undo, remove word from list" })
-
 
 -- Surround the http:// url that the cursor is currently in with ``
 vim.keymap.set("n", "gsmu", function()
@@ -838,7 +861,7 @@ local function get_daily_note_path(date_line)
   if not note_dir or not daily_note_name then
     return nil
   end
-  return note_dir .. "/" .. daily_note_name
+  return note_dir .. "/" .. daily_note_name, daily_note_name
 end
 
 local function get_monthly_note_path(date_line)
@@ -846,14 +869,10 @@ local function get_monthly_note_path(date_line)
   if not note_dir or not monthly_note_name then
     return nil
   end
-  return note_dir .. "/" .. monthly_note_name
+  return note_dir .. "/" .. monthly_note_name, monthly_note_name
 end
 
--- Updated create_daily_note function using helper functions
--- Create or find a daily note based on a date line format and open it in Neovim
--- This is used in obsidian markdown files that have the "Link to non-existent
--- document" warning
-local function create_note(full_path, type)
+local function create_note(full_path, content)
   if not full_path then
     return
   end
@@ -865,15 +884,7 @@ local function create_note(full_path, type)
   if vim.fn.filereadable(full_path) == 0 then
     local file = io.open(full_path, "w")
     if file then
-      file:write(
-        "## Contents\n\n<!-- toc -->\n\n- ["
-          .. type
-          .. " note](#"
-          .. type
-          .. "-note)\n\n<!-- tocstop -->\n\n## Tasks \n- [ ] \n\n## "
-          .. type
-          .. " note\n\n"
-      )
+      file:write(content)
       file:close()
       vim.cmd("edit " .. vim.fn.fnameescape(full_path))
       vim.cmd("bd!")
@@ -888,11 +899,17 @@ local function create_note(full_path, type)
 end
 
 local function create_daily_note(date_line)
-  local full_path = get_daily_note_path(date_line)
+  local full_path, note_name = get_daily_note_path(date_line)
   if not full_path then
-    return nil
+    return
   end
-  create_note(full_path, "Daily")
+  local content = "# Daily Note " .. note_name .. "\n\n"
+    .. "## Contents\n<!-- toc -->\n"
+    .. "- [Tasks](#tasks)\n"
+    .. "- [Notes](#notes)\n<!-- tocstop -->\n"
+    .. "## Tasks \n- [ ] \n\n"
+    .. "## Notes\n- "
+  create_note(full_path, content)
   return full_path
 end
 
@@ -905,11 +922,21 @@ local function switch_to_daily_note(date_line)
 end
 
 local function switch_to_monthly_note(date_line)
-  local full_path = get_monthly_note_path(date_line)
+  local full_path, note_name = get_monthly_note_path(date_line)
   if not full_path then
     return
   end
-  create_note(full_path, "Monthly")
+  local content = "# Monthly Note " .. note_name .. "\n\n"
+    .. "## Contents\n<!-- toc -->\n"
+    .. "- [Important](#important)\n"
+    .. "- [Daily Notes](#daily-notes)\n"
+    .. "- [Tasks](#Tasks)\n"
+    .. "- [Notes](#notes)\n<!-- tocstop -->\n"
+    .. "## Important \n- \n\n"
+    .. "## Daily Notes \n- \n\n"
+    .. "## Tasks \n- [ ] \n\n"
+    .. "## Notes\n\n- "
+  create_note(full_path, content)
   vim.cmd("edit " .. vim.fn.fnameescape(full_path))
 end
 
