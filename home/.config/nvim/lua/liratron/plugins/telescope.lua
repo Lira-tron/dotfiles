@@ -8,6 +8,7 @@ return {
     "nvim-telescope/telescope-file-browser.nvim",
     "albenisolmos/telescope-oil.nvim",
     "folke/todo-comments.nvim",
+    { "nvim-telescope/telescope-frecency.nvim", version = "*" },
   },
   config = function()
     local telescope = require("telescope")
@@ -20,6 +21,13 @@ return {
           override_generic_sorter = true, -- override the generic sorter
           override_file_sorter = true, -- override the file sorter
           case_mode = "smart_case", -- or "ignore_case" or "respect_case"                                 -- the default case_mode is "smart_case"
+        },
+        frecency = {
+          show_scores = false, -- Default: false
+          db_safe_mode = false, -- Default: true
+          auto_validate = true, -- Default: true
+          db_validate_threshold = 10, -- Default: 10
+          show_filter_column = false, -- Default: true
         },
       },
       defaults = telescopeThemes.get_ivy({
@@ -86,6 +94,7 @@ return {
     telescope.load_extension("fzf")
     telescope.load_extension("oil")
     telescope.load_extension("dap")
+    telescope.load_extension("frecency")
 
     -- set keymaps
     local builtin = require("telescope.builtin")
@@ -108,35 +117,35 @@ return {
         -- -- below is selected, not the one at the top
         sort_lastused = false,
         attach_mappings = function(prompt_bufnr, map)
-              local action_state = require("telescope.actions.state")
-              local bd = require("mini.bufremove").delete
-              local delete_buffer = function()
-                local current_picker = action_state.get_current_picker(prompt_bufnr)
-                current_picker:delete_selection(function(selection)
-                  local bufnr = selection.bufnr
-                  local force = vim.api.nvim_buf_get_option(bufnr, "buftype") == "terminal"
-                  if force then
-                    return pcall(vim.api.nvim_buf_delete, bufnr, { force = force })
-                  elseif vim.fn.getbufvar(bufnr, "&modified") == 1 then
-                    local choice =
-                      vim.fn.confirm(("Save changes to %q?"):format(vim.fn.bufname(bufnr)), "&Yes\n&No\n&Cancel")
-                    if choice == 1 then -- Yes
-                      vim.api.nvim_buf_call(bufnr, function()
-                        vim.cmd("write")
-                      end)
-                      return bd(bufnr)
-                    elseif choice == 2 then -- No
-                      return bd(bufnr, true)
-                    end
-                  else
-                    return bd(bufnr)
-                  end
-                end)
+          local action_state = require("telescope.actions.state")
+          local bd = require("mini.bufremove").delete
+          local delete_buffer = function()
+            local current_picker = action_state.get_current_picker(prompt_bufnr)
+            current_picker:delete_selection(function(selection)
+              local bufnr = selection.bufnr
+              local force = vim.api.nvim_buf_get_option(bufnr, "buftype") == "terminal"
+              if force then
+                return pcall(vim.api.nvim_buf_delete, bufnr, { force = force })
+              elseif vim.fn.getbufvar(bufnr, "&modified") == 1 then
+                local choice =
+                  vim.fn.confirm(("Save changes to %q?"):format(vim.fn.bufname(bufnr)), "&Yes\n&No\n&Cancel")
+                if choice == 1 then -- Yes
+                  vim.api.nvim_buf_call(bufnr, function()
+                    vim.cmd("write")
+                  end)
+                  return bd(bufnr)
+                elseif choice == 2 then -- No
+                  return bd(bufnr, true)
+                end
+              else
+                return bd(bufnr)
               end
-              map("n", "<M-d>", delete_buffer)
-              map("i", "<M-d>", delete_buffer)
-              return true
-            end,
+            end)
+          end
+          map("n", "<M-d>", delete_buffer)
+          map("i", "<M-d>", delete_buffer)
+          return true
+        end,
       })
     end, { desc = "[ ] Find existing buffers" })
     vim.keymap.set("n", "<leader>sc", builtin.current_buffer_fuzzy_find, { desc = "[S]earch  in current buffer" })
@@ -145,7 +154,16 @@ return {
     vim.keymap.set("n", "<leader>sgb", builtin.git_branches, { desc = "Search [G]it [B]ranches" })
     vim.keymap.set("n", "<leader>sgs", builtin.git_status, { desc = "Search Git [S]tatus" })
     vim.keymap.set("n", "<leader>sgc", builtin.git_commits, { desc = "Search Git [C]ommits" })
-    vim.keymap.set("n", "<leader>sf", builtin.find_files, { desc = "[S]earch [F]iles" })
+    -- vim.keymap.set("n", "<leader>sf", builtin.find_files, { desc = "[S]earch [F]iles" })
+    vim.keymap.set("n", "<leader>sf", function()
+      local cwd = vim.fn.getcwd()
+      telescope.extensions.frecency.frecency({
+        workspace = "CWD",
+        cwd = cwd,
+        prompt_title = "[S]earch [F]iles in " .. cwd,
+      })
+    end, { desc = "[S]earch [F]iles" })
+
     vim.keymap.set("n", "<leader>sF", function()
       -- Use Telescope's find_files with a specific cwd
       builtin.find_files({
