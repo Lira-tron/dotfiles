@@ -1,0 +1,15 @@
+{
+	"contributes": {
+		"snippets": [
+			{
+				"language": "go",
+				"path": "./go.json"
+			},
+			{
+				"language": "markdown",
+				"path": "./markdown.json"
+			}
+		]
+	},
+	"name": "Lira-snippets"
+}
