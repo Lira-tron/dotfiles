@@ -4,9 +4,9 @@
 format = """
 $directory\
 $git_branch\
-$git_state\
 $git_status\
 $git_commit\
+$git_state\
 $aws\
 $hostname\
 $time\
