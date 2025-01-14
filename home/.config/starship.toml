@@ -76,6 +76,7 @@ style = "orange"
 style = "blue"
 read_only_style = 'fg:orange'
 read_only = " "
+truncate_to_repo = false
 
 [status]
 symbol = "[x](bold red) "
