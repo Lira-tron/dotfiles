@@ -1,95 +1,85 @@
+# Get editor completions based on the config schema
+'$schema' = 'https://starship.rs/config-schema.json'
+
+format = """
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$git_commit\
+$aws\
+$hostname\
+$time\
+$cmd_duration\
+$line_break\
+$status\
+$character"""
+
+# Move the directory to the second line
+palette = 'gruvbox-material'
+
+[palettes.gruvbox-material]
+# background
+bg_dim = '#141617'
+bg0 = '#1D2021'
+bg1 = '#282828'
+bg3 = '#3C3836'
+# middleground
+grey0 = '#7C6F64'
+grey1 = '#928374'
+# foreground
+fgO = '#D4BE98'
+fg1 = '#DDC7A1'
+# normal colors
+red = '#EA696A'
+green = '#A9B665'
+yellow = '#D8A657'
+blue = '#7DAEA3'
+purple = '#D3869B'
+aqua = '#89B482'
+orange = '#E78A4E'
+# dim colors
+bg_red = '#EA6962'
+bg_green = '#A9B665'
+bg_yellow = '#D8A657'
+bg_blue = '#659F92'
+bg_purple = '#C86580'
+bg_aqua = '#6BA163'
+bg_orange = '#E16F23'
+
 [character]
-success_symbol = "[>](bold green)"
-error_symbol = "[x](bold red)"
-vimcmd_symbol = "[<](bold green)"
+success_symbol = "[❯](purple)"
+error_symbol = "[❯](red)"
+vimcmd_symbol = "[❮](green)"
+
+[hostname]
+ssh_only = true
+format = "[$hostname](bold fg:purple) "
+trim_at = "."
+disabled = false
 
 [git_commit]
 tag_symbol = " tag "
 
 [git_status]
-ahead = ">"
-behind = "<"
-diverged = "<>"
-renamed = "r"
-deleted = "x"
-
-[aws]
-symbol = "aws "
-
-[directory]
-read_only = " ro"
-
-[docker_context]
-symbol = "docker "
+style = "grey1"
 
 [git_branch]
 format = "[$branch ]($style)"
-style = "bright-black"
+style = "grey1"
 
-[gradle]
-symbol = "gradle "
+[aws]
+symbol = "aws "
+style = "orange"
 
-[memory_usage]
-symbol = "memory "
-
-
-[os.symbols]
-Alpaquita = "alq "
-Alpine = "alp "
-Amazon = "amz "
-Android = "andr "
-Arch = "rch "
-Artix = "atx "
-CentOS = "cent "
-Debian = "deb "
-DragonFly = "dfbsd "
-Emscripten = "emsc "
-EndeavourOS = "ndev "
-Fedora = "fed "
-FreeBSD = "fbsd "
-Garuda = "garu "
-Gentoo = "gent "
-HardenedBSD = "hbsd "
-Illumos = "lum "
-Linux = "lnx "
-Mabox = "mbox "
-Macos = "mac "
-Manjaro = "mjo "
-Mariner = "mrn "
-MidnightBSD = "mid "
-Mint = "mint "
-NetBSD = "nbsd "
-NixOS = "nix "
-OpenBSD = "obsd "
-OpenCloudOS = "ocos "
-openEuler = "oeul "
-openSUSE = "osuse "
-OracleLinux = "orac "
-Pop = "pop "
-Raspbian = "rasp "
-Redhat = "rhl "
-RedHatEnterprise = "rhel "
-Redox = "redox "
-Solus = "sol "
-SUSE = "suse "
-Ubuntu = "ubnt "
-Unknown = "unk "
-Windows = "win "
-
-[os]
-disabled = true
-
-[package]
-symbol = "pkg "
+[directory]
+style = "blue"
+read_only_style = 'fg:orange'
+read_only = " "
 
 [status]
 symbol = "[x](bold red) "
 
-[sudo]
-symbol = "sudo "
+[time]
+disabled = false
 
-[username]
-disabled = true
-
-[battery]
-disabled = true
