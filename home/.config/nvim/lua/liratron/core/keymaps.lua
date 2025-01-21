@@ -92,7 +92,7 @@ end, { desc = "[P]Delete newlines in selected text (join)" })
 
 -- Detect todos and toggle between ":" and ";", or show a message if not found
 -- This is to "mark them as done"
-vim.keymap.set("n", "<leader>std", function()
+vim.keymap.set("n", "<leader>wtd", function()
   -- Get the current line
   local current_line = vim.fn.getline(".")
   -- Get the current line number
@@ -208,7 +208,7 @@ end, { desc = "[P]Go to next markdown header" })
 
 -- Toggle bullet point at the beginning of the current line in normal mode
 -- If in a multiline paragraph, make sure the cursor is on the line at the top
--- "d" is for "dash" lamw25wmal
+-- "d" is for "dash"
 vim.keymap.set("n", "<leader>wm", function()
   -- Get the current cursor position
   local cursor_pos = vim.api.nvim_win_get_cursor(0)
@@ -259,10 +259,10 @@ end, { desc = "[P]Toggle bullet point (dash)" })
 -- If there is no `untoggled` or `done` label on an item, mark it as done
 -- and move it to the "## completed tasks" markdown heading in the same file, if
 -- the heading does not exist, it will be created, if it exists, items will be
--- appended to it at the top lamw25wmal
+-- appended to it at the top
 --
 -- If an item is moved to that heading, it will be added the `done` label
-vim.keymap.set("n", "<leader>wt", function()
+vim.keymap.set("n", "<leader>wtt", function()
   -- Customizable variables
   -- NOTE: Customize the completion label
   local label_done = "done:"
@@ -460,7 +460,7 @@ end, { desc = "[P]Toggle task and move it to 'done'" })
 
 -- SPELL
 
--- Keymap to switch spelling language to English lamw25wmal
+-- Keymap to switch spelling language to English
 -- To save the language settings configured on each buffer, you need to add
 -- "localoptions" to vim.opt.sessionoptions in the `lua/config/options.lua` file
 vim.keymap.set("n", "<leader>wse", function()
@@ -525,7 +525,7 @@ vim.keymap.set("v", "gsmc", function()
   -- I tried these 3, but they didn't work, I assume because of the backtick character
 end, { desc = "Surround selection with backticks (inline code)" })
 
--- This surrounds CURRENT WORD with inline code in NORMAL MODE lamw25wmal
+-- This surrounds CURRENT WORD with inline code in NORMAL MODE
 vim.keymap.set("n", "gsmw", function()
   -- Use nvim_replace_termcodes to handle special characters like backticks
   local keys = vim.api.nvim_replace_termcodes("gsaiw`", true, false, true)
@@ -752,7 +752,7 @@ end
 
 -- Keymap for unfolding markdown headings of level 2 or above
 -- Changed all the markdown folding and unfolding keymaps from <leader>mfj to
--- zj, zk, zl, z; and zu respectively lamw25wmal
+-- zj, zk, zl, z; and zu respectively
 vim.keymap.set("n", "z2", function()
   -- vim.keymap.set("n", "<leader>mfu", function()
   -- Reloads the file to reflect the changes
