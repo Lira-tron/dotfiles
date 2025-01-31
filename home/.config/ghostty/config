@@ -6,7 +6,7 @@
 # theme = Everforest Dark - Hard
 # theme = GruvboxDark
 theme = gruvbox-material
- # theme = gruvbox-material-soft-dark
+# theme = gruvbox-material-soft-dark
 # theme = GruvboxDarkHard
 
 # This fixes the gruvbox-material
@@ -14,8 +14,28 @@ selection-invert-fg-bg = true
 # ghost text color
 # palette = 8=#44403d
 # palette = 8=#928374
-palette = 8=#666666
+
 cursor-color = #d3869b
+palette = 0=#141617
+palette = 1=#ea6962
+palette = 2=#a9b665
+palette = 3=#d8a657
+palette = 4=#7daea3
+palette = 5=#d3869b
+palette = 6=#89b482
+palette = 7=#ddc7a1
+palette = 8=#666666
+palette = 9=#ea6962
+palette = 10=#a9b665
+palette = 11=#d8a657
+palette = 12=#7daea3
+palette = 13=#d3869b
+palette = 14=#89b482
+palette = 15=#ddc7a1
+background = #282828
+cursor-text = #141617
+selection-foreground = #333e34
+
 
 # Some shaders can be found in this repo, they're usually uploaded to discord
 # https://github.com/hackrmomo/ghostty-shaders
