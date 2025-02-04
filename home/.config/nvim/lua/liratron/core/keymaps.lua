@@ -907,8 +907,8 @@ local function create_daily_note(date_line)
     .. "## Contents\n<!-- toc -->\n"
     .. "- [Tasks](#tasks)\n"
     .. "- [Notes](#notes)\n<!-- tocstop -->\n"
-    .. "## Tasks \n- [ ] \n\n"
-    .. "## Notes\n- "
+    .. "## Tasks \n \n\n"
+    .. "## Notes\n- \n\n"
   create_note(full_path, content)
   return full_path
 end
@@ -935,7 +935,7 @@ local function switch_to_monthly_note(date_line)
     .. "- [Meetings](#meetings)\n<!-- tocstop -->\n"
     .. "## Important \n- \n\n"
     .. "## Daily Notes \n- \n\n"
-    .. "## Tasks \n- [ ] \n\n"
+    .. "## Tasks \n \n\n"
     .. "## Notes\n- \n\n"
     .. "## Meetings\n- \n\n"
   create_note(full_path, content)
