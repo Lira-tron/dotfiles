@@ -233,6 +233,20 @@ return {
       })
     end, { desc = "[P]Search for incomplete tasks" })
 
+    vim.keymap.set("n", "<leader>stg", function()
+      builtin.grep_string({
+        prompt_title = "Completed TODOs",
+        search = "TODO;", -- Ensure "- [ ]" is at the beginning of the line
+        search_dirs = { vim.g.notesdir }, -- Restrict search to the current working directory
+        use_regex = true, -- Enable regex for the search term
+        initial_mode = "normal", -- Start in normal mode
+        additional_args = function()
+          return { "--no-ignore" } -- Include files ignored by .gitignore
+        end,
+      })
+    end, { desc = "Search for completed todos" })
+
+
     vim.keymap.set("n", "<leader>stc", function()
       builtin.grep_string({
         prompt_title = "Completed Tasks",
