@@ -13,6 +13,7 @@ return {
       },
       "moyiz/blink-emoji.nvim",
       "Kaiser-Yang/blink-cmp-dictionary",
+      "giuxtaposition/blink-cmp-copilot",
     },
 
     ---@module 'blink.cmp'
@@ -58,7 +59,7 @@ return {
       },
       signature = { enabled = true },
       sources = {
-        default = { "lsp", "path", "snippets", "buffer", "emoji", "dictionary" },
+        default = { "lsp", "copilot", "path", "snippets", "buffer", "emoji", "dictionary" },
         providers = {
           emoji = {
             module = "blink-emoji",
@@ -76,6 +77,12 @@ return {
             opts = {
               dictionary_directories = { vim.fn.expand("~/.config/dictionaries") },
             },
+          },
+          copilot = {
+            name = "copilot",
+            module = "blink-cmp-copilot",
+            score_offset = 100,
+            async = true,
           },
         },
       },

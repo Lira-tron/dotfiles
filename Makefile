@@ -15,7 +15,7 @@ unlink::
 
 UNAME_S := $(shell uname -s)
 
-install-brew-packages:
+install-brew-packages::
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew install $(BREW_PACKAGES)
 ifeq ($(UNAME_S),Darwin)
@@ -31,6 +31,11 @@ ifeq ($(UNAME_S),Darwin)
 	# brew install --cask wezterm
 	# brew install --cask nikitabobko/tap/aerospace
 endif
+
+install-extra::
+	brew install --cask permute
+	brew install --cask downie
+	brew install --cask betterdisplay # 2388x1668, 1194x834, 1389x970
 
 setup-java:: download-jdtls setup-java-debug setup-vscode-java-test setup-vscode-java-decompiler
 
