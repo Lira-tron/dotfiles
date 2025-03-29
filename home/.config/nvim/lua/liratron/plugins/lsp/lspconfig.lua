@@ -3,8 +3,6 @@ return {
   event = { "BufReadPre", "BufNewFile" },
   dependencies = {
     { "antosha417/nvim-lsp-file-operations", config = true },
-    -- Lsp inlay hints
-    "lvimuser/lsp-inlayhints.nvim",
     "williamboman/mason.nvim",
     {
       "folke/lazydev.nvim",
@@ -41,17 +39,6 @@ return {
   config = function()
     -- import lspconfig plugin
     local lspconfig = require("lspconfig")
-
-
-    -- configure lsp inlay hints
-    local ih = require("lsp-inlayhints")
-    ih.setup({
-      only_current_line = true,
-
-      eol = {
-        right_align = true,
-      },
-    })
 
     -- Change the Diagnostic symbols in the sign column (gutter)
     -- (not in youtube nvim video)
