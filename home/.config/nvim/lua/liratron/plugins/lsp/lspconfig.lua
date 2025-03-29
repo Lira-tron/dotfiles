@@ -67,8 +67,6 @@ return {
       nmap("gwl", function()
         print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
       end, "[W]orkspace [L]ist Folders")
-      -- inlay hints
-      ih.on_attach(c, bufnr)
     end
 
     local servers = {
