@@ -4,6 +4,8 @@ UNAME_S := $(shell uname -s)
 
 BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd lua-language-server eza zoxide autojump lsd bat tree htop miller glow lazygit node helm kubectl derailed/k9s/k9s awscli neovim yaml-language-server go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet
 
+MAC_HOME_PACKAGES := betterdisplay downie permute raindropio keycastr brave-browser
+
 all:: install-brew-packages link install-terminfo
 
 link::
@@ -31,6 +33,9 @@ ifeq ($(UNAME_S),Darwin)
 	# brew install --cask wezterm
 	# brew install --cask nikitabobko/tap/aerospace
 endif
+
+install-mac-home::
+	brew install --cask $(MAC_HOME_PACKAGES)
 
 install-extra::
 	brew install --cask permute

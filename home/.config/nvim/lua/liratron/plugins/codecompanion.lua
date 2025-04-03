@@ -5,6 +5,9 @@ return {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
   },
+  keys = {
+    { "<leader>ac", ":CodeCompanionChat<CR>", desc = "Copilot toggle" },
+  }
 }
 
 -- return {
