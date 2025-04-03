@@ -38,9 +38,11 @@ if [ -d "$HOME/go/bin" ]; then
     path+=$HOME/go/bin
 fi
 
-if [ -d "/usr/local/go/bin" ]; then
-    export GOROOT=/usr/local/go
-    path+=/usr/local/go/bin
+if [ -d "/opt/homebrew/opt/go" ]; then
+    export GOPATH="${HOME}/.go"
+    export GOROOT=$(brew --prefix golang)/libexec
+    path+=$GOROOT/bin
+    path+=$GOPATH/bin
 fi
 
 if [ -d "$HOME/.npm/bin" ]; then
