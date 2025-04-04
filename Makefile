@@ -38,6 +38,7 @@ endif
 install-mac::
 	brew install --cask $(MAC_HOME_PACKAGES)
     # 2388x1668, 1194x834, 1389x970
+    # For Raycast, System Settings -> keyboard -> keyboard Shortcuts -> Spotlight and unselect command space
 
 setup-java:: download-jdtls setup-java-debug setup-vscode-java-test setup-vscode-java-decompiler
 
