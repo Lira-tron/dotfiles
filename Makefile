@@ -2,11 +2,11 @@ SHELL = /bin/bash
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 UNAME_S := $(shell uname -s)
 
-BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd lua-language-server eza zoxide autojump lsd bat tree htop miller glow lazygit node helm kubectl derailed/k9s/k9s awscli neovim yaml-language-server go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet
+BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump lsd bat tree htop miller glow lazygit node helm kubectl derailed/k9s/k9s awscli neovim go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet
 
-MAC_HOME_PACKAGES := betterdisplay downie permute raindropio keycastr brave-browser
+MAC_HOME_PACKAGES := betterdisplay downie permute raindropio keycastr brave-browser loupedeck
 
-all:: install-brew-packages link install-terminfo
+all:: install-brew-packages link
 
 link::
 	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow home
@@ -34,13 +34,9 @@ ifeq ($(UNAME_S),Darwin)
 	# brew install --cask nikitabobko/tap/aerospace
 endif
 
-install-mac-home::
+install-mac::
 	brew install --cask $(MAC_HOME_PACKAGES)
-
-install-extra::
-	brew install --cask permute
-	brew install --cask downie
-	brew install --cask betterdisplay # 2388x1668, 1194x834, 1389x970
+    # 2388x1668, 1194x834, 1389x970
 
 setup-java:: download-jdtls setup-java-debug setup-vscode-java-test setup-vscode-java-decompiler
 
