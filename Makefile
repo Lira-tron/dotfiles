@@ -4,7 +4,7 @@ UNAME_S := $(shell uname -s)
 
 BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump lsd bat tree htop miller glow lazygit node helm kubectl derailed/k9s/k9s awscli neovim go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet gh
 
-MAC_HOME_PACKAGES := betterdisplay downie permute raindropio keycastr brave-browser loupedeck
+MAC_HOME_PACKAGES := betterdisplay downie permute raindropio keycastr brave-browser loupedeck obs
 
 all:: install-brew-packages link
 
@@ -29,6 +29,7 @@ ifeq ($(UNAME_S),Darwin)
 	brew install --cask mouseless
 	brew install --cask neovide
 	brew install --cask font-fira-code-nerd-font
+	brew install --cask raycast
 	# brew install --cask alacritty
 	# brew install --cask wezterm
 	# brew install --cask nikitabobko/tap/aerospace
