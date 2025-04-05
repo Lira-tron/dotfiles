@@ -2,15 +2,14 @@ SHELL = /bin/bash
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 UNAME_S := $(shell uname -s)
 
-BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump lsd bat tree htop miller glow lazygit node helm kubectl derailed/k9s/k9s awscli neovim go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet gh
+BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump lsd bat tree htop miller glow lazygit node helm kubectl derailed/k9s/k9s awscli neovim go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet gh mas
 
-MAC_HOME_PACKAGES := betterdisplay downie permute raindropio keycastr brave-browser loupedeck obs
+MAC_HOME_PACKAGES := betterdisplay downie permute keycastr brave-browser loupedeck obs jump-desktop-connect appcleaner adguard backblaze calibre chatgpt discord
 
 all:: install-brew-packages link
 
 link::
 	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow home
-
 
 unlink::
 	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --delete home
@@ -29,15 +28,36 @@ ifeq ($(UNAME_S),Darwin)
 	brew install --cask mouseless
 	brew install --cask neovide
 	brew install --cask font-fira-code-nerd-font
-	brew install --cask raycast     # For Raycast, System Settings -> keyboard -> keyboard Shortcuts -> Spotlight and unselect command space
+	brew install --cask visual-studio-code
+	brew install --cask raycast
 	# brew install --cask alacritty
 	# brew install --cask wezterm
 	# brew install --cask nikitabobko/tap/aerospace
 endif
 
+# Mac instructions
+# For Raycast, System Settings -> keyboard -> keyboard Shortcuts -> Spotlight and unselect command space
+# Go te Setting -> keyboard -> keyboard shortcuts -> Keyboard -> move focust to next window -> Set it to HyperN
+# For the raindrop raycast, go to settings in raindrop -> for developer and copy and paste the app test token
+# For better display 2388x1668, 1194x834, 1389x970 for ipad pro 11
+# Install backblaze manually
+# Install elgato software
+
 install-mac::
 	brew install --cask $(MAC_HOME_PACKAGES)
-        # 2388x1668, 1194x834, 1389x970 for ipad pro 11
+
+install-appstore::
+	mas install 1502839586 # Hand mirror
+	mas install 1549370672 # Raindrop
+	mas install 6446206067 # Klack
+	mas install 572281534 # Transloader
+	mas install 1533805339 # Keepa
+	mas install 1480068668 # Messenger
+	mas install 310633997 # Whatsapp
+	mas install 6472865291 # ZSA Keymapp
+	mas install 1475387142 # Tailscale
+	mas install 694633015 # Keepsolid
+	mas install 302584613 # Amazon Kindle
 
 setup-java:: download-jdtls setup-java-debug setup-vscode-java-test setup-vscode-java-decompiler
 
