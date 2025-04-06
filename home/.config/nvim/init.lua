@@ -1,4 +1,2 @@
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
-require("liratron.core")
-require("liratron.lazy")
+-- bootstrap lazy.nvim, LazyVim and your plugins
+require("config.lazy")
