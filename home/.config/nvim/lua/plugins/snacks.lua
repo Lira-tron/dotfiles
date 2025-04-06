@@ -23,6 +23,7 @@ return {
   keys = {
     { "<leader>e", false },
     { "<leader>E", false },
+
     -- Open git log in vertical view
     {
       "<leader>gl",
@@ -37,10 +38,9 @@ return {
       end,
       desc = "[G]it [L]og vertical view",
     },
+
     -- -- Iterate through incomplete tasks in Snacks_picker
     {
-      -- -- You can confirm in your teminal lamw26wmal with:
-      -- -- rg "^\s*-\s\[ \]" test-markdown.md
       "<leader>sti",
       function()
         Snacks.picker.grep({
