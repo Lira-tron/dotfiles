@@ -6,6 +6,8 @@ return {
       {
         mode = { "n", "v" },
         { "<leader>st", group = "TODOs/tasks" },
+        { "gn", group = "Go next" },
+        { "gp", group = "Go prev" },
       },
     },
   },
