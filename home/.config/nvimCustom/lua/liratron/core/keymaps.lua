@@ -982,7 +982,7 @@ vim.keymap.set("n", "<leader>whi", function()
 end, { desc = "Increase headings without confirmation" })
 
 vim.keymap.set("n", "<leader>whI", function()
-  -- Save the current cursor position
+ -- Save the current cursor position
   local cursor_pos = vim.api.nvim_win_get_cursor(0)
   -- I'm using [[ ]] to escape the special characters in a command
   vim.cmd([[:g/^\s*#\{2,}\s/ s/^#\(#\+\s.*\)/\1/]])
