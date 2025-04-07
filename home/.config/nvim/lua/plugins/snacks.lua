@@ -19,6 +19,15 @@ return {
         frecency = true,
       },
     },
+    lazygit = {
+        theme = {
+          selectedLineBgColor = { bg = "CursorLine" },
+        },
+        win = {
+          width = 0,
+          height = 0,
+        },
+      },
   },
   keys = {
     { "<leader>e", false },

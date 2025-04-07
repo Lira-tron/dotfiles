@@ -69,6 +69,16 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- This is for which key, terminal and lazygit
+local function set_normal_float_highlight()
+  vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
+end
+
+vim.api.nvim_create_autocmd("ColorScheme", {
+  pattern = "*",
+  callback = set_normal_float_highlight,
+})
+
 -- close some filetypes with <esc>
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup("close_with_q"),
