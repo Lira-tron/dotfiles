@@ -2,8 +2,16 @@ return {
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "concoctis",
+      colorscheme = "sonokai",
     },
+  },
+  {
+    "sainnhe/sonokai",
+    lazy = true,
+    config = function()
+      vim.g.sonokai_style = "shusia"
+      vim.g.sonokai_enable_italic = true
+    end,
   },
   {
     "sainnhe/gruvbox-material",
