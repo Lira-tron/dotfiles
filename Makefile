@@ -6,7 +6,7 @@ BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump l
 
 MAC_HOME_PACKAGES := betterdisplay downie permute keycastr brave-browser loupedeck obs jump-desktop-connect appcleaner adguard backblaze calibre chatgpt discord iina
 
-all:: install-brew-packages link
+all:: install-brew-packages link setup-java
 
 link::
 	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow home
