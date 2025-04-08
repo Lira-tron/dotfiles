@@ -3,7 +3,6 @@ return {
   dependencies = {
     "moyiz/blink-emoji.nvim",
     "Kaiser-Yang/blink-cmp-dictionary",
-    "giuxtaposition/blink-cmp-copilot",
   },
   opts = {
     completion = {
@@ -29,7 +28,6 @@ return {
     },
     sources = {
       default = {
-        "copilot",
         "emoji",
         "dictionary",
       },
@@ -50,12 +48,6 @@ return {
           opts = {
             dictionary_directories = { vim.fn.expand("~/.config/dictionaries") },
           },
-        },
-        copilot = {
-          name = "copilot",
-          module = "blink-cmp-copilot",
-          score_offset = 100,
-          async = true,
         },
       },
     },
