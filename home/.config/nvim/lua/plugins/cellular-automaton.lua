@@ -2,6 +2,6 @@ return {
   "eandrju/cellular-automaton.nvim",
   event = "VeryLazy",
   keys = {
-    { "<leader>mf", "<cmd>CellularAutomaton make_it_rain<CR>", desc = "Fall letters" }
+    { "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>", desc = "[M]ake it [R]ain" }
   }
 }
