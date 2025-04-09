@@ -1,6 +1,5 @@
 {
   "LazyVim": { "branch": "main", "commit": "3f034d0a7f58031123300309f2efd3bb0356ee21" },
-  "NinjaHooks": { "branch": "mainline", "commit": "91dce6bca7662dc85b37971dada749d60c24ee19" },
   "Scat-nvim": { "branch": "mainline", "commit": "88b8c066d98a603a2ca4c6821effe4dd66beb132" },
   "SchemaStore.nvim": { "branch": "main", "commit": "9961c820c0fb66288056093e8fb8056570a1eb9a" },
   "Vim-code-browse": { "branch": "mainline", "commit": "faeaa00981605e173e482225059a7573460544e7" },
