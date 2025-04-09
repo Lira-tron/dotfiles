@@ -9,7 +9,7 @@ return {
         { "gn", group = "Go next" },
         { "gp", group = "Go prev" },
         { "<leader>uW", group = "Spelling config" },
-        { "<leader>w<leader>", group = "Wiki modify" },
+        { "<leader>m", group = "Markdown" },
       },
     },
   },

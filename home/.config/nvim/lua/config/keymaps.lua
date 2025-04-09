@@ -58,33 +58,12 @@ vim.keymap.set(
 -- Markdown
 
 -- In visual mode, delete all newlines within selected text
-vim.keymap.set("v", "<leader>w<leader>d", function()
-  -- Get the visual selection range
-  local start_row = vim.fn.line("v")
-  local end_row = vim.fn.line(".")
-  -- Ensure start_row is less than or equal to end_row
-  if start_row > end_row then
-    start_row, end_row = end_row, start_row
-  end
-  -- Loop through each line in the selection
-  local current_row = start_row
-  while current_row <= end_row do
-    local line =
-      vim.api.nvim_buf_get_lines(0, current_row - 1, current_row, false)[1]
-    -- vim.notify("Checking line " .. current_row .. ": " .. (line or ""), vim.log.levels.INFO)
-    -- If the line is empty, delete it and adjust end_row
-    if line == "" then
-      vim.cmd(current_row .. "delete")
-      end_row = end_row - 1
-    else
-      current_row = current_row + 1
-    end
-  end
-end, { desc = "[W][I]ki [D]elete newlines in selected text (join)" })
+vim.keymap.set("v", "<leader>md", ":g/^\\s*$/d<CR>:nohlsearch<CR>",
+  { desc = "[W][I]ki [D]elete newlines in selected text (join)" })
 
 -- Detect todos and toggle between ":" and ";", or show a message if not found
 -- This is to "mark them as done"
-vim.keymap.set("n", "<leader>wtd", function()
+vim.keymap.set("n", "<leader>mT", function()
   -- Get the current line
   local current_line = vim.fn.getline(".")
   -- Get the current line number
@@ -108,13 +87,13 @@ end, { desc = "TODO toggle item done or not" })
 -- And the markdown-toc plugin installed in Mason
 local function update_markdown_toc(heading2)
   local path = vim.fn.expand("%") -- Expands the current file name to a full path
-  local bufnr = 0 -- The current buffer number, 0 references the current active buffer
+  local bufnr = 0                 -- The current buffer number, 0 references the current active buffer
   -- Save the current view
   -- If I don't do this, my folds are lost when I run this keymap
   vim.cmd("mkview")
   -- Retrieves all lines from the current buffer
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-  local toc_exists = false -- Flag to check if TOC marker exists
+  local toc_exists = false  -- Flag to check if TOC marker exists
   local frontmatter_end = 0 -- To store the end line number of frontmatter
   -- Check for frontmatter and TOC marker
   for i, line in ipairs(lines) do
@@ -171,16 +150,16 @@ local function update_markdown_toc(heading2)
   -- an argument according to the docs
   -- https://github.com/jonschlinkert/markdown-toc?tab=readme-ov-file#optionsbullets
   vim.fn.system('markdown-toc --bullets "-" -i ' .. path)
-  vim.cmd("edit!") -- Reloads the file to reflect the changes made by markdown-toc
+  vim.cmd("edit!")        -- Reloads the file to reflect the changes made by markdown-toc
   vim.cmd("silent write") -- Silently save the file
   vim.notify("TOC updated and file saved", vim.log.levels.INFO)
   vim.cmd("loadview")
 end
 
 -- Keymap for English TOC
-vim.keymap.set("n", "<leader>w<leader>t", function()
+vim.keymap.set("n", "<leader>mC", function()
   update_markdown_toc("## Contents")
-end, { desc = "Insert/update Markdown [T]OC (English)" })
+end, { desc = "Insert/update [M]arkdown TOC [C]ontents  (English)" })
 
 vim.keymap.set({ "n", "v" }, "gpw", function()
   -- `?` - Start a search backwards from the current cursor position.
@@ -205,7 +184,7 @@ end, { desc = "[P]Go to next markdown header" })
 -- Toggle bullet point at the beginning of the current line in normal mode
 -- If in a multiline paragraph, make sure the cursor is on the line at the top
 -- "d" is for "dash"
-vim.keymap.set("n", "<leader>wtm", function()
+vim.keymap.set("n", "<leader>mb", function()
   -- Get the current cursor position
   local cursor_pos = vim.api.nvim_win_get_cursor(0)
   local current_buffer = vim.api.nvim_get_current_buf()
@@ -247,7 +226,7 @@ vim.keymap.set("n", "<leader>wtm", function()
   do
     end_row = end_row + 1
     local next_line =
-      vim.api.nvim_buf_get_lines(current_buffer, end_row, end_row + 1, false)[1]
+        vim.api.nvim_buf_get_lines(current_buffer, end_row, end_row + 1, false)[1]
     if next_line == "" then
       break
     end
@@ -259,7 +238,7 @@ vim.keymap.set("n", "<leader>wtm", function()
   end
   -- Extract lines
   local text_lines =
-    vim.api.nvim_buf_get_lines(current_buffer, start_row, end_row + 1, false)
+      vim.api.nvim_buf_get_lines(current_buffer, start_row, end_row + 1, false)
   local text = table.concat(text_lines, "\n")
   -- Add bullet point at the start of the text
   local new_text = "- " .. text
@@ -272,7 +251,7 @@ vim.keymap.set("n", "<leader>wtm", function()
     false,
     new_lines
   )
-end, { desc = "[P]Toggle bullet point (dash)" })
+end, { desc = "[M]arkdown Toggle [B]ullet point (dash)" })
 
 -- If there is no `untoggled` or `done` label on an item, mark it as done
 -- and move it to the "## completed tasks" markdown heading in the same file, if
@@ -280,7 +259,7 @@ end, { desc = "[P]Toggle bullet point (dash)" })
 -- appended to it at the top
 --
 -- If an item is moved to that heading, it will be added the `done` label
-vim.keymap.set("n", "<leader>wtt", function()
+vim.keymap.set("n", "<leader>mt", function()
   -- Customizable variables
   -- NOTE: Customize the completion label
   local label_done = "done:"
@@ -485,9 +464,9 @@ vim.keymap.set("n", "<leader>wtt", function()
   -- "Update" saves only if the buffer has been modified since the last save
   vim.cmd("silent update")
   vim.cmd("loadview")
-end, { desc = "[P]Toggle task and move it to 'done'" })
+end, { desc = "[M]arkdown [T]oggle task and move it to 'done'" })
 
-vim.keymap.set("n", "<leader>w<leader>c", function()
+vim.keymap.set("n", "<leader>mc", function()
   -- Get the current line and cursor position
   local line = vim.api.nvim_get_current_line()
   local cursor = vim.api.nvim_win_get_cursor(0)
@@ -503,7 +482,7 @@ end, { desc = "Toggle [C]heckbox" })
 
 -- - There are some old ones that have more than one H1 heading in them, so when I
 --   open one of those old documents, I want to add one more `#` to each heading
-vim.keymap.set("n", "<leader>w<leader>h", function()
+vim.keymap.set("n", "<leader>mh", function()
   -- Save the current cursor position
   local cursor_pos = vim.api.nvim_win_get_cursor(0)
   -- I'm using [[ ]] to escape the special characters in a command
@@ -512,9 +491,9 @@ vim.keymap.set("n", "<leader>w<leader>h", function()
   vim.api.nvim_win_set_cursor(0, cursor_pos)
   -- Clear search highlight
   vim.cmd("nohlsearch")
-end, { desc = "Increase headings without confirmation" })
+end, { desc = "[Markdown] Increase [H]eadings without confirmation" })
 
-vim.keymap.set("n", "<leader>w<leader>H", function()
+vim.keymap.set("n", "<leader>mH", function()
   -- Save the current cursor position
   local cursor_pos = vim.api.nvim_win_get_cursor(0)
   -- I'm using [[ ]] to escape the special characters in a command
@@ -524,7 +503,7 @@ vim.keymap.set("n", "<leader>w<leader>H", function()
   vim.api.nvim_win_set_cursor(0, cursor_pos)
   -- Clear search highlight
   vim.cmd("nohlsearch")
-end, { desc = "Decrease headings without confirmation" })
+end, { desc = "[M]arkdown Decrease [H]eadings without confirmation" })
 
 
 
@@ -577,10 +556,10 @@ vim.keymap.set("n", "gsmu", function()
       local url = string.sub(line, s, e)
       -- Update the line with backticks around the URL
       local new_line = string.sub(line, 1, s - 1)
-        .. "`"
-        .. url
-        .. "`"
-        .. string.sub(line, e + 1)
+          .. "`"
+          .. url
+          .. "`"
+          .. string.sub(line, e + 1)
       vim.api.nvim_set_current_line(new_line)
       vim.cmd("silent write")
       return
@@ -622,7 +601,7 @@ vim.keymap.set("v", "gsmb", function()
   -- Get the selected lines
   local lines = vim.api.nvim_buf_get_lines(0, start_row - 1, end_row, false)
   local selected_text =
-    table.concat(lines, "\n"):sub(start_col, #lines == 1 and end_col or -1)
+      table.concat(lines, "\n"):sub(start_col, #lines == 1 and end_col or -1)
   if selected_text:match("^%*%*.*%*%*$") then
     vim.notify("Text already bold", vim.log.levels.INFO)
   else
@@ -670,7 +649,7 @@ vim.keymap.set("n", "gsmb", function()
   do
     end_row = end_row + 1
     local next_line =
-      vim.api.nvim_buf_get_lines(current_buffer, end_row, end_row + 1, false)[1]
+        vim.api.nvim_buf_get_lines(current_buffer, end_row, end_row + 1, false)[1]
     if next_line == "" then
       break
     end
@@ -684,13 +663,13 @@ vim.keymap.set("n", "gsmb", function()
   if bold_start and bold_end then
     -- Extract lines
     local text_lines =
-      vim.api.nvim_buf_get_lines(current_buffer, start_row, end_row + 1, false)
+        vim.api.nvim_buf_get_lines(current_buffer, start_row, end_row + 1, false)
     local text = table.concat(text_lines, "\n")
     -- Calculate positions to correctly remove '**'
     -- vim.notify("bold_start: " .. bold_start .. ", bold_end: " .. bold_end)
     local new_text = text:sub(1, bold_start - 1)
-      .. text:sub(bold_start + 2, bold_end - 1)
-      .. text:sub(bold_end + 2)
+        .. text:sub(bold_start + 2, bold_end - 1)
+        .. text:sub(bold_end + 2)
     local new_lines = vim.split(new_text, "\n")
     -- Set new lines in buffer
     vim.api.nvim_buf_set_lines(
@@ -706,7 +685,7 @@ vim.keymap.set("n", "gsmb", function()
     local before = line:sub(1, col)
     local after = line:sub(col + 1)
     local inside_surround = before:match("%*%*[^%*]*$")
-      and after:match("^[^%*]*%*%*")
+        and after:match("^[^%*]*%*%*")
     if inside_surround then
       vim.cmd("normal gsd*.")
     else
@@ -747,14 +726,14 @@ local function delete_current_file()
         if success then
           vim.api.nvim_echo({
             { "File deleted from disk:\n", "Normal" },
-            { current_file, "Normal" },
+            { current_file,                "Normal" },
           }, false, {})
           -- Close the buffer after deleting the file
           vim.cmd("bd!")
         else
           vim.api.nvim_echo({
             { "Failed to delete file:\n", "ErrorMsg" },
-            { current_file, "ErrorMsg" },
+            { current_file,               "ErrorMsg" },
           }, false, {})
         end
       else
@@ -773,7 +752,7 @@ end
 -- Function to copy file path to clipboard
 local function copy_filepath_to_clipboard()
   local filePath = vim.fn.expand("%:~") -- Gets the file path relative to the home directory
-  vim.fn.setreg("+", filePath) -- Copy the file path to the clipboard register
+  vim.fn.setreg("+", filePath)          -- Copy the file path to the clipboard register
   vim.notify(filePath, vim.log.levels.INFO)
   vim.notify("Path copied to clipboard: ", vim.log.levels.INFO)
 end
@@ -839,7 +818,7 @@ end
 
 local function fold_markdown_headings(levels)
   -- I save the view to know where to jump back after folding
-local saved_view = vim.fn.winsaveview()
+  local saved_view = vim.fn.winsaveview()
   for _, level in ipairs(levels) do
     fold_headings_of_level(level)
   end
@@ -849,10 +828,7 @@ local saved_view = vim.fn.winsaveview()
 end
 
 -- Keymap for unfolding markdown headings of level 2 or above
--- Changed all the markdown folding and unfolding keymaps from <leader>mfj to
--- zj, zk, zl, z; and zu respectively
 vim.keymap.set("n", "z2", function()
-  -- vim.keymap.set("n", "<leader>mfu", function()
   -- Reloads the file to reflect the changes
   vim.cmd("edit!")
   vim.cmd("normal! zR") -- Unfold all headings
@@ -860,7 +836,6 @@ end, { desc = "Unfold all headings level 2 or above" })
 
 -- Keymap for folding markdown headings of level 1 or above
 vim.keymap.set("n", "z1", function()
-  -- vim.keymap.set("n", "<leader>mfj", function()
   -- Reloads the file to refresh folds, otherwise you have to re-open neovim
   vim.cmd("edit!")
   -- Unfold everything first or I had issues
@@ -870,7 +845,6 @@ end, { desc = "Fold all headings level 1 or above" })
 
 -- Keymap for folding markdown headings of level 2 or above
 vim.keymap.set("n", "z2", function()
-  -- vim.keymap.set("n", "<leader>mfk", function()
   -- Reloads the file to refresh folds, otherwise you have to re-open neovim
   vim.cmd("edit!")
   -- Unfold everything first or I had issues
@@ -880,7 +854,6 @@ end, { desc = "Fold all headings level 2 or above" })
 
 -- Keymap for folding markdown headings of level 3 or above
 vim.keymap.set("n", "z3", function()
-  -- vim.keymap.set("n", "<leader>mfl", function()
   -- Reloads the file to refresh folds, otherwise you have to re-open neovim
   vim.cmd("edit!")
   -- Unfold everything first or I had issues
@@ -890,7 +863,6 @@ end, { desc = "Fold all headings level 3 or above" })
 
 -- Keymap for folding markdown headings of level 4 or above
 vim.keymap.set("n", "z4", function()
-  -- vim.keymap.set("n", "<leader>mf;", function()
   -- Reloads the file to refresh folds, otherwise you have to re-open neovim
   vim.cmd("edit!")
   -- Unfold everything first or I had issues
@@ -915,7 +887,7 @@ end, { desc = "[P]Fold the heading cursor currently on" })
 
 local function insert_date()
   local date = os.date("%Y-%m-%d-%A")
-  local dateLine = "[[" .. date .. "]]" -- Formatted date line
+  local dateLine = "[[" .. date .. "]]"                 -- Formatted date line
   local row, _ = unpack(vim.api.nvim_win_get_cursor(0)) -- Get the current row number
   -- Insert both lines: heading and dateLine
   vim.api.nvim_buf_set_lines(0, row - 1, row, false, { dateLine })
@@ -987,11 +959,11 @@ local function create_daily_note(date_line)
     return
   end
   local content = "# Daily Note " .. note_name .. "\n\n"
-    .. "## Contents\n<!-- toc -->\n"
-    .. "- [Tasks](#tasks)\n"
-    .. "- [Notes](#notes)\n<!-- tocstop -->\n"
-    .. "## Tasks \n \n\n"
-    .. "## Notes\n- \n\n"
+      .. "## Contents\n<!-- toc -->\n"
+      .. "- [Tasks](#tasks)\n"
+      .. "- [Notes](#notes)\n<!-- tocstop -->\n"
+      .. "## Tasks \n \n\n"
+      .. "## Notes\n- \n\n"
   create_note(full_path, content)
   return full_path
 end
@@ -1010,38 +982,36 @@ local function switch_to_monthly_note(date_line)
     return
   end
   local content = "# Monthly Note " .. note_name .. "\n\n"
-    .. "## Contents\n<!-- toc -->\n"
-    .. "- [Important](#important)\n"
-    .. "- [Daily Notes](#daily-notes)\n"
-    .. "- [Tasks](#Tasks)\n"
-    .. "- [Notes](#notes)\n"
-    .. "- [Meetings](#meetings)\n<!-- tocstop -->\n"
-    .. "## Important \n- \n\n"
-    .. "## Daily Notes \n- \n\n"
-    .. "## Tasks \n \n\n"
-    .. "## Notes\n- \n\n"
-    .. "## Meetings\n- \n\n"
+      .. "## Contents\n<!-- toc -->\n"
+      .. "- [Important](#important)\n"
+      .. "- [Daily Notes](#daily-notes)\n"
+      .. "- [Tasks](#Tasks)\n"
+      .. "- [Notes](#notes)\n"
+      .. "- [Meetings](#meetings)\n<!-- tocstop -->\n"
+      .. "## Important \n- \n\n"
+      .. "## Daily Notes \n- \n\n"
+      .. "## Tasks \n \n\n"
+      .. "## Notes\n- \n\n"
+      .. "## Meetings\n- \n\n"
   create_note(full_path, content)
   vim.cmd("edit " .. vim.fn.fnameescape(full_path))
 end
 
 -- Keymap to switch to the daily note or create it if it does not exist
-vim.keymap.set("n", "<leader>w<leader>w", function()
+vim.keymap.set("n", "<leader>mw", function()
   local current_line = vim.api.nvim_get_current_line()
   local date_line = current_line:match("%[%[%d+%-%d+%-%d+%-%w+%]%]") or ("[[" .. os.date("%Y-%m-%d-%A") .. "]]")
   switch_to_daily_note(date_line)
 end, { desc = "[P]Go to or create daily note" })
 
 -- Keymap to switch to the monthly note or create it if it does not exist
-vim.keymap.set("n", "<leader>w<leader>m", function()
+vim.keymap.set("n", "<leader>mm", function()
   local current_line = vim.api.nvim_get_current_line()
   local date_line = current_line:match("%[%[%d+%-%d+%-%d+%-%w+%]%]") or ("[[" .. os.date("%Y-%m-%d-%A") .. "]]")
   switch_to_monthly_note(date_line)
 end, { desc = "Go to or create monthly note" })
 
-vim.keymap.set("n", "<leader>w<leader>d", function()
+vim.keymap.set("n", "<leader>wB", function()
   local date_line = insert_date()
   create_daily_note(date_line)
 end, { desc = "Create and Add bookmark to daily note" })
-
-
