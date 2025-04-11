@@ -48,7 +48,6 @@ install-mac::
 
 install-appstore::
 	mas install 1502839586 # Hand mirror
-	mas install 1549370672 # Raindrop
 	mas install 6446206067 # Klack
 	mas install 572281534 # Transloader
 	mas install 1533805339 # Keepa
@@ -58,6 +57,9 @@ install-appstore::
 	mas install 1475387142 # Tailscale
 	mas install 694633015 # Keepsolid
 	mas install 302584613 # Amazon Kindle
+	mas install 457622435 # Yoink
+	mas install 414528154 # ScreenFloat
+	mas install 6742498342 # Deskmat
 
 setup-java:: download-jdtls setup-java-debug setup-vscode-java-test setup-vscode-java-decompiler
 
