@@ -172,5 +172,8 @@ return {
       end,
       desc = "[Search] for s[P]elling",
     },
+    {
+      "<M-esc>", mode = "t", [[<C-\><C-n>]], desc = "Normal terminal mode",
+    }
   },
 }
