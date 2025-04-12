@@ -38,7 +38,7 @@ endif
 # Mac instructions
 # For Raycast, System Settings -> keyboard -> keyboard Shortcuts -> Spotlight and unselect command space
 # Go te Setting -> keyboard -> keyboard shortcuts -> Keyboard -> move focust to next window -> Set it to HyperN
-# For the raindrop raycast, go to settings in raindrop -> for developer and copy and paste the app test token
+# Go to settings Mission Control -> Shortcuts -> Remove C-up and C-down
 # For better display 2388x1668, 1194x834, 1389x970 for ipad pro 11
 # Install backblaze manually
 # Install elgato software
@@ -59,7 +59,6 @@ install-appstore::
 	mas install 302584613 # Amazon Kindle
 	mas install 457622435 # Yoink
 	mas install 414528154 # ScreenFloat
-	mas install 6742498342 # Deskmat
 
 setup-java:: download-jdtls setup-java-debug setup-vscode-java-test setup-vscode-java-decompiler
 
