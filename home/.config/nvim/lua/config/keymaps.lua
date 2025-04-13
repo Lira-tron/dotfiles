@@ -10,8 +10,13 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "C-u keep cursor in middle" })
 vim.keymap.set("n", "n", "nzzzv", { desc = "search keep cursor in middle" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "search keep cursor in middle" })
 
-vim.keymap.set("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
-vim.keymap.set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next Buffer" })
+
+-- Resize window using <ctrl> arrow keys
+vim.keymap.set("n", "<C-M-k>", "<cmd>resize +5<cr>", { desc = "Increase Window Height" })
+vim.keymap.set("n", "<C-M-j>", "<cmd>resize -5<cr>", { desc = "Decrease Window Height" })
+vim.keymap.set("n", "<C-M-h>", "<cmd>vertical resize -5<cr>", { desc = "Decrease Window Width" })
+vim.keymap.set("n", "<C-M-l>", "<cmd>vertical resize +5<cr>", { desc = "Increase Window Width" })
+
 vim.keymap.set(
   "n",
   "gpb",
