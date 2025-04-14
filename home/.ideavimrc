@@ -64,8 +64,8 @@ nmap <C-j> <C-w>j
 nmap <C-k> <C-w>k
 nmap <C-l> <C-w>l
 
-nmap <leader>z <Action>(ToggleDistractionFreeMode)
-nmap <leader>Z <Action>(ToggleZenMode)
+nmap <leader>uZ <Action>(ToggleDistractionFreeMode)
+nmap <leader>uz <Action>(ToggleZenMode)
 
 " system clipboard
 xmap <leader>P "_dP
@@ -91,17 +91,11 @@ nmap n nzzzv
 "{ desc = "search keep cursor in middle" })
 nmap N Nzzzv
 
-vmap < <gv
-vmap > >gv
-
-nmap <leader>rp :%s/\<\>//gI
-vmap <leader>rp :%s/\<\>//gI
-
 " keymaps
 
-nmap <leader>pv :NERDTreeToggle<CR>
-nmap <leader>pf :NERDTreeFind<CR>
-nmap <leader>pr :NERDTreeRefreshRoot<CR>
+nmap <leader>fe :NERDTreeToggle<CR>
+" nmap <leader>pf :NERDTreeFind<CR>
+" nmap <leader>pr :NERDTreeRefreshRoot<CR>
 " Initial tree width:
 let g:NERDTreeWinSize=35
 " Show hidden files by default:
@@ -112,15 +106,15 @@ map <C-o> <Action>(Back)
 map <C-i> <Action>(Forward)
 
 " buffer (buffer < window < tab)
-nmap <leader>x <Action>(CloseContent)
+nmap <leader>wd <Action>(CloseContent)
 " nmap <leader>xa <Action>(CloseAllEditors)
 " nmap <leader>xo <Action>(CloseAllEditorsButActive)
 " nmap <leader>xp <Action>(CloseAllUnpinnedEditors)
 
 " window
-nmap <leader>tp <Action>(PreviousTab)
-nmap <leader>tn <Action>(NextTab)
-nmap <leader>ta <Action>(PinActiveEditorTab)
+nmap <S-h> <Action>(PreviousTab)
+nmap <S-l> <Action>(NextTab)
+" nmap <leader>ta <Action>(PinActiveEditorTab)
 
 nmap <leader>1 <Action>(GoToTab1)
 nmap <leader>2 <Action>(GoToTab2)
@@ -133,10 +127,10 @@ nmap <leader>8 <Action>(GoToTab8)
 nmap <leader>9 <Action>(GoToTab9)
 
 " tab
-map <leader>tml <Action>(MoveTabLeft)
-map <leader>tmd <Action>(MoveTabDown)
-map <leader>tmu <Action>(MoveTabUp)
-map <leader>tmr <Action>(MoveTabRight)
+map <leader>wL <Action>(MoveTabLeft)
+map <leader>wK <Action>(MoveTabDown)
+map <leader>wJ <Action>(MoveTabUp)
+map <leader>wH <Action>(MoveTabRight)
 map <C-w>s <Action>(SplitHorizontally)
 map <C-w>v <Action>(SplitVertically)
 
@@ -151,7 +145,6 @@ nmap <C-M-k> <Action>(StretchSplitToTop)
 nmap <C-M-j> <Action>(StretchSplitToBottom)
 nmap <C-M-h> <Action>(StretchSplitToLeft)
 nmap <C-M-l> <Action>(StretchSplitToRight)
-nmap <C-w>M <Action>(MaximizeEditorInSplit)
 nmap <C-w>u <Action>(UnsplitAll)
 
 " menu
@@ -181,63 +174,64 @@ nmap <leader>Xa <Action>(IdeaVim.ReloadVimRc.reload)
 
 nmap gcc <Action>(CommentByLineComment)
 nmap gcb <Action>(CommentByBlockComment)
-nmap gca <Action>(ShowIntentionActions)
-nmap gle <Action>(ShowErrorDescription)
+nmap <leader>ca <Action>(ShowIntentionActions)
+nmap <leader>ce <Action>(ShowErrorDescription)
 " run
-nmap <leader>dt <Action>(ContextRun)
-nmap <leader>dC <Action>(chooseRunConfiguration)
-nmap <leader>dr <Action>(RunClass)
-nmap <leader>dtl <Action>(Rerun)
-nmap <leader>dtf  <Action>(RunFailedTests)
-nmap <leader>dg <Action>(GoToTest)
-nmap <leader>dta  <Action>(RunTests)
-nmap <leader>dx <Action>(Stop)
+nmap <leader>dr <Action>(ContextRun)
+nmap <leader>dc <Action>(RunClass)
+nmap <leader>da <Action>(chooseRunConfiguration)
+nmap <leader>dl <Action>(Rerun)
+nmap <leader>tf  <Action>(RunFailedTests)
+nmap gT <Action>(GoToTest)
+nmap <leader>tt  <Action>(RunTests)
+nmap <leader>dS <Action>(Stop)
 
 " debug
-nmap <leader>dc <Action>(ContextDebug)
-nmap <leader>dt <Action>(Debug)
+nmap <leader>dR <Action>(ContextDebug)
+nmap <Leader>dC <Action>(DebugClass)
+nmap <leader>dD <Action>(Debug)
 nmap <leader>db <Action>(ToggleLineBreakpoint)
 nmap <leader>de <Action>(EditBreakpoint)
 nmap <leader>dlb <Action>(ViewBreakpoints)
 
 " refactor
 
-nmap <leader>rmo <Action>(OverrideMethods)
-nmap <leader>rmi <Action>(ImplementMethods)
-nmap <leader>rf <Action>(ReformatCode)
-vmap <leader>rf <Action>(ReformatCode)
+nmap <leader>cmo <Action>(OverrideMethods)
+nmap <leader>cmi <Action>(ImplementMethods)
+nmap <leader>cf <Action>(ReformatCode)
+vmap <leader>cf <Action>(ReformatCode)
 nmap <leader>ci <Action>(InspectCode)
 " nmap <leader>so <Action>(SelectAllOccurrences)
 nmap <leader>rg <Action>(Generate)
 
-nmap <leader>rev <Action>(IntroduceVariable)
-nmap <leader>rev <Action>(IntroduceVariable)
-nmap <leader>rec <Action>(IntroduceConstant)
-nmap <leader>rec <Action>(IntroduceConstant)
-nmap <leader>rem <Action>(ExtractMethod)
-nmap <leader>rem <Action>(ExtractMethod)
-nmap <leader>rr <action>(Refactorings.QuickListPopupAction)
-vmap <leader>rr <action>(Refactorings.QuickListPopupAction)
+nmap <leader>rx <Action>(IntroduceVariable)
+vmap <leader>rx <Action>(IntroduceVariable)
+nmap <leader>rI <Action>(IntroduceConstant)
+vmap <leader>rI <Action>(IntroduceConstant)
+nmap <leader>rf <Action>(ExtractMethod)
+vmap <leader>rf <Action>(ExtractMethod)
+nmap <leader>rs <action>(Refactorings.QuickListPopupAction)
+vmap <leader>rs <action>(Refactorings.QuickListPopupAction)
 nmap <leader>rc <Action>(CodeMenu)
 vmap <leader>rc <Action>(CodeMenu)
-nmap <leader>rn <Action>(RenameElement)
-vmap <leader>rn <Action>(RenameElement)
+nmap <leader>cr <Action>(RenameElement)
+vmap <leader>cr <Action>(RenameElement)
 nmap <leader>ruw <Action>(Unwrap)
 vmap <leader>ruw <Action>(Unwrap)
-nmap <leader>rs <Action>(SurroundWith)
-vmap <leader>rs <Action>(SurroundWith)
-nmap <leader>rd <Action>(SafeDelete)
-vmap <leader>rd <Action>(SafeDelete)
-nmap <leader>ro <Action>(OptimizeImports)
-vmap <leader>ro <Action>(OptimizeImports)
+nmap gsa <Action>(SurroundWith)
+vmap gsa <Action>(SurroundWith)
+nmap <leader>cd <Action>(SafeDelete)
+vmap <leader>cd <Action>(SafeDelete)
+nmap <leader>co <Action>(OptimizeImports)
+vmap <leader>co <Action>(OptimizeImports)
 
 " hierarchy
-nmap ghi <Action>(CallHierarchy)
-nmap ghm <Action>(MethodHierarchy)
-nmap ght <Action>(TypeHierarchy)
-vmap ghi <Action>(CallHierarchy)
-vmap ghm <Action>(MethodHierarchy)
-vmap ght <Action>(TypeHierarchy)
+nmap <leader>chi <Action>(CallHierarchy)
+nmap <leader>chm <Action>(MethodHierarchy)
+nmap <leader>cht <Action>(TypeHierarchy)
+vmap <leader>chi <Action>(CallHierarchy)
+vmap <leader>chm <Action>(MethodHierarchy)
+vmap <leader>cht <Action>(TypeHierarchy)
 
 " collapse
 nmap zC <Action>(ExpandCollapseToggleAction)
@@ -250,21 +244,21 @@ imap <C-y> <Action>(EditorChooseLookupItem)
 map <C-y> <Action>(EditorChooseLookupItem)
 map <C-n> <Action>(NextOccurence)
 map <C-p> <Action>(PreviousOccurence)
-nmap gpm <Action>(MethodUp)
-nmap gnm <Action>(MethodDown)
-nmap gpc <Action>(JumpToLastChange)
-nmap gnc <Action>(JumpToNextChange)
+nmap [m <Action>(MethodUp)
+nmap ]m <Action>(MethodDown)
+nmap [c <Action>(JumpToLastChange)
+nmap ]c <Action>(JumpToNextChange)
 
 map <C-Space> <Action>(EditorSelectWord)
 map <A-C-Space> <Action>(EditorUnSelectWord)
-nmap gna <Action>(MoveElementRight)
-nmap gpa <Action>(MoveElementLeft)
+nmap [a <Action>(MoveElementRight)
+nmap ]a <Action>(MoveElementLeft)
 
 " goto
 map <leader>sa <Action>(GotoAction)
 nmap gwc <Action>(GotoClass)
-nmap <leader>sf <Action>(GotoFile)
-nmap gws <Action>(GotoSymbol)
+nmap <leader>ff <Action>(GotoFile)
+nmap <leader>ss <Action>(GotoSymbol)
 " nmap go <Action>(GotoSuperMethod)
 nmap gd <Action>(GotoDeclaration)
 nmap gD <Action>(GotoTypeDeclaration)
@@ -272,28 +266,28 @@ nmap gi <Action>(GotoImplementation)
 nmap gI <Action>(QuickImplementations)
 nmap gn <Action>(ShowNavBar)
 nmap gs <action>(FileStructurePopup)
-nmap gpe <Action>(GotoPreviousError)
-nmap gne <Action>(GotoNextError)
+nmap ]d <Action>(GotoPreviousError)
+nmap [d <Action>(GotoNextError)
 
 " file
 nmap <leader>mo <Action>(OpenFile)
 " nmap <leader>yp <Action>(CopyAbsolutePath)
-nmap <leader>sb <Action>(RecentFiles)
-nmap <leader>s? <Action>(RecentEditedFiles)
+nmap <leader>fb <Action>(RecentFiles)
+nmap <leader>fB <Action>(RecentEditedFiles)
 " nmap <leader>rl <Action>(RecentLocations)
 " nmap <leader>rp <Action>(ManageRecentProjects)
 " nmap <leader>sh <Action>(LocalHistory.ShowHistory)
 " nmap <leader>sf <Action>(ShowFilePath)
 " nmap <leader>si <Action>(SelectIn)
 " nmap <leader>sg <Action>(FindInPath)
-nmap <leader>ss <Action>(SearchEverywhere)
-nmap <leader>sS <Action>(TextSearchAction)
-nmap <leader>rp <Action>(ReplaceInPath)
+nmap <leader>sg <Action>(SearchEverywhere)
+nmap <leader>sG <Action>(TextSearchAction)
+nmap <leader>sr <Action>(ReplaceInPath)
 " nmap <leader>sw <Action>($SearchWeb)
 nmap <leader>sc <action>(Find)
 
 " terminal
-nmap <leader>tt <Action>(ActivateTerminalToolWindow)
+nmap <leader>ft <Action>(ActivateTerminalToolWindow)
 nmap <leader>tc <Action>(Terminal.OpenInTerminal)
 
 " bookmark
@@ -335,14 +329,14 @@ nmap <leader>Te <Action>($ExclusiveTranslateAction)
 " CodeWhispererRecommendationAction
 map <M-c> <Action>(CodeWhispererRecommendationAction)
 imap <C-space> <Action>(CodeWhispererRecommendationAction)
-map glt <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.GenerateUnitTestsAction)
-map glm <Action>(aws.toolkit.jetbrains.core.services.cwc.actions.ContextMenuActions)
-map gle <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.ExplainCodeAction)
-map glf <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.FixCodeAction)
-map glo <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.OptimizeCodeAction)
-map glr <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.RefactorCodeAction)
-map gls <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.SendToPromptAction)
-map glw <Action>(q.openchat)
-map glc <Action>(aws.toolkit.jetbrains.core.services.cwc.inline.openChat)
+map <leader>at <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.GenerateUnitTestsAction)
+map <leader>am <Action>(aws.toolkit.jetbrains.core.services.cwc.actions.ContextMenuActions)
+map <leader>ae <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.ExplainCodeAction)
+map <leader>af <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.FixCodeAction)
+map <leader>ao <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.OptimizeCodeAction)
+map <leader>ar <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.RefactorCodeAction)
+map <leader>as <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.SendToPromptAction)
+map <leader>aq <Action>(q.openchat)
+map <leader>ac <Action>(aws.toolkit.jetbrains.core.services.cwc.inline.openChat)
 
 
