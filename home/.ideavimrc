@@ -256,7 +256,7 @@ nmap ]a <Action>(MoveElementLeft)
 
 " goto
 map <leader>sa <Action>(GotoAction)
-nmap gwc <Action>(GotoClass)
+nmap <leader>fc <Action>(GotoClass)
 nmap <leader>ff <Action>(GotoFile)
 nmap <leader>ss <Action>(GotoSymbol)
 " nmap go <Action>(GotoSuperMethod)
@@ -268,6 +268,8 @@ nmap gn <Action>(ShowNavBar)
 nmap gs <action>(FileStructurePopup)
 nmap ]d <Action>(GotoPreviousError)
 nmap [d <Action>(GotoNextError)
+
+
 
 " file
 nmap <leader>mo <Action>(OpenFile)
@@ -296,7 +298,8 @@ nmap mm <Action>(ShowBookmarks)
 
 " Git
 nmap <leader>gg <Action>(Vcs.Show.Log)
-
+nmap <leader>gc <Action>(CheckinProject)
+nmap <leader>gp <Action>(Git.Pull)
 
 " todo
 nmap <leader>st <Action>(ActivateTODOToolWindow)
