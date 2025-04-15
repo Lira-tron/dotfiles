@@ -5,6 +5,12 @@ return {
     "Kaiser-Yang/blink-cmp-dictionary",
   },
   opts = {
+    keymap = {
+      preset = "default",
+      ["<Up>"] = { "select_prev", "fallback" },
+      ["<Down>"] = { "select_next", "fallback" },
+    },
+    signature = { enabled = true },
     completion = {
       menu = {
         draw = {
