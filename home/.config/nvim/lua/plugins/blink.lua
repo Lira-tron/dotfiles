@@ -6,6 +6,12 @@ return {
     "giuxtaposition/blink-cmp-copilot",
   },
   opts = {
+    keymap = {
+      preset = "default",
+      ["<Up>"] = { "select_prev", "fallback" },
+      ["<Down>"] = { "select_next", "fallback" },
+    },
+    signature = { enabled = true },
     completion = {
       menu = {
         draw = {
