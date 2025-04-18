@@ -14,6 +14,19 @@ set hls
 set showmode
 set clipboard+=unnamed
 
+" Manual configurations
+" - Install vim-flash
+" - Go to terminal and change SwitchToEditor to M-E and disable Esc
+" - Keymaps
+"   - Main Menu - Edit - Editor Select Actions -  select word actions -
+"  extend Selection  Set to Ctr-Espace
+"   - Window - Zoom - ctr-m
+"   - Window - Active tool window - MaximizeToolWindow - M-m
+"   - Navigate - Navigate in file - Move caret to matching brace - %
+"   -
+"
+
+
 
 " surround (bundle plugin)
 " usage: https://github.com/tpope/vim-surround
@@ -36,6 +49,10 @@ set vim-paragraph-motion
 set textobj-indent
 set textobj-entire
 set argtextobj
+
+" https://github.com/yelog/vim-flash
+nmap s <Action>(flash.search)
+xmap s <Action>(flash.search)
 
 " jump-motion (required idea plugin: IdeaVim-EasyMotion, AceJump)
 " let g:WhichKeyDesc_windows_easymotion_search = "<Space>f  EasyMotion Search"
@@ -251,8 +268,8 @@ nmap ]c <Action>(JumpToNextChange)
 
 map <C-Space> <Action>(EditorSelectWord)
 map <A-C-Space> <Action>(EditorUnSelectWord)
-nmap [a <Action>(MoveElementRight)
-nmap ]a <Action>(MoveElementLeft)
+nmap ]a <Action>(MoveElementRight)
+nmap [a <Action>(MoveElementLeft)
 
 " goto
 map <leader>sa <Action>(GotoAction)
@@ -266,8 +283,8 @@ nmap gi <Action>(GotoImplementation)
 nmap gI <Action>(QuickImplementations)
 nmap gn <Action>(ShowNavBar)
 nmap gs <action>(FileStructurePopup)
-nmap ]d <Action>(GotoPreviousError)
-nmap [d <Action>(GotoNextError)
+nmap [d <Action>(GotoPreviousError)
+nmap ]d <Action>(GotoNextError)
 
 
 
