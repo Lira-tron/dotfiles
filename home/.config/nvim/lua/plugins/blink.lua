@@ -34,10 +34,10 @@ return {
         ["<Esc>"] = { "cancel", "fallback" },
       },
       signature = { enabled = true },
-      cmdline = {
-        enabled = true,
-      },
-
+      -- somehow do not work with Lazyvim
+      -- cmdline = {
+      --   enabled = true,
+      -- },
       completion = {
         menu = {
           draw = {
