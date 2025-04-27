@@ -15,15 +15,28 @@ return {
         ["<C-k>"] = false,
         ["<C-j>"] = false,
         ["<M-h>"] = "actions.select_split",
+        ["q"] = { "actions.close", mode = "n" },
       },
       view_options = {
         show_hidden = true,
       },
     })
     -- Open parent directory in current window
-    vim.keymap.set("n", "<space>e", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+    vim.keymap.set(
+      "n",
+      "<space>E",
+      "<CMD>Oil<CR>",
+      { desc = "Open file [E]xplorer directory" }
+    )
 
-    -- Open parent directory in floating window
-    -- vim.keymap.set("n", "<space>-", require("oil").toggle_float)
+    vim.keymap.set("n", "<leader>e", function()
+      local oil = require("oil")
+      local util = require("oil.util")
+      -- oil.toggle_float()
+      oil.open()
+      util.run_after_load(0, function()
+        oil.open_preview()
+      end)
+    end, { desc = "open file [E]xplorer with preview" })
   end,
 }
