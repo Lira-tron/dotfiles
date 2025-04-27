@@ -31,7 +31,7 @@ return {
           "fallback",
         },
         ["<C-e>"] = { "cancel" },
-        ["<Esc>"] = { "cancel", "fallback" },
+        -- ["<Esc>"] = { "cancel", "fallback" },
       },
       signature = { enabled = true },
       -- somehow do not work with Lazyvim
