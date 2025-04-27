@@ -20,7 +20,7 @@ return {
 
       ["<C-space>"] = { "show", "show_documentation", "hide_documentation", "fallback" },
       ["<C-e>"] = { "cancel" },
-      ["<Esc>"] = { "cancel", "fallback" },
+      -- ["<Esc>"] = { "cancel", "fallback" },
     },
     signature = { enabled = true },
 
