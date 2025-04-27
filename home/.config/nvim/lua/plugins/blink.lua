@@ -23,9 +23,6 @@ return {
       ["<Esc>"] = { "cancel", "fallback" },
     },
     signature = { enabled = true },
-    cmdline = {
-      enabled = true,
-    },
 
     completion = {
       menu = {
