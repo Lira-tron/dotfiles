@@ -37,8 +37,8 @@
             "dependsOrder": "sequence",
             "dependsOn": [
                 "qcmd-4",
-                "lazygit",
-            ],
+                "lazygit"
+            ]
         }
     ]
 }
