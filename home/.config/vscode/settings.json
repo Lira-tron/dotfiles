@@ -1,4 +1,5 @@
 {
+  "terminal.integrated.shellIntegration.enabled": true,
   "terminal.integrated.defaultProfile.osx": "zsh",
   "terminal.integrated.env.osx": {
     "Q_NEW_SESSION": "1"
@@ -97,7 +98,7 @@
     "~/home/Dropbox/projects"
   ],
   "vim.foldfix": true,
-//  "vim.easymotion": true,
+  //  "vim.easymotion": true,
   "vim.incsearch": true,
   "vim.useSystemClipboard": true,
   "vim.useCtrlKeys": true,
@@ -106,8 +107,8 @@
   "vim.highlightedyank.enable": true,
   "vim.highlightedyank.color": "#C34043",
   "vim.showMarksInGutter": false,
- // "vim.sneak": true,
- // "vim.sneakUseIgnorecaseAndSmartcase": true,
+  // "vim.sneak": true,
+  // "vim.sneakUseIgnorecaseAndSmartcase": true,
   // "vscode-neovim.neovimExecutablePaths.linux": "/home/tdeneire/bin/nvim",
   // "vscode-neovim.useCtrlKeysForInsertMode": false,
   // "vscode-neovim.useCtrlKeysForNormalMode": false,
@@ -216,7 +217,7 @@
   },
   "telemetry.telemetryLevel": "off",
   "terminal.integrated.allowChords": true,
-    "vim.insertModeKeyBindings": [
+  "vim.insertModeKeyBindings": [
     {
       "before": [
         "<C-c>"
@@ -227,22 +228,22 @@
     }
   ],
   "vim.visualModeKeyBindings": [
- //  {
- //    "before": [
- //      ">"
- //    ],
- //    "commands": [
- //      "editor.action.indentLines"
- //    ]
- //  },
- //  {
- //    "before": [
- //      "<"
- //    ],
- //    "commands": [
- //      "editor.action.outdentLines"
- //    ]
- //  },
+    //  {
+    //    "before": [
+    //      ">"
+    //    ],
+    //    "commands": [
+    //      "editor.action.indentLines"
+    //    ]
+    //  },
+    //  {
+    //    "before": [
+    //      "<"
+    //    ],
+    //    "commands": [
+    //      "editor.action.outdentLines"
+    //    ]
+    //  },
     {
       "before": [
         "<"
@@ -263,7 +264,6 @@
         "v"
       ]
     }
-
   ],
   "vim.visualModeKeyBindingsNonRecursive": [
     {
@@ -447,7 +447,7 @@
         ":bnext"
       ]
     },
-        {
+    {
       "before": [
         "C"
       ],

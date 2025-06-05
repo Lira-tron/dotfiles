@@ -1043,3 +1043,106 @@ vim.keymap.set("n", "<leader>wB", function()
   local date_line = insert_date()
   create_daily_note(date_line)
 end, { desc = "Create and Add bookmark to daily note" })
+
+
+-- VS CODE
+if vim.g.vscode then
+  vim.keymap.set("n", "<leader>sb", "<cmd>Find<cr>")
+
+  vim.keymap.set("n", "<S-h>", "<Cmd>call VSCodeNotify('workbench.action.previousEditor')<CR>")
+  vim.keymap.set("n", "<S-l>", "<Cmd>call VSCodeNotify('workbench.action.nextEditor')<CR>")
+
+  vim.keymap.set('n', '<leader>wm', "<cmd>call VSCodeNotify('workbench.action.toggleMaximizeEditorGroup')<CR>")
+  vim.keymap.set('n', '<leader>wsm', "<cmd>call VSCodeNotify('workbench.action.toggleMaximizeEditorGroup')<CR>")
+
+  -- Increase
+  vim.keymap.set("n", "<C-Up>", "<Cmd>call VSCodeNotify('workbench.action.increaseViewHeight')<CR>")
+  vim.keymap.set("n", "<C-Down>", "<Cmd>call VSCodeNotify('workbench.action.decreaseViewHeight')<CR>")
+  vim.keymap.set("n", "<C-Right>", "<Cmd>call VSCodeNotify('workbench.action.increaseViewWidth')<CR>")
+  vim.keymap.set("n", "<C-Left>", "<Cmd>call VSCodeNotify('workbench.action.decreaseViewWidth')<CR>")
+
+
+  vim.keymap.set({ "n", "v" }, "<A-j>", "<Cmd>call VSCodeNotify('editor.action.moveLinesDownAction')<CR>")
+
+  vim.keymap.set({ "n", "v" }, "<A-k>", "<Cmd>call VSCodeNotify('editor.action.moveLinesUpAction')<CR>")
+
+  -- Files
+  vim.keymap.set("n", "<leader>fn", "<Cmd>call VSCodeNotify('workbench.action.files.newUntitledFile')<CR>")
+  vim.keymap.set("n", "<C-space>", "<Cmd>call VSCodeNotify('editor.action.toggleWordWrap')<CR>")
+
+  -- Terminal
+  vim.keymap.set("n", "<leader>ft", "<Cmd>call VSCodeNotify('workbench.action.terminal.toggleTerminal')<CR>")
+  vim.keymap.set("n", "<leader>fT", "<Cmd>call VSCodeNotify('workbench.action.createTerminalEditor')<CR>")
+
+  -- LSP
+  vim.keymap.set("n", "<leader>cd", "<Cmd>call VSCodeNotify('editor.action.showHover')<CR>")
+  vim.keymap.set("n", "<leader>cl", "<Cmd>call VSCodeNotify('workbench.action.output.toggleOutput')<CR>")
+  vim.keymap.set("n", "gd", "<Cmd>call VSCodeNotify('editor.action.revealDefinition')<CR>")
+  vim.keymap.set("n", "gD", "<Cmd>call VSCodeNotify('editor.action.revealDeclaration')<CR>")
+  vim.keymap.set("n", "gr", "<Cmd>call VSCodeNotify('editor.action.goToReferences')<CR>")
+  vim.keymap.set("n", "gI", "<Cmd>call VSCodeNotify('editor.action.goToImplementation')<CR>")
+  vim.keymap.set("n", "gy", "<Cmd>call VSCodeNotify('editor.action.goToTypeDefinition')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>cf", "<Cmd>call VSCodeNotify('editor.action.formatDocument')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ca", "<Cmd>call VSCodeNotify('editor.action.quickFix')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>cr", "<Cmd>call VSCodeNotify('editor.action.rename')<CR>")
+
+  vim.keymap.set('n', '<leader>dC', "<cmd>call VSCodeNotify('testing.runAtCursor')<CR>")
+  vim.keymap.set('n', '<leader>da', "<cmd>call VSCodeNotify('testing.runAll')<CR>")
+
+
+  -- Windows
+  vim.keymap.set({ "n", "v" }, "<leader>wd", "<Cmd>call VSCodeNotify('editor.action.closeActiveEditor')<CR>")
+
+  -- Snacks
+  vim.keymap.set("n", "<leader>ff", "<Cmd>call VSCodeNotify('workbench.action.quickOpen')<CR>")
+  vim.keymap.set("n", "<leader>fb", "<Cmd>call VSCodeNotify('workbench.action.showAllEditors')<CR>")
+  vim.keymap.set("n", "<leader>fe", "<Cmd>call VSCodeNotify('workbench.files.action.showActiveFileInExplorer')<CR>")
+  vim.keymap.set("n", "<leader>e", "<Cmd>call VSCodeNotify('workbench.explorer.fileView.focus')<CR>")
+  vim.keymap.set("n", "<leader>sg", "<Cmd>call VSCodeNotify('workbench.action.findInFiles')<CR>")
+  vim.keymap.set("n", "<leader>sC", "<Cmd>call VSCodeNotify('workbench.action.showCommands')<CR>")
+  vim.keymap.set("n", "<leader>sk", "<Cmd>call VSCodeNotify('workbench.action.showCommands')<CR>")
+  vim.keymap.set("n", "<leader>sh", "<Cmd>call VSCodeNotify('workbench.action.openDocumentationUrl')<CR>")
+  vim.keymap.set("n", "<leader>ss", "<Cmd>call VSCodeNotify('workbench.action.showAllSymbols')<CR>")
+
+  vim.keymap.set("n", "<leader>snl", "<Cmd>call VSCodeNotify('workbench.action.output.toggleOutput')<CR>")
+
+  vim.keymap.set("n", "<leader>sr", "<Cmd>call VSCodeNotify('editor.action.startFindReplaceAction')<CR>")
+  vim.keymap.set("n", "<leader>sb", "<Cmd>call VSCodeNotify('editor.action.startFindReplaceAction')<CR>")
+
+  --Git
+  vim.keymap.set("n", "<leader>gg", "<Cmd>call VSCodeNotify('lazygit.openLazygit')<CR>")
+  vim.keymap.set("n", "<leader>gs", "<Cmd>call VSCodeNotify('workbench.scm.active')<CR>")
+  vim.keymap.set("n", "<leader>gl", "<Cmd>call VSCodeNotify('gitlens.showQuickFileHistory')<CR>")
+  vim.keymap.set("n", "<leader>gb", "<Cmd>call VSCodeNotify('gitlens.toggleFileBlame')<CR>")
+  vim.keymap.set("n", "<leader>gd", "<Cmd>call VSCodeNotify('gitlens.toggleFileChanges')<CR>")
+  vim.keymap.set("n", "<leader>go", "<Cmd>call VSCodeNotify('gitlens.diffWithPrevious')<CR>")
+  vim.keymap.set('n', '<leader>gG', "<cmd>call VSCodeNotify('git-graph.view')<CR>", { silent = true })
+
+  vim.keymap.set("n", "<leader>sd", "<Cmd>call VSCodeNotify('workbench.actions.view.problems')<CR>")
+
+
+  vim.keymap.set("n", "<leader>uC", "<Cmd>call VSCodeNotify('workbench.action.selectTheme')<CR>")
+
+  vim.keymap.set("n", "<leader>uz", "<Cmd>call VSCodeNotify('workbench.action.toggleZenMode')<CR>")
+
+  -- AI
+  -- Q
+  vim.keymap.set({ "n", "v" }, "<leader>anc", "<Cmd>call VSCodeNotify('aws.amazonq.inline.invokeChat')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>anq", "<Cmd>call VSCodeNotify('aws.amazonq.AmazonQChatView.focus')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>anf", "<Cmd>call VSCodeNotify('aws.amazonq.fixCode')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ano", "<Cmd>call VSCodeNotify('aws.amazonq.optimizeCode')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ane", "<Cmd>call VSCodeNotify('aws.amazonq.explainCode')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>and", "<Cmd>call VSCodeNotify('aws.amazonq.generateUnitTests')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>anr", "<Cmd>call VSCodeNotify('aws.amazonq.refactorCode')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ans", "<Cmd>call VSCodeNotify('aws.amazonq.sendToPrompt')<CR>")
+
+  -- Cline
+  vim.keymap.set({ "n", "v" }, "<leader>aq", "<Cmd>call VSCodeNotify('amzn-cline.SidebarProvider.focus')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>aQ", "<Cmd>call VSCodeNotify('amzn-cline.focusChatInput')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>at", "<Cmd>call VSCodeNotify('amzn-cline.addTerminalOutputToChat')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ae", "<Cmd>call VSCodeNotify('amzn-cline.explainCode')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ad", "<Cmd>call VSCodeNotify('amzn-cline.dev.createTestTasks')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ag", "<Cmd>call VSCodeNotify('amzn-cline.generateGitCommitMessage')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ar", "<Cmd>call VSCodeNotify('amzn-cline.improveCode')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>as", "<Cmd>call VSCodeNotify('amzn-cline.addToChat')<CR>")
+end
