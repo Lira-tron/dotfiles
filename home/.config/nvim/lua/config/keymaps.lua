@@ -1102,7 +1102,7 @@ if vim.g.vscode then
   vim.keymap.set("n", "<leader>sC", "<Cmd>call VSCodeNotify('workbench.action.showCommands')<CR>")
   vim.keymap.set("n", "<leader>sk", "<Cmd>call VSCodeNotify('workbench.action.showCommands')<CR>")
   vim.keymap.set("n", "<leader>sh", "<Cmd>call VSCodeNotify('workbench.action.openDocumentationUrl')<CR>")
-  vim.keymap.set("n", "<leader>ss", "<Cmd>call VSCodeNotify('workbench.action.showAllSymbols')<CR>")
+  vim.keymap.set("n", "<leader>ss", "<Cmd>call VSCodeNotify('editor.action.accessibleViewGoToSymbol')<CR>")
 
   vim.keymap.set("n", "<leader>snl", "<Cmd>call VSCodeNotify('workbench.action.output.toggleOutput')<CR>")
 
