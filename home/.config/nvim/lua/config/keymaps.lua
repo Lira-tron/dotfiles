@@ -1082,9 +1082,11 @@ if vim.g.vscode then
   vim.keymap.set("n", "gr", "<Cmd>call VSCodeNotify('editor.action.goToReferences')<CR>")
   vim.keymap.set("n", "gI", "<Cmd>call VSCodeNotify('editor.action.goToImplementation')<CR>")
   vim.keymap.set("n", "gy", "<Cmd>call VSCodeNotify('editor.action.goToTypeDefinition')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>cf", "<Cmd>call VSCodeNotify('editor.action.formatDocument')<CR>")
+  vim.keymap.set("v", "<leader>cf", "<Cmd>call VSCodeNotify('editor.action.formatSelection')<CR>")
+  vim.keymap.set("n", "<leader>cf", "<Cmd>call VSCodeNotify('editor.action.formatDocument')<CR>")
   vim.keymap.set({ "n", "v" }, "<leader>ca", "<Cmd>call VSCodeNotify('editor.action.quickFix')<CR>")
   vim.keymap.set({ "n", "v" }, "<leader>cr", "<Cmd>call VSCodeNotify('editor.action.rename')<CR>")
+  vim.keymap.set("n", "<leader>co", "<Cmd>call VSCodeNotify('editor.action.organizeImports')<CR>")
 
   vim.keymap.set('n', '<leader>dC', "<cmd>call VSCodeNotify('testing.runAtCursor')<CR>")
   vim.keymap.set('n', '<leader>da', "<cmd>call VSCodeNotify('testing.runAll')<CR>")
@@ -1119,11 +1121,15 @@ if vim.g.vscode then
   vim.keymap.set('n', '<leader>gG', "<cmd>call VSCodeNotify('git-graph.view')<CR>", { silent = true })
 
   vim.keymap.set("n", "<leader>sd", "<Cmd>call VSCodeNotify('workbench.actions.view.problems')<CR>")
+  vim.keymap.set("n", "]d", "<Cmd>call VSCodeNotify('editor.action.marker.next')<CR>")
+  vim.keymap.set("n", "[d", "<Cmd>call VSCodeNotify('editor.action.marker.prev')<CR>")
 
 
   vim.keymap.set("n", "<leader>uC", "<Cmd>call VSCodeNotify('workbench.action.selectTheme')<CR>")
 
   vim.keymap.set("n", "<leader>uz", "<Cmd>call VSCodeNotify('workbench.action.toggleZenMode')<CR>")
+
+  vim.keymap.set({ "n", "v", "i" }, "<C-y>", "<Cmd>call VSCodeNotify('acceptSelectedSuggestion')<CR>")
 
   -- AI
   -- Q
