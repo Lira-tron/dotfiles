@@ -1133,6 +1133,10 @@ if vim.g.vscode then
 
   vim.keymap.set({ "n", "v", "i" }, "<C-y>", "<Cmd>call VSCodeNotify('acceptSelectedSuggestion')<CR>")
 
+
+  vim.keymap.set({ "n", "v"}, "<leader>rs", "<Cmd>call VSCodeNotify('editor.action.refactor')<CR>")
+  vim.keymap.set({ "n", "v"}, "<leader>cr", "<Cmd>call VSCodeNotify('editor.action.refactor')<CR>")
+
   -- AI
   -- Q
   vim.keymap.set({ "n", "v" }, "<leader>anc", "<Cmd>call VSCodeNotify('aws.amazonq.inline.invokeChat')<CR>")
