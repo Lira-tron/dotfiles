@@ -1052,9 +1052,6 @@ if vim.g.vscode then
   vim.keymap.set("n", "<S-h>", "<Cmd>call VSCodeNotify('workbench.action.previousEditor')<CR>")
   vim.keymap.set("n", "<S-l>", "<Cmd>call VSCodeNotify('workbench.action.nextEditor')<CR>")
 
-  vim.keymap.set('n', '<leader>wm', "<cmd>call VSCodeNotify('workbench.action.toggleMaximizeEditorGroup')<CR>")
-  vim.keymap.set('n', '<leader>wsm', "<cmd>call VSCodeNotify('workbench.action.toggleMaximizeEditorGroup')<CR>")
-
   -- Increase
   vim.keymap.set("n", "<C-Up>", "<Cmd>call VSCodeNotify('workbench.action.increaseViewHeight')<CR>")
   vim.keymap.set("n", "<C-Down>", "<Cmd>call VSCodeNotify('workbench.action.decreaseViewHeight')<CR>")
@@ -1093,7 +1090,11 @@ if vim.g.vscode then
 
 
   -- Windows
-  vim.keymap.set({ "n", "v" }, "<leader>wd", "<Cmd>call VSCodeNotify('editor.action.closeActiveEditor')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>wd", "<Cmd>call VSCodeNotify('workbench.action.closeWindow')<CR>")
+  vim.keymap.set('n', '<leader>wm', "<cmd>call VSCodeNotify('workbench.action.toggleMaximizeEditorGroup')<CR>")
+  vim.keymap.set('n', '<leader>wsm', "<cmd>call VSCodeNotify('workbench.action.toggleMaximizeEditorGroup')<CR>")
+
+
 
   -- Snacks
   vim.keymap.set("n", "<leader>ff", "<Cmd>call VSCodeNotify('workbench.action.quickOpen')<CR>")
@@ -1144,8 +1145,8 @@ if vim.g.vscode then
   vim.keymap.set({ "n", "v" }, "<leader>ans", "<Cmd>call VSCodeNotify('aws.amazonq.sendToPrompt')<CR>")
 
   -- Cline
-  vim.keymap.set({ "n", "v" }, "<leader>aq", "<Cmd>call VSCodeNotify('amzn-cline.SidebarProvider.focus')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>aQ", "<Cmd>call VSCodeNotify('amzn-cline.focusChatInput')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>aQ", "<Cmd>call VSCodeNotify('amzn-cline.SidebarProvider.focus')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>aq", "<Cmd>call VSCodeNotify('amzn-cline.focusChatInput')<CR>")
   vim.keymap.set({ "n", "v" }, "<leader>at", "<Cmd>call VSCodeNotify('amzn-cline.addTerminalOutputToChat')<CR>")
   vim.keymap.set({ "n", "v" }, "<leader>ae", "<Cmd>call VSCodeNotify('amzn-cline.explainCode')<CR>")
   vim.keymap.set({ "n", "v" }, "<leader>ad", "<Cmd>call VSCodeNotify('amzn-cline.dev.createTestTasks')<CR>")
