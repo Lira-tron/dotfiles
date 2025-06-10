@@ -1097,14 +1097,15 @@ if vim.g.vscode then
 
   -- Snacks
   vim.keymap.set("n", "<leader>ff", "<Cmd>call VSCodeNotify('workbench.action.quickOpen')<CR>")
-  vim.keymap.set("n", "<leader>fb", "<Cmd>call VSCodeNotify('workbench.action.showAllEditors')<CR>")
+  vim.keymap.set("n", "<leader>fb", "<Cmd>call VSCodeNotify('workbench.action.openPreviousEditorFromHistory')<CR>")
+  vim.keymap.set("n", "<leader>fB", "<Cmd>call VSCodeNotify('workbench.action.showAllEditors')<CR>")
   vim.keymap.set("n", "<leader>fe", "<Cmd>call VSCodeNotify('workbench.files.action.showActiveFileInExplorer')<CR>")
   vim.keymap.set("n", "<leader>e", "<Cmd>call VSCodeNotify('workbench.explorer.fileView.focus')<CR>")
   vim.keymap.set("n", "<leader>sg", "<Cmd>call VSCodeNotify('workbench.action.findInFiles')<CR>")
   vim.keymap.set("n", "<leader>sC", "<Cmd>call VSCodeNotify('workbench.action.showCommands')<CR>")
   vim.keymap.set("n", "<leader>sk", "<Cmd>call VSCodeNotify('workbench.action.showCommands')<CR>")
   vim.keymap.set("n", "<leader>sh", "<Cmd>call VSCodeNotify('workbench.action.openDocumentationUrl')<CR>")
-  vim.keymap.set("n", "<leader>ss", "<Cmd>call VSCodeNotify('editor.action.accessibleViewGoToSymbol')<CR>")
+  vim.keymap.set("n", "<leader>ss", "<Cmd>call VSCodeNotify('workbench.action.gotoSymbol')<CR>")
 
   vim.keymap.set("n", "<leader>snl", "<Cmd>call VSCodeNotify('workbench.action.output.toggleOutput')<CR>")
 
