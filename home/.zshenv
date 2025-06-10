@@ -19,13 +19,6 @@ if [ -f "/usr/local/bin/brew" ]; then
     eval $(/usr/local/bin/brew shellenv)
 fi
 
-
-if [ -f "/usr/local/bin/brew" ]; then
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
-fi
-
 if [ -f "/opt/homebrew/bin/brew" ]; then
     eval $(/opt/homebrew/bin/brew shellenv)
 fi
@@ -40,6 +33,16 @@ export JAVA_HOME_11=$HOMEBREW_PREFIX/opt/openjdk@11
 export JAVA_HOME_8=/Library/Java/JavaVirtualMachines/amazon-corretto-8.jdk/Contents/Home
 
 export JAVA_HOME=$JAVA_HOME_LATEST
+
+if [ ! -d "$HOME/.nvm" ]; then
+  mkdir ~/.nvm
+fi
+
+if [ -d "$HOME/.nvm" ]; then
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+fi
 
 if [ -d "$HOME/go/bin" ]; then
     path+=$HOME/go/bin
