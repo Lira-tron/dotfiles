@@ -2,9 +2,9 @@ SHELL = /bin/bash
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 UNAME_S := $(shell uname -s)
 
-BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump lsd bat tree htop miller glow lazygit node helm kubectl derailed/k9s/k9s awscli neovim go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet gh mas luarocks nvm
+BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump lsd bat tree htop miller glow lazygit node helm kubectl derailed/k9s/k9s awscli neovim go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet gh luarocks nvm
 
-MAC_HOME_PACKAGES := betterdisplay downie permute keycastr brave-browser loupedeck obs jump-desktop-connect appcleaner adguard backblaze calibre chatgpt discord iina
+MAC_HOME_PACKAGES := betterdisplay downie permute keycastr brave-browser loupedeck obs jump-desktop-connect appcleaner adguard backblaze calibre chatgpt discord iina mas
 
 all:: install-brew-packages link
 
