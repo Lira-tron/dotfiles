@@ -1,5 +1,20 @@
 return {
   {
+    "webhooked/kanso.nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      require("kanso").setup({
+        transparent = not vim.g.neovide,
+        theme = "ink", -- Load "zen" theme
+        background = { -- map the value of 'background' option to a theme
+          dark = "ink", -- try "ink" !
+          light = "pearl",
+        },
+      })
+    end,
+  },
+  {
     "LazyVim/LazyVim",
     opts = {
       colorscheme = "everforest",
