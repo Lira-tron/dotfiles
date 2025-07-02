@@ -189,3 +189,10 @@ source <(kubectl completion zsh)
 eval "$(starship init zsh)"
 
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+
+# Set up mise for runtime management
+eval "$($HOME/.local/bin/mise activate zsh)"
+source ~/.local/share/mise/completions.zsh
+
+. "$HOME/.local/share/../bin/env"
+
