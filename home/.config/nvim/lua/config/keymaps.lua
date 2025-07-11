@@ -986,12 +986,14 @@ local function create_daily_note(date_line)
   if not full_path then
     return
   end
-  local content = "# Daily Note " .. note_name .. "\n\n"
-      .. "## Contents\n<!-- toc -->\n"
+  local content = "# Daily Note " .. note_name .."\n\n"
+      .. "## Contents\n\n<!-- toc -->\n"
       .. "- [Tasks](#tasks)\n"
+      .. "- [Actions](#actions)\n"
       .. "- [Notes](#notes)\n<!-- tocstop -->\n\n"
-      .. "## Tasks \n\n \n"
-      .. "## Notes\n\n- \n\n"
+      .. "## Tasks\n\n"
+      .. "## Actions\n\n-\n\n"
+      .. "## Notes\n"
   create_note(full_path, content)
   return full_path
 end
@@ -1009,18 +1011,18 @@ local function switch_to_monthly_note(date_line)
   if not full_path then
     return
   end
-  local content = "# Monthly Note " .. note_name .. "\n\n"
-      .. "## Contents\n<!-- toc -->\n"
+  local content = "# Monthly Note " .. note_name .."\n\n"
+      .. "## Contents\n\n<!-- toc -->\n"
       .. "- [Important](#important)\n"
       .. "- [Daily Notes](#daily-notes)\n"
       .. "- [Tasks](#Tasks)\n"
       .. "- [Notes](#notes)\n"
       .. "- [Meetings](#meetings)\n<!-- tocstop -->\n\n"
-      .. "## Important \n\n- \n\n"
-      .. "## Daily Notes \n\n- \n\n"
-      .. "## Tasks \n\n \n"
-      .. "## Notes\n\n- \n\n"
-      .. "## Meetings\n\n- \n\n"
+      .. "## Important\n\n- \n\n"
+      .. "## Daily Notes\n\n- \n\n"
+      .. "## Tasks\n\n"
+      .. "## Notes\n\n-\n\n"
+      .. "## Meetings\n\n-\n"
   create_note(full_path, content)
   vim.cmd("edit " .. vim.fn.fnameescape(full_path))
 end
