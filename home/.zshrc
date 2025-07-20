@@ -1,3 +1,5 @@
+zmodload zsh/zprof
+
 # Amazon Q pre block. Keep at the top of this file.
 [[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
 
@@ -181,8 +183,8 @@ fi
 FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 
 # For ZSH users, uncomment the following two lines:
-autoload -Uz +X compinit && compinit -C
-autoload -Uz +X bashcompinit && bashcompinit
+# autoload -Uz +X compinit && compinit -C
+# autoload -Uz +X bashcompinit && bashcompinit
 
 source <(kubectl completion zsh)
 
