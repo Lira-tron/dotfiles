@@ -1,5 +1,3 @@
-zmodload zsh/zprof
-
 # Amazon Q pre block. Keep at the top of this file.
 [[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
 
@@ -18,6 +16,11 @@ export HISTFILE=~/.zsh_history
 export HISTSIZE=1000000000
 export SAVEHIST=1000000000
 
+FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+autoload -Uz compinit
+compinit
+
+source ~/.config/zsh/fzf-tab/fzf-tab.plugin.zsh
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh
@@ -55,8 +58,8 @@ function my_zvm_init() {
     # [ -f $XDG_CONFIG_HOME/fzf/fzf.zsh ] && source $XDG_CONFIG_HOME/fzf/fzf.zsh
 
     bindkey -r '\e/'
-    bindkey '^[[1;3C' forward-word
-    bindkey '^[[1;3D' backward-word
+    bindkey '^[f' forward-word
+    bindkey '^[b' backward-word
 
     bindkey '^[[A' history-substring-search-up
     bindkey '^[[B' history-substring-search-down
@@ -89,9 +92,6 @@ alias gS="cd ~/Code"
 alias vim='nvim'
 alias gt='gotests -all -w -parallel '
 
-alias codein="code-insiders"
-alias watch="watch "
-alias kubesh='(){ kubectl run alpine-shell --rm -ti --image=alpine -n=$1 -- /bin/sh ;}'
 alias k='kubectl'
 
 alias checkPort='lsof -n -i'
@@ -180,15 +180,20 @@ if [ -f "$HOME/.zshrc.local" ]; then
     source "$HOME/.zshrc.local"
 fi
 
-FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-
-# For ZSH users, uncomment the following two lines:
-# autoload -Uz +X compinit && compinit -C
-# autoload -Uz +X bashcompinit && bashcompinit
-
-source <(kubectl completion zsh)
-
 eval "$(starship init zsh)"
+
+export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense' # optional
+zstyle ':completion:*' format $'\e[2;37m-%d\e[m'
+zstyle ':completion:*:git:*' group-order 'main commands' 'alias commands' 'external commands'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' menu select
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+zstyle ':fzf-tab:*' switch-group '<' '>'
+zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+
+# prefix query to search
+zstyle ':fzf-tab:*' query-string prefix first
+source <(carapace _carapace)
 
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
 
