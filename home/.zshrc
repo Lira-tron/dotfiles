@@ -23,13 +23,16 @@ compinit
 source ~/.config/zsh/fzf-tab/fzf-tab.plugin.zsh
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source $(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+# source $(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh
 source $(brew --prefix)/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 source <(fzf --zsh)
 eval "$(zoxide init zsh)"
 eval "$(thefuck --alias)"
 eval "$(thefuck --alias fk)"
+
+export ATUIN_NOBIND="true"
+eval "$(atuin init zsh)"
 
 # export WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>'
 export WORDCHARS='~!#$%^&*(){}[]<>?.+;-'
@@ -61,11 +64,16 @@ function my_zvm_init() {
     bindkey '^[f' forward-word
     bindkey '^[b' backward-word
 
-    bindkey '^[[A' history-substring-search-up
-    bindkey '^[[B' history-substring-search-down
+    # bindkey '^[[A' history-substring-search-up
+    # bindkey '^[[B' history-substring-search-down
 
-    bindkey '^r' fzf-history-widget
-}
+    # bindkey '^r' fzf-history-widget
+
+    bindkey '^r' atuin-search
+
+    # bind to the up key, which depends on terminal mode
+    bindkey '^[[A' atuin-up-search
+    bindkey '^[OA' atuin-up-search}
 
 zvm_after_init_commands+=(my_zvm_init)
 
