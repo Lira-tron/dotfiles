@@ -174,6 +174,7 @@ keybind = cmd+s=toggle_quick_terminal
 #
 # Changing this configuration requires restarting Ghostty completely.
 quick-terminal-position = bottom
+quick-terminal-size = 60%
 
 # If `true`, the *Option* key will be treated as *Alt*. This makes terminal
 # sequences expecting *Alt* to work properly, but will break Unicode input
