@@ -179,6 +179,48 @@ function extract {
     done
 }
 
+function gitPull() {
+    local conflicts=()
+    local current_dir=$(pwd)
+
+    # Check current directory first
+    if [[ -d ".git" ]]; then
+        echo "Processing: ."
+        git pull --rebase 2>&1 | tee /tmp/git_output
+        if [[ ${PIPESTATUS[0]} -ne 0 ]] || grep -q "CONFLICT\|Automatic merge failed\|unmerged files\|fatal:" /tmp/git_output; then
+            conflicts+=(".")
+        fi
+        echo ""
+    fi
+
+    # Check subdirectories
+    for dir in */; do
+        if [[ -d "$dir/.git" ]]; then
+            echo "Processing: $dir"
+            cd "$dir"
+
+            git pull --rebase 2>&1 | tee /tmp/git_output
+            if [[ ${PIPESTATUS[0]} -ne 0 ]] || grep -q "CONFLICT\|Automatic merge failed\|unmerged files\|fatal:" /tmp/git_output; then
+                conflicts+=("$dir")
+            fi
+
+            cd "$current_dir"
+            echo ""
+        fi
+    done
+
+    echo "=== SUMMARY ==="
+    if [[ ${#conflicts[@]} -eq 0 ]]; then
+        echo "All repositories updated successfully!"
+    else
+        echo "Issues found in ${#conflicts[@]} folder(s):"
+        for folder in "${conflicts[@]}"; do
+            echo "  - $folder"
+            echo "    cd $folder"
+        done
+    fi
+}
+
 
 reloadzsh () {
    test -f ~/.zshrc && . ~/.zshrc
@@ -207,3 +249,6 @@ source <(carapace _carapace)
 
 . "$HOME/.local/share/../bin/env"
 
+
+# Agent SDK CLI
+export PATH="$PATH:/Users/limonoct/.ask/MagentaSDK-CLI-1.0/bin"
