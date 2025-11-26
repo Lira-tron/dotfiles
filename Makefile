@@ -58,7 +58,7 @@ install-appstore::
 	mas install 694633015 # Keepsolid
 	mas install 302584613 # Amazon Kindle
 	mas install 457622435 # Yoink
-	mas install 414528154 # ScreenFloat
+	# mas install 414528154 # ScreenFloat
 
 setup-java:: download-jdtls setup-java-debug setup-vscode-java-test setup-vscode-java-decompiler
 
