@@ -207,3 +207,5 @@ shell-integration-features = sudo
 
 # If true, Ghostty on macOS will automatically enable the "Secure Input" feature when it detects that a password prompt is being displayed.
 macos-auto-secure-input = true
+macos-secure-input-indication = true
+

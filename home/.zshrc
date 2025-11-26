@@ -1,6 +1,5 @@
-# Amazon Q pre block. Keep at the top of this file.
-[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
-
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
 # https://unix.stackexchange.com/questions/599641/why-do-i-have-duplicates-in-my-zsh-history
 
 # setopt HIST_IGNORE_ALL_DUPS
@@ -18,7 +17,11 @@ export SAVEHIST=1000000000
 
 FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 autoload -Uz compinit
-compinit
+if [ ! -e ~/.zcompdump ] || [ $(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump) ]; then
+  compinit
+else
+  compinit -C
+fi
 
 source ~/.config/zsh/fzf-tab/fzf-tab.plugin.zsh
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
@@ -28,8 +31,15 @@ source $(brew --prefix)/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 source <(fzf --zsh)
 eval "$(zoxide init zsh)"
-eval "$(thefuck --alias)"
-eval "$(thefuck --alias fk)"
+
+# Lazy load thefuck
+thefuck() {
+  unfunction thefuck
+  eval $(command thefuck --alias)
+  eval $(command thefuck --alias fk)
+  thefuck "$@"
+}
+fk() { thefuck "$@"; }
 
 export ATUIN_NOBIND="true"
 eval "$(atuin init zsh)"
@@ -252,3 +262,6 @@ source <(carapace _carapace)
 
 # Agent SDK CLI
 export PATH="$PATH:/Users/limonoct/.ask/MagentaSDK-CLI-1.0/bin"
+
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
