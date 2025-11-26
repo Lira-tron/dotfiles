@@ -3,13 +3,12 @@ gui:
     selectedLineBgColor:
       # - "#314154"
       - "#013e4a"
+      # Keybindings
+      # keybinding:
+      #   universal:
+      #     quit: <esc>
 
-# Keybindings
-# keybinding:
-#   universal:
-#     quit: <esc>
-
-# os:
+      # os:
   # This allows me to open Neovide when press "e" to edit a file in lazygit, it
   # works when I'm inside neovim
   # https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#configuring-file-editing
@@ -34,11 +33,10 @@ gui:
   # # comment all the options above
   # # https://github.com/folke/snacks.nvim/blob/main/docs/lazygit.md
   # editPreset: "nvim-remote"
-
 git:
-  paging:
-    colorArg: always
-    # For this to work, first install `brew install git-delta`
-    # https://github.com/dandavison/delta
-    # https://github.com/jesseduffield/lazygit/issues/155#issuecomment-2260986940
-    pager: delta --dark --paging=never --syntax-theme base16-256 -s
+  pagers:
+    - colorArg: always
+      # For this to work, first install `brew install git-delta`
+      # https://github.com/dandavison/delta
+      # https://github.com/jesseduffield/lazygit/issues/155#issuecomment-2260986940
+      pager: delta --dark --paging=never --syntax-theme base16-256 -s
