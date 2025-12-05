@@ -49,37 +49,35 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export EDITOR='nvim'
 export MANPAGER='nvim +Man!'
 
-function zvm_config() {
-  ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
+ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
+
+# # https://github.com/jeffreytse/zsh-vi-mode/issues/19
+# # saves to clipboard on yank
+# function zvm_vi_yank() {
+#     zvm_yank
+#     printf %s "${CUTBUFFER}" | clipcopy
+#     zvm_exit_visual_mode
+# }
+
+function zvm_after_init() {
+  bindkey -r '\e/'
+  bindkey '^[f' forward-word
+  bindkey '^[b' backward-word
+
+  # bindkey '^[[A' history-substring-search-up
+  # bindkey '^[[B' history-substring-search-down
+
+  # bindkey '^r' fzf-history-widget
+
+  bindkey '^r' atuin-search
+
+  # bind to the up key, which depends on terminal mode
+  bindkey '^[[A' atuin-up-search
+  bindkey '^[OA' atuin-up-search
+
+  [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
 }
-
-# https://github.com/jeffreytse/zsh-vi-mode/issues/19
-# saves to clipboard on yank
-function zvm_vi_yank() {
-    zvm_yank
-    printf %s "${CUTBUFFER}" | clipcopy
-    zvm_exit_visual_mode
-}
-
-function my_zvm_init() {
-    # [ -f $XDG_CONFIG_HOME/fzf/fzf.zsh ] && source $XDG_CONFIG_HOME/fzf/fzf.zsh
-
-    bindkey -r '\e/'
-    bindkey '^[f' forward-word
-    bindkey '^[b' backward-word
-
-    # bindkey '^[[A' history-substring-search-up
-    # bindkey '^[[B' history-substring-search-down
-
-    # bindkey '^r' fzf-history-widget
-
-    bindkey '^r' atuin-search
-
-    # bind to the up key, which depends on terminal mode
-    bindkey '^[[A' atuin-up-search
-    bindkey '^[OA' atuin-up-search}
-
-zvm_after_init_commands+=(my_zvm_init)
 
 if [[ -n "$SSH_CONNECTION" && "$(uname)" == "Linux" ]]; then
   function sesh-sessions() {

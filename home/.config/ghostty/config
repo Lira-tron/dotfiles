@@ -117,9 +117,9 @@ custom-shader = shaders/cursor_smear.glsl
 #
 # This assumes you installed tmux through brew if using macos
 # command = zsh --login -c "if command -v tmux >/dev/null 2>&1; then tmux attach || tmux; else zsh; fi"
-window-padding-balance = false
+# window-padding-balance = true
 window-padding-x = 9,6
-window-padding-y = 12,0
+# window-padding-y = 12,0
 
 window-height = 40
 window-width = 150
@@ -145,11 +145,11 @@ font-size = 16
 #
 # macOS: To hide the titlebar without removing the native window borders
 #        or rounded corners, use `macos-titlebar-style = hidden` instead.
-macos-titlebar-style = hidden
+macos-titlebar-style = tabs
 
 # Confirms that a surface should be closed before closing it. This defaults to
 # true. If set to false, surfaces will close without any confirmation.
-confirm-close-surface = false
+confirm-close-surface = true
 
 # See the various configurations for the quick terminal in the
 # configuration file to customize its behavior.
@@ -163,6 +163,13 @@ confirm-close-surface = false
 #  information.
 # keybind = global:cmd+s=toggle_quick_terminal
 keybind = cmd+s=toggle_quick_terminal
+keybind = cmd+shift+c=write_screen_file:copy
+keybind = cmd+shift+v=new_split:right
+keybind = cmd+shift+h=new_split:down
+keybind = cmd+shift+m=toggle_split_zoom
+keybind = cmd+shift+n=goto_split:next
+keybind = cmd+shift+p=goto_split:previous
+keybind = alt+m=toggle_split_zoom
 
 # Valid values are:
 #
@@ -209,3 +216,4 @@ shell-integration-features = sudo
 macos-auto-secure-input = true
 macos-secure-input-indication = true
 
+window-save-state = always
