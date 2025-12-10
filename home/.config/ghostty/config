@@ -165,10 +165,10 @@ confirm-close-surface = true
 keybind = cmd+s=toggle_quick_terminal
 keybind = cmd+shift+c=write_screen_file:copy
 keybind = cmd+shift+v=new_split:right
-keybind = cmd+shift+h=new_split:down
+# keybind = cmd+shift+h=new_split:down
 keybind = cmd+shift+m=toggle_split_zoom
 keybind = cmd+shift+n=goto_split:next
-keybind = cmd+shift+p=goto_split:previous
+keybind = cmd+shift+e=goto_split:previous
 keybind = alt+m=toggle_split_zoom
 
 # Valid values are:
@@ -210,7 +210,7 @@ quick-terminal-animation-duration = 0.08
 # ssh for remote linux run infocmp -x | ssh YOUR-SERVER -- /usr/bin/tic -x -
 
 # required for the term info thing
-shell-integration-features = sudo
+shell-integration-features = sudo, ssh-terminfo, no-title
 
 # If true, Ghostty on macOS will automatically enable the "Secure Input" feature when it detects that a password prompt is being displayed.
 macos-auto-secure-input = true

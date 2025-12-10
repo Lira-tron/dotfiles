@@ -127,6 +127,22 @@ alias tn='sesh connect $(sesh list | fzf)'
 
 alias sizeorder="du -ah . | grep -v "/$" | sort -rh"
 
+# Disable auto-setting terminal title.
+DISABLE_AUTO_TITLE="true"
+function precmd () {
+  echo -ne "\033]0;$(print -rD $PWD)\007"
+}
+precmd
+
+function preexec () {
+  if [[ $1 =~ ^ssh ]]; then
+    print -Pn "\e]0; 🚨🚨🚨$(print -rD $PWD) $1 🚨🚨🚨\a"
+  else
+    print -Pn "\e]0;🚀 $(print -rD $PWD) $1  🚀\a"
+  fi
+}
+
+
 # using ripgrep combined with preview
 # find-in-file - usage: fif <searchTerm>
 fg() {
