@@ -210,7 +210,7 @@ quick-terminal-animation-duration = 0.08
 # ssh for remote linux run infocmp -x | ssh YOUR-SERVER -- /usr/bin/tic -x -
 
 # required for the term info thing
-shell-integration-features = sudo, ssh-env, no-title
+shell-integration-features = sudo, ssh-terminfo, ssh-env, no-title
 
 # If true, Ghostty on macOS will automatically enable the "Secure Input" feature when it detects that a password prompt is being displayed.
 macos-auto-secure-input = true
