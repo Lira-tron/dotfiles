@@ -127,6 +127,9 @@ alias tn='sesh connect $(sesh list | fzf)'
 
 alias sizeorder="du -ah . | grep -v "/$" | sort -rh"
 
+alias lyosx='osxphotos export --export-by-date /Volumes/DataShared/Pictures/Library --sidecar XMP --touch-file --download-missing --skip-edited'
+alias lyicloud=''
+
 # Disable auto-setting terminal title.
 DISABLE_AUTO_TITLE="true"
 function precmd () {
