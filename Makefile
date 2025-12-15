@@ -23,6 +23,9 @@ ifeq ($(UNAME_S),Darwin)
 	brew install font-jetbrains-mono
 	brew install font-meslo-lg-nerd-font
 	brew install reattach-to-user-namespace pngpaste trash
+	brew tap RhetTbull/osxphotos
+	brew install osxphotos
+	brew install icloudpd
 	brew install --cask --no-quarantine syntax-highlight
 	brew install --cask ghostty
 	brew install --cask mouseless
