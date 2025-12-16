@@ -128,7 +128,7 @@ alias tn='sesh connect $(sesh list | fzf)'
 alias sizeorder="du -ah . | grep -v "/$" | sort -rh"
 
 alias lyosx='osxphotos export --export-by-date /Volumes/DataShared/Pictures/Library --sidecar XMP --touch-file --download-missing --skip-edited'
-alias lyicloud=''
+alias lyicloudpd='icloudpd --directory /Volumes/DataShared/Pictures/Library --folder-structure {:%Y/%m/%d} --align-raw original --username octalimon@gmail.com --watch-with-interval 86400 --set-exif-datetime'
 
 # Disable auto-setting terminal title.
 DISABLE_AUTO_TITLE="true"
