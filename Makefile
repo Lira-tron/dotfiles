@@ -26,6 +26,7 @@ ifeq ($(UNAME_S),Darwin)
 	brew tap RhetTbull/osxphotos
 	brew install osxphotos
 	brew install icloudpd
+	brew install tw93/tap/mole
 	brew install --cask --no-quarantine syntax-highlight
 	brew install --cask ghostty
 	brew install --cask mouseless
