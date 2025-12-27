@@ -13,20 +13,28 @@ export HISTFILE=~/.zsh_history
 export HISTSIZE=1000000000
 export SAVEHIST=1000000000
 
-FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+# Cache brew prefix
+export BREW_PREFIX=${HOMEBREW_PREFIX:-$(brew --prefix)}
+export FPATH="$BREW_PREFIX/share/zsh/site-functions:${FPATH}"
+
+
 autoload -Uz compinit
-compinit
+if [[ -n ~/.zcompdump(#qNmh+24) ]]; then
+  compinit
+else
+  compinit -C
+fi
 
 source ~/.config/zsh/fzf-tab/fzf-tab.plugin.zsh
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-# source $(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh
-source $(brew --prefix)/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+source $BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# source $BREW_PREFIX/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+source $BREW_PREFIX/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 source <(fzf --zsh)
 eval "$(zoxide init zsh)"
 
-# Lazy load thefuck
+# Lazy load
 thefuck() {
   unfunction thefuck
   eval $(command thefuck --alias)
@@ -34,6 +42,32 @@ thefuck() {
   thefuck "$@"
 }
 fk() { thefuck "$@"; }
+
+_nvm_load() {
+  unfunction nvm node npm npx
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+}
+
+nvm() {
+  _nvm_load
+  nvm "$@"
+}
+
+node() {
+  _nvm_load
+  node "$@"
+}
+
+npm() {
+  _nvm_load
+  npm "$@"
+}
+
+npx() {
+  _nvm_load
+  npx "$@"
+}
 
 export ATUIN_NOBIND="true"
 eval "$(atuin init zsh)"
