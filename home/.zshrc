@@ -17,13 +17,11 @@ export SAVEHIST=1000000000
 export BREW_PREFIX=${HOMEBREW_PREFIX:-$(brew --prefix)}
 export FPATH="$BREW_PREFIX/share/zsh/site-functions:${FPATH}"
 
-
 autoload -Uz compinit
-if [[ -n ~/.zcompdump(#qNmh+24) ]]; then
+for dump in ~/.zcompdump(N.mh+24); do
   compinit
-else
-  compinit -C
-fi
+done
+compinit -C
 
 source ~/.config/zsh/fzf-tab/fzf-tab.plugin.zsh
 source $BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
