@@ -28,6 +28,7 @@ if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
 fi
 
 export JAVA_HOME_LATEST=$HOMEBREW_PREFIX/opt/openjdk
+export JAVA_HOME_21=$HOMEBREW_PREFIX/opt/openjdk@21
 export JAVA_HOME_17=$HOMEBREW_PREFIX/opt/openjdk@17
 export JAVA_HOME_11=$HOMEBREW_PREFIX/opt/openjdk@11
 export JAVA_HOME_8=/Library/Java/JavaVirtualMachines/amazon-corretto-8.jdk/Contents/Home
@@ -44,7 +45,7 @@ if [ -d "$HOME/go/bin" ]; then
     path+=$HOME/go/bin
 fi
 
-if [ -d "/opt/homebrew/opt/go" ]; then
+if [ -d "$HOMEBREW_PREFIX/opt/go" ]; then
     export GOPATH="${HOME}/.go"
     export GOROOT=$(brew --prefix golang)/libexec
     path+=$GOROOT/bin
