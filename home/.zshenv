@@ -27,11 +27,21 @@ if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
     eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
 fi
 
-export JAVA_HOME_LATEST=$HOMEBREW_PREFIX/opt/openjdk
-export JAVA_HOME_21=$HOMEBREW_PREFIX/opt/openjdk@21
-export JAVA_HOME_17=$HOMEBREW_PREFIX/opt/openjdk@17
-export JAVA_HOME_11=$HOMEBREW_PREFIX/opt/openjdk@11
-export JAVA_HOME_8=/Library/Java/JavaVirtualMachines/amazon-corretto-8.jdk/Contents/Home
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    export JAVA_HOME_LATEST=/Library/Java/JavaVirtualMachines/amazon-corretto/Contents/Home
+    export JAVA_HOME_25=/Library/Java/JavaVirtualMachines/amazon-corretto-25.jdk/Contents/Home
+    export JAVA_HOME_21=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home
+    export JAVA_HOME_17=/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home
+    export JAVA_HOME_11=/Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk/Contents/Home
+    export JAVA_HOME_8=/Library/Java/JavaVirtualMachines/amazon-corretto-8.jdk/Contents/Home
+else
+    export JAVA_HOME_LATEST=$HOMEBREW_PREFIX/opt/openjdk
+    export JAVA_HOME_25=$HOMEBREW_PREFIX/opt/openjdk@25
+    export JAVA_HOME_21=$HOMEBREW_PREFIX/opt/openjdk@21
+    export JAVA_HOME_17=$HOMEBREW_PREFIX/opt/openjdk@17
+    export JAVA_HOME_11=$HOMEBREW_PREFIX/opt/openjdk@11
+    export JAVA_HOME_8=$HOMEBREW_PREFIX/opt/openjdk@8
+fi
 
 export JAVA_HOME=$JAVA_HOME_LATEST
 
