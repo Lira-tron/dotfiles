@@ -1,0 +1,293 @@
+# Kiro CLI pre block. Keep at the top of this file.
+if test -f "$HOME/Library/Application Support/kiro-cli/shell/config.pre.fish"
+    source "$HOME/Library/Application Support/kiro-cli/shell/config.pre.fish"
+end
+
+# Language settings
+set -gx LC_CTYPE en_US.UTF-8
+set -gx LC_ALL en_US.UTF-8
+set -gx LANG en_US.UTF-8
+
+# Disable brew analytics
+set -gx HOMEBREW_NO_ANALYTICS 1
+
+# Enable `ls` colors
+set -gx CLICOLOR 1
+
+# Set XDG values
+set -gx XDG_CONFIG_HOME "$HOME/.config"
+set -gx XDG_DATA_HOME "$HOME/.local/share"
+set -gx XDG_STATE_HOME "$HOME/.local/state"
+set -gx XDG_CACHE_HOME "$HOME/.cache"
+
+# Timezone
+set -gx TZ /usr/share/zoneinfo/US/Pacific
+
+# Homebrew setup
+if test -f "/usr/local/bin/brew"
+    eval (/usr/local/bin/brew shellenv)
+else if test -f "/opt/homebrew/bin/brew"
+    eval (/opt/homebrew/bin/brew shellenv)
+else if test -f "/home/linuxbrew/.linuxbrew/bin/brew"
+    eval (/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+end
+
+# Java setup
+set -gx JAVA_HOME_LATEST $HOMEBREW_PREFIX/opt/openjdk
+set -gx JAVA_HOME_17 $HOMEBREW_PREFIX/opt/openjdk@17
+set -gx JAVA_HOME_11 $HOMEBREW_PREFIX/opt/openjdk@11
+set -gx JAVA_HOME_8 /Library/Java/JavaVirtualMachines/amazon-corretto-8.jdk/Contents/Home
+set -gx JAVA_HOME $JAVA_HOME_LATEST
+
+# NVM setup
+if not test -d "$HOME/.nvm"
+    mkdir ~/.nvm
+end
+set -gx NVM_DIR "$HOME/.nvm"
+
+# Go setup
+if test -d "/opt/homebrew/opt/go"
+    set -gx GOPATH "$HOME/.go"
+    set -gx GOROOT (brew --prefix golang)/libexec
+    fish_add_path $GOROOT/bin
+    fish_add_path $GOPATH/bin
+end
+
+# Path additions
+test -d "$HOME/go/bin" && fish_add_path "$HOME/go/bin"
+test -d "$HOME/.npm/bin" && fish_add_path "$HOME/.npm/bin"
+test -d "$HOME/.local/bin" && fish_add_path "$HOME/.local/bin"
+test -d "$HOME/.npm-global/bin" && fish_add_path "$HOME/.npm-global/bin"
+test -d "$HOME/nvim/bin" && fish_add_path "$HOME/nvim/bin"
+
+# Cargo
+test -f "$HOME/.cargo/env" && source "$HOME/.cargo/env"
+
+# Editor and pager
+set -gx EDITOR nvim
+set -gx MANPAGER 'nvim +Man!'
+
+# FZF settings
+set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --follow --exclude .git --exclude .bemol'
+set -gx FZF_CTRL_T_COMMAND "$FZF_DEFAULT_COMMAND"
+
+# History settings
+set -g fish_history_max 1000000000
+
+# Aliases
+alias vim='nvim'
+alias gS="cd ~/Code"
+alias gt='gotests -all -w -parallel '
+alias k='kubectl'
+alias checkPort='lsof -n -i'
+alias lg='lazygit'
+alias gb='git branch'
+alias glo='git log --oneline'
+alias gs='git status'
+alias ll="eza -alh"
+alias ls="eza --group-directories-first --color=always --long --no-filesize --icons=always --no-time --no-user --no-permissions"
+alias cd="z"
+alias cat="bat"
+alias t='tmux'
+alias tm='t new-session -As'
+alias tc='sesh connect'
+alias tn='sesh connect $(sesh list | fzf)'
+alias sizeorder="du -ah . | grep -v '/$' | sort -rh"
+
+# Functions
+function fg
+    if test (count $argv) -eq 0
+        echo "Need a string to search for!"
+        return 1
+    end
+    set selected_file (rg --files-with-matches --hidden --glob '!.git/' --glob '!.bemol/' --no-messages $argv[1] | fzf --preview "highlight -O ansi -l {} 2> /dev/null | rg --colors 'match:bg:yellow' --ignore-case --hidden --pretty --context 10 '$argv[1]' || rg --ignore-case --hidden --pretty --context 10 '$argv[1]' {}")
+    if test -n "$selected_file"
+        vim "$selected_file"
+    end
+end
+
+function fcd
+    set file (fzf +m -q "$argv[1]")
+    if test -n "$file"
+        set dir (dirname "$file")
+        cd "$dir"
+    end
+end
+
+function extract
+    if test (count $argv) -eq 0
+        echo "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz|.zlib|.cso>"
+        return 1
+    end
+    
+    for n in $argv
+        if not test -f "$n"
+            echo "'$n' - file doesn't exist"
+            return 1
+        end
+        
+        switch (string lower (string split -r -m1 . "$n")[2])
+            case tar.bz2 tar.gz tar.xz tbz2 tgz txz tar cbt
+                tar zxvf "$n"
+            case lzma
+                unlzma ./"$n"
+            case bz2
+                bunzip2 ./"$n"
+            case rar cbr
+                unrar x -ad ./"$n"
+            case gz
+                gunzip ./"$n"
+            case zip cbz epub
+                unzip ./"$n"
+            case z
+                uncompress ./"$n"
+            case 7z apk arj cab cb7 chm deb iso lzh msi pkg rpm udf wim xar vhd
+                7z x ./"$n"
+            case xz
+                unxz ./"$n"
+            case exe
+                cabextract ./"$n"
+            case cpio
+                cpio -id < ./"$n"
+            case ace cba
+                unace x ./"$n"
+            case zpaq
+                zpaq x ./"$n"
+            case arc
+                arc e ./"$n"
+            case dmg
+                hdiutil mount ./"$n" -mountpoint "./$n.mounted"
+            case '*'
+                echo "extract: '$n' - unknown archive method"
+                return 1
+        end
+    end
+end
+
+function gitPull
+    set conflicts
+    set current_dir (pwd)
+    
+    if test -d ".git"
+        echo "Processing: ."
+        if not git pull --rebase
+            set conflicts $conflicts "."
+        end
+        echo ""
+    end
+    
+    for dir in */
+        if test -d "$dir/.git"
+            echo "Processing: $dir"
+            cd "$dir"
+            if not git pull --rebase
+                set conflicts $conflicts "$dir"
+            end
+            cd "$current_dir"
+            echo ""
+        end
+    end
+    
+    echo "=== SUMMARY ==="
+    if test (count $conflicts) -eq 0
+        echo "All repositories updated successfully!"
+    else
+        echo "Issues found in "(count $conflicts)" folder(s):"
+        for folder in $conflicts
+            echo "  - $folder"
+            echo "    cd $folder"
+        end
+    end
+end
+
+# Initialize tools
+if command -q fzf
+    fzf --fish | source
+end
+
+if command -q zoxide
+    zoxide init fish | source
+end
+
+if command -q atuin
+    set -gx ATUIN_NOBIND true
+    atuin init fish | source
+end
+
+if command -q starship
+    starship init fish | source
+end
+
+if command -q thefuck
+    thefuck --alias | source
+    thefuck --alias fk | source
+end
+
+# NVM lazy loading
+function nvm
+    if not functions -q __nvm_load
+        function __nvm_load
+            if test -s "$NVM_DIR/nvm.sh"
+                bass source "$NVM_DIR/nvm.sh" --no-use
+            end
+        end
+    end
+    __nvm_load
+    nvm $argv
+end
+
+function node
+    __nvm_load 2>/dev/null || true
+    command node $argv
+end
+
+function npm
+    __nvm_load 2>/dev/null || true
+    command npm $argv
+end
+
+function npx
+    __nvm_load 2>/dev/null || true
+    command npx $argv
+end
+
+# SSH session handling
+if test -n "$SSH_CONNECTION" -a (uname) = "Linux"
+    function sesh-sessions
+        set session (sesh list -t -c | fzf --height 40% --reverse --border-label ' sesh ' --border --prompt '⚡  ')
+        if test -n "$session"
+            sesh connect $session
+        end
+    end
+    
+    bind \es sesh-sessions
+end
+
+# Terminal title
+function fish_title
+    if test (count $argv) -gt 0
+        if string match -q 'ssh*' $argv[1]
+            echo "🚨🚨🚨"(prompt_pwd)" $argv 🚨🚨🚨"
+        else
+            echo "🚀 "(prompt_pwd)" $argv 🚀"
+        end
+    else
+        prompt_pwd
+    end
+end
+
+# VSCode integration
+if test "$TERM_PROGRAM" = "vscode"
+    string replace -r ".*" "source \"\$1\"" < (code --locate-shell-integration-path fish) | source
+end
+
+# Agent SDK CLI
+fish_add_path "$HOME/.ask/MagentaSDK-CLI-1.0/bin"
+
+# Local configurations
+test -f "$HOME/.config/fish/config.local.fish" && source "$HOME/.config/fish/config.local.fish"
+
+# Kiro CLI post block. Keep at the bottom of this file.
+if test -f "$HOME/Library/Application Support/kiro-cli/shell/config.post.fish"
+    source "$HOME/Library/Application Support/kiro-cli/shell/config.post.fish"
+end
