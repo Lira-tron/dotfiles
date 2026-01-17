@@ -27,7 +27,7 @@ Three foundational documents:
 ## File Locations
 Documents are saved to TWO locations:
 - **Workspace**: `.kiro/steering/` (local to current project)
-- **Knowledge Base**: `~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/steering/{workspace-name}/`
+- **Knowledge Base**: `~/.kiro/knowledge/steering/{workspace-name}/`
 
 Format:
 - `{workspace-name}` = name of the current workspace (e.g., my-api-service, user-dashboard)
@@ -173,7 +173,7 @@ For each file (product.md, tech.md, structure.md):
 
 1. **Copy content** from local workspace file
 2. **Add Context section** at the end
-3. **Save to knowledge base**: `~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/steering/{workspace-name}/`
+3. **Save to knowledge base**: `~/.kiro/knowledge/steering/{workspace-name}/`
 4. **Update Context section** with current timestamp and activity
 
 **Context Section Template** (ONLY for knowledge base copies):

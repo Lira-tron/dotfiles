@@ -28,7 +28,7 @@ Any steering documents from local workspace:
 ## File Locations
 Documents are synced FROM and TO:
 - **Source (Workspace)**: `.kiro/steering/` (local to current project)
-- **Destination (Knowledge Base)**: `~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/steering/{workspace-name}/`
+- **Destination (Knowledge Base)**: `~/.kiro/knowledge/steering/{workspace-name}/`
 
 Format:
 - `{workspace-name}` = name of the current workspace (e.g., my-api-service, user-dashboard)
@@ -54,7 +54,7 @@ For each steering file found:
 
 1. **Read content** from local workspace file
 2. **Add Context section** at the end (if not already present)
-3. **Save to knowledge base**: `~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/steering/{workspace-name}/`
+3. **Save to knowledge base**: `~/.kiro/knowledge/steering/{workspace-name}/`
 4. **Update Context section** with current timestamp and activity
 
 **Context Section Template** (ONLY for knowledge base copies):
