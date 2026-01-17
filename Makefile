@@ -9,7 +9,7 @@ MAC_HOME_PACKAGES := betterdisplay downie permute keycastr brave-browser loupede
 all:: install-brew-packages link
 
 link::
-	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow home
+	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow --ignore='.kiro/knowledge' home
 
 unlink::
 	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --delete home
