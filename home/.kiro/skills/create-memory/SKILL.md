@@ -30,8 +30,8 @@ Stores knowledge entries during active sessions:
 
 ## File Locations
 Knowledge is stored in:
-- **Knowledge Base**: `~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/memory/{project}/{YYYY}/{MM}/{topic}.md`
-- **Index**: `~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/memory/index.md`
+- **Knowledge Base**: `~/.kiro/knowledge/memory/{project}/{YYYY}/{MM}/{topic}.md`
+- **Index**: `~/.kiro/knowledge/memory/index.md`
 
 ## Parameters
 - **topic** (required): Topic name (e.g., "architecture", "debugging", "api-design", "implementation")
@@ -93,7 +93,7 @@ If a document path or URL is provided, extract the information:
 Determine where to store the entry:
 
 **Path format:**
-`~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/memory/{project}/{YYYY}/{MM}/{topic}.md`
+`~/.kiro/knowledge/memory/{project}/{YYYY}/{MM}/{topic}.md`
 
 **Create directories if needed:**
 - Ensure year directory exists
@@ -151,7 +151,7 @@ Save the entry:
 Update the knowledge base index:
 
 **Index path:**
-`~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/memory/index.md`
+`~/.kiro/knowledge/memory/index.md`
 
 **Index format:**
 ```markdown

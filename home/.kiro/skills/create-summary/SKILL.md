@@ -29,8 +29,8 @@ A structured work summary document with:
 
 ## File Locations
 Summaries are saved to:
-- **Knowledge Base**: `~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/summary/{YYYY}/`
-- **Year Index**: `~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/summary/{YYYY}/index.md`
+- **Knowledge Base**: `~/.kiro/knowledge/summary/{YYYY}/`
+- **Year Index**: `~/.kiro/knowledge/summary/{YYYY}/index.md`
 
 ## Parameters
 - **project** (required): Project or feature name (e.g., "user-authentication", "api-optimization")
@@ -59,7 +59,7 @@ Collect information about the work completed.
 ### Step 2: Check for Existing Summary File
 **CRITICAL**: Before creating or updating a summary:
 
-1. **Check if file exists**: `~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/summary/{YYYY}/{YYYY-MM-DD}-{project}.md`
+1. **Check if file exists**: `~/.kiro/knowledge/summary/{YYYY}/{YYYY-MM-DD}-{project}.md`
 2. **If file exists**:
    - Read the entire file
    - Identify existing sections and content
@@ -178,14 +178,14 @@ generated_from: {notes|context}
   3. Create a new file with different date"
 
 **Save location:**
-- Directory: `~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/summary/{YYYY}/`
+- Directory: `~/.kiro/knowledge/summary/{YYYY}/`
 - Ensure directory exists (create if needed)
 
 ### Step 5: Update Year Index
 Update or create the year index file.
 
 **Index file location:**
-`~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/summary/{YYYY}/index.md`
+`~/.kiro/knowledge/summary/{YYYY}/index.md`
 
 **Index format:**
 

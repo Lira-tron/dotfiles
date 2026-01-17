@@ -24,7 +24,7 @@ When the user invokes this skill or asks to create a plan, follow a structured w
 - Any iteration or approval gate is reached
 
 ## File Structure
-Store files in: `~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/plans/{YY}/{MM}/{component}/{feature}/`
+Store files in: `~/.kiro/knowledge/plans/{YY}/{MM}/{component}/{feature}/`
 
 Generate:
 1. `requirements.md` - User stories and acceptance criteria
@@ -418,7 +418,7 @@ Update the Context section in ALL three files automatically when:
 
 ### Directory Creation
 Create date-based directory structure when generating files:
-`~/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.kiro/knowledge/plans/{YY}/{MM}/{component}/{feature}/`
+`~/.kiro/knowledge/plans/{YY}/{MM}/{component}/{feature}/`
 
 ## Task Execution Guidelines
 
