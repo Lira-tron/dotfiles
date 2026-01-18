@@ -1,3 +1,9 @@
+---
+name: generate-steering
+description: Generate foundational steering documents (product.md, tech.md, structure.md) for current workspace by analyzing codebase. Use when starting new projects or documenting existing ones.
+compatibility: Designed for Kiro CLI
+---
+
 # Generate Project Steering Documents
 
 ## Overview
@@ -284,14 +290,31 @@ These documents are now searchable via /search in Kiro.
 
 ## Usage
 
-### In CLI
+## How to Use This Skill
+
+### Add to Agent Resources
+Add this skill to your agent configuration:
+
+```json
+{
+  "resources": [
+    "skill://.kiro/skills/generate-steering/SKILL.md"
+  ]
+}
+```
+
+### Usage in Chat
+Once added to your agent, simply ask to generate steering documents:
+
 ```bash
 # Generate project steering documents for current workspace
-kiro "@generate.steering.md"
+kiro "Generate steering documents"
 
 # Or with explicit instruction
-kiro "@generate.steering.md Generate the project documentation"
+kiro "Generate the project documentation"
 ```
+
+The agent will automatically invoke this skill when it detects you want to generate steering documents.
 
 ### What Happens
 1. Agent analyzes your workspace
@@ -308,6 +331,6 @@ kiro "@generate.steering.md Generate the project documentation"
 - **Historical Tracking**: Knowledge base copies track full history via Context sections
 - **Workspace-Specific**: Each workspace gets its own folder in knowledge base
 - **Searchable**: Documents in knowledge base are searchable via `/search`
-- **No Approval Gates**: Unlike plan.steering.md, this runs automatically without approval gates
+- **No Approval Gates**: Unlike create-plan skill, this runs automatically without approval gates
 - **Session Recovery**: Context sections in knowledge base enable recovery if conversation dies
 - **Bidirectional Sync**: Local → Knowledge Base (automatic), Knowledge Base → Local (ask first)

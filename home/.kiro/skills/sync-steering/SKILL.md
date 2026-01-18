@@ -1,3 +1,9 @@
+---
+name: sync-steering
+description: Sync existing steering documents from workspace .kiro/steering/ to knowledge base with Context sections. Use when steering docs already exist and need syncing to knowledge base.
+compatibility: Designed for Kiro CLI
+---
+
 # Sync Steering Documents to Knowledge Base
 
 ## Overview
@@ -173,16 +179,31 @@ These documents are now searchable via /search in Kiro.
 
 ## Usage
 
-### In CLI
-```bash
-# Sync all steering documents from current workspace
-kiro "@sync.steering.md"
+## How to Use This Skill
 
-# Or with explicit instruction
-kiro "@sync.steering.md Sync my steering docs to knowledge base"
+### Add to Agent Resources
+Add this skill to your agent configuration:
+
+```json
+{
+  "resources": [
+    "skill://.kiro/skills/sync-steering/SKILL.md"
+  ]
+}
 ```
 
-### What Happens
+### Usage in Chat
+Once added to your agent, simply ask to sync steering documents:
+
+```bash
+# Sync all steering documents from current workspace
+kiro "Sync steering documents"
+
+# Or with explicit instruction
+kiro "Sync my steering docs to knowledge base"
+```
+
+The agent will automatically invoke this skill when it detects you want to sync steering documents.
 1. Agent identifies your workspace
 2. Locates all steering documents in `.kiro/steering/`
 3. Syncs each file to knowledge base
@@ -204,8 +225,8 @@ kiro "@sync.steering.md Sync my steering docs to knowledge base"
 - **Preserves Originals**: Local files are never modified during sync
 - **Handles All Files**: Syncs any `.md` file in `.kiro/steering/`, not just product/tech/structure
 
-## Difference from generate.steering.md
-- **generate.steering.md**: Creates new steering documents from scratch by analyzing workspace
-- **sync.steering.md**: Syncs existing steering documents that are already present in workspace
+## Difference from generate-steering Skill
+- **generate-steering**: Creates new steering documents from scratch by analyzing workspace
+- **sync-steering**: Syncs existing steering documents that are already present in workspace
 - Both follow the same Context section rules and automatic sync behavior
 - Both keep local files clean and add Context only to knowledge base copies
