@@ -10,8 +10,8 @@ all:: install-brew-packages link
 
 link::
 	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow --ignore='.kiro/knowledge' home
-   ln -s ~/Documents/knowledge ~/.kiro/knowledge
-   ln -s ~/Documents/Notes ~/.kiro/knowledge/notes
+	ln -s ~/Documents/knowledge ~/.kiro/knowledge
+	ln -s ~/Documents/Notes ~/.kiro/knowledge/notes
 
 unlink::
 	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --delete home
