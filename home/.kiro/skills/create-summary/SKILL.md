@@ -1,3 +1,9 @@
+---
+name: create-summary
+description: Generate comprehensive work summaries from daily notes or conversation context. Use for performance reviews, project retrospectives, or documenting completed work with timeline and impact.
+compatibility: Designed for Kiro CLI
+---
+
 # Generate Work Summary
 
 ## Overview
@@ -240,19 +246,34 @@ This summary is now searchable via /search in Kiro.
 
 ## Usage
 
-### In CLI
-```bash
-# Generate summary from conversation context
-kiro "@summary.steering.md Generate summary for user-authentication project"
+## How to Use This Skill
 
-# Generate summary from daily notes
-kiro "@summary.steering.md Generate summary for api-optimization from_notes=true"
+### Add to Agent Resources
+Add this skill to your agent configuration:
 
-# Generate summary for specific date range
-kiro "@summary.steering.md Generate summary for database-migration date=2026-01-01 to 2026-01-15"
+```json
+{
+  "resources": [
+    "skill://.kiro/skills/create-summary/SKILL.md"
+  ]
+}
 ```
 
-### What Happens
+### Usage in Chat
+Once added to your agent, describe what summary you need:
+
+```bash
+# Generate summary from conversation context
+kiro "Generate summary for user-authentication project"
+
+# Generate summary from daily notes
+kiro "Generate summary for api-optimization from my notes"
+
+# Generate summary for specific date range
+kiro "Generate summary for database-migration from January 1-15"
+```
+
+The agent will automatically invoke this skill when it detects you want to generate a work summary.
 1. Agent gathers context from notes or conversation
 2. Checks for existing summary file
 3. Generates structured summary document
@@ -280,8 +301,8 @@ kiro "@summary.steering.md Generate summary for database-migration date=2026-01-
 - **Knowledge Sharing**: Share project outcomes with team
 - **Portfolio Building**: Track career progression and impact
 
-## Difference from Other Steering Files
-- **generate.steering.md**: Creates project documentation (product, tech, structure)
-- **plan.steering.md**: Creates implementation plans with requirements and design
-- **summary.steering.md**: Creates retrospective summaries of completed work
+## Difference from Other Skills
+- **generate-steering**: Creates project documentation (product, tech, structure)
+- **create-plan**: Creates implementation plans with requirements and design
+- **create-summary**: Creates retrospective summaries of completed work
 - All follow knowledge base organization and searchability patterns

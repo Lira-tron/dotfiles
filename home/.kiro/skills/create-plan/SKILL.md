@@ -1,6 +1,12 @@
-# Plan Generation Steering
+---
+name: create-plan
+description: Create implementation plans with requirements, design, and tasks. Use when planning new features or components. Generates three files with approval gates at each phase.
+compatibility: Designed for Kiro CLI
+---
 
-When the user references this steering file with `@plan.steering.md` or asks to create a plan, follow a structured workflow with explicit approval gates. Generate three files following AWS and coding best practices:
+# Plan Generation Skill
+
+When the user invokes this skill or asks to create a plan, follow a structured workflow with explicit approval gates. Generate three files following AWS and coding best practices:
 
 ## ⚠️ CRITICAL REQUIREMENT: Context Section Updates
 
@@ -446,5 +452,28 @@ When executing tasks from implementation.md:
 - Make reasonable attempts to get tests passing (3-4 tries)
 - If tests still fail, explain issue and ask for guidance
 
-## Usage
-Reference this file with: `@plan.steering.md [describe your feature/component]`
+## How to Use This Skill
+
+### Add to Agent Resources
+Add this skill to your agent configuration:
+
+```json
+{
+  "resources": [
+    "skill://.kiro/skills/create-plan/SKILL.md"
+  ]
+}
+```
+
+### Usage in Chat
+Once added to your agent, describe the feature or component you want to plan:
+
+```bash
+# Create a plan for a new feature
+kiro "Create plan for user authentication with OAuth2"
+
+# Create a plan for a component
+kiro "Plan implementation of payment processing service"
+```
+
+The agent will automatically invoke this skill when it detects you want to create an implementation plan.

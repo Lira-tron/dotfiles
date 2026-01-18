@@ -1,3 +1,9 @@
+---
+name: create-memory
+description: Store important information, decisions, implementations, or learnings to the knowledge base. Use when preserving context, decisions, debugging solutions, or implementation details for future reference.
+compatibility: Designed for Kiro CLI
+---
+
 # Store to Knowledge Base Memory
 
 ## Overview
@@ -6,7 +12,7 @@ Quickly stores important information, decisions, implementations, or learnings t
 ## ⚠️ CRITICAL: Kiro Knowledge Base Integration
 
 **This uses Kiro's native knowledge base:**
-- Files are stored as markdown in `.kiro/knowledge/memory/`
+- Files are stored as markdown in `~/.kiro/knowledge/memory/`
 - **Global knowledge base**: Accessible across ALL workspaces and projects
 - Automatically indexed and searchable via `/search` in Kiro from any workspace
 - No manual indexing needed - Kiro handles it automatically
@@ -197,31 +203,50 @@ This entry is now searchable via /search in Kiro.
 
 ## Usage
 
-### In CLI
-```bash
-# Store implementation details
-kiro "@memory.steering.md Store the GraphQL implementation approach we just discussed"
+## How to Use This Skill
 
-# Store with specific topic
-kiro "@memory.steering.md topic=architecture Store decision to use event-driven architecture"
+### Add to Agent Resources
+Add this skill to your agent configuration:
 
-# Store from a document
-kiro "@memory.steering.md Store this design doc to memory" # (with design.md open or referenced)
-
-# Store from a URL
-kiro "@memory.steering.md Store this design doc https://example.com/design to memory"
-
-# Store from notes
-kiro "@memory.steering.md Store this note to memory bank" # (with note file open or referenced)
-
-# Store debugging solution
-kiro "@memory.steering.md topic=debugging Store the fix for the memory leak in user service"
-
-# Store with project and topic
-kiro "@memory.steering.md project=api-refactor topic=performance Store the caching strategy that improved latency by 50%"
+```json
+{
+  "resources": [
+    "skill://.kiro/skills/create-memory/SKILL.md"
+  ]
+}
 ```
 
-### Common Use Cases
+Or use glob pattern to include all skills:
+
+```json
+{
+  "resources": [
+    "skill://.kiro/skills/**/SKILL.md"
+  ]
+}
+```
+
+### Usage in Chat
+Once added to your agent, simply describe what you want to store:
+
+```bash
+# Store implementation details
+kiro "Store the GraphQL implementation approach we just discussed"
+
+# Store with specific topic
+kiro "Store decision to use event-driven architecture for the payment service"
+
+# Store from a document
+kiro "Store this design doc to memory" # (with design.md open or referenced)
+
+# Store from a URL
+kiro "Store this design doc https://example.com/design to memory"
+
+# Store debugging solution
+kiro "Store the fix for the memory leak in user service"
+```
+
+The agent will automatically invoke this skill when it detects you want to store information to the knowledge base.
 
 **During Implementation:**
 ```bash
