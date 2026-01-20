@@ -2,7 +2,7 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
-vim.g.notesdir = os.getenv( "HOME" ) .. "/Documents/Notes"
+vim.g.notesdir = os.getenv( "HOME" ) .. "/Documents/Notes/journal"
 -- timeout = true means Neovim will wait for potential mapping completions
 -- timeoutlen = 1000 gives you 1 second to complete a key mapping sequence
 -- Note: This is just the maximum wait time - if you type the complete mapping

@@ -12,6 +12,8 @@ link::
 	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow --ignore='.kiro/knowledge,.gemini/knowledge' home
 	[ -L ~/.kiro/knowledge ] || ln -s ~/Documents/knowledge ~/.kiro/knowledge
 	[ -L ~/.kiro/knowledge/notes ] || ln -s ~/Documents/Notes ~/.kiro/knowledge/notes
+	[ -L ~/.gemini/knowledge ] || ln -s ~/Documents/knowledge ~/.gemini/knowledge
+	[ -L ~/.gemini/knowledge/notes ] || ln -s ~/Documents/Notes ~/.gemini/knowledge/notes
 
 unlink::
 	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --delete home

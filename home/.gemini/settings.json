@@ -1,0 +1,24 @@
+{
+  "tools": {
+    "core": [
+      "ReadFileTool",
+      "GlobTool",
+      "ShellTool(ls)",
+      "ShellTool(cat)",
+      "ShellTool(grep)",
+      "WebFetchTool",
+      "WebSearchTool"
+    ]
+  },
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    }
+  },
+  "general.vimMode": true,
+  "experimental.skills": true,
+  "experimental.plan": true,
+  "general.previewFeatures": true,
+  "general.enableAutoUpdate": true,
+  "ui.footer.hideContextPercentage": false
+}
