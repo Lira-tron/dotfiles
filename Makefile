@@ -9,11 +9,12 @@ MAC_HOME_PACKAGES := betterdisplay downie permute keycastr brave-browser loupede
 all:: install-brew-packages link
 
 link::
-	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow --ignore='.kiro/knowledge,.gemini/knowledge' home
+	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow --ignore='.kiro/knowledge' --ignore='.gemini/knowledge' --ignore='.DS_Store' home
 	[ -L ~/.kiro/knowledge ] || ln -s ~/Documents/knowledge ~/.kiro/knowledge
 	[ -L ~/.kiro/knowledge/notes ] || ln -s ~/Documents/Notes ~/.kiro/knowledge/notes
 	[ -L ~/.gemini/knowledge ] || ln -s ~/Documents/knowledge ~/.gemini/knowledge
 	[ -L ~/.gemini/knowledge/notes ] || ln -s ~/Documents/Notes ~/.gemini/knowledge/notes
+	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow --ignore='.kiro/knowledge' --ignore='.DS_Store' home
 
 unlink::
 	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --delete home
