@@ -31,6 +31,9 @@ source $BREW_PREFIX/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 source <(fzf --zsh)
 eval "$(zoxide init zsh)"
+eval "$(mise activate zsh)"
+
+
 
 # Lazy load
 thefuck() {
@@ -40,32 +43,6 @@ thefuck() {
   thefuck "$@"
 }
 fk() { thefuck "$@"; }
-
-_nvm_load() {
-  unfunction nvm node npm npx
-  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-}
-
-nvm() {
-  _nvm_load
-  nvm "$@"
-}
-
-node() {
-  _nvm_load
-  node "$@"
-}
-
-npm() {
-  _nvm_load
-  npm "$@"
-}
-
-npx() {
-  _nvm_load
-  npx "$@"
-}
 
 export ATUIN_NOBIND="true"
 eval "$(atuin init zsh)"
