@@ -117,3 +117,11 @@ vim.api.nvim_create_autocmd("FileType", {
     end)
   end,
 })
+
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("disable_inlay_hints_md"),
+  pattern = { "markdown" },
+  callback = function(event)
+    vim.lsp.inlay_hint.enable(false, { bufnr = event.buf })
+  end,
+})
