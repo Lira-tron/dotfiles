@@ -33,8 +33,6 @@
 [color]
     ui = auto
 
-[includeIf "hasconfig:remote.*.url:ssh://git.amazon.com*/**"]
-    path = ~/.gitconfig-amazon
 [filter "lfs"]
 	process = git-lfs filter-process
 	required = true
