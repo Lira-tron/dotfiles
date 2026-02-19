@@ -35,3 +35,8 @@
 
 [includeIf "hasconfig:remote.*.url:ssh://git.amazon.com*/**"]
     path = ~/.gitconfig-amazon
+[filter "lfs"]
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
