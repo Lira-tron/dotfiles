@@ -118,10 +118,10 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
-vim.api.nvim_create_autocmd("FileType", {
-  group = augroup("disable_inlay_hints_md"),
-  pattern = { "markdown" },
-  callback = function(event)
-    vim.lsp.inlay_hint.enable(false, { bufnr = event.buf })
+vim.api.nvim_create_autocmd("BufEnter", {
+  group = augroup("toggle_diag_virtual_text"),
+  callback = function()
+    local vt = vim.bo.filetype ~= "markdown"
+    vim.diagnostic.config({ virtual_text = vt })
   end,
 })
