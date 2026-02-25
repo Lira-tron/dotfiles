@@ -3,9 +3,9 @@ export PATH := /opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:$(PATH)
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 UNAME_S := $(shell uname -s)
 
-BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump lsd bat tree htop miller glow lazygit helm kubectl derailed/k9s/k9s awscli neovim go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet gh luarocks nvm atuin carapace tree-sitter-cli mas kotlin mise
+BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump lsd bat tree htop miller glow lazygit helm kubectl derailed/k9s/k9s awscli neovim go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet gh luarocks nvm atuin carapace tree-sitter-cli kotlin mise
 
-MAC_HOME_PACKAGES := betterdisplay downie permute keycastr brave-browser loupedeck obs jump-desktop-connect appcleaner adguard backblaze calibre chatgpt discord iina
+MAC_HOME_PACKAGES := betterdisplay downie permute keycastr brave-browser loupedeck obs jump-desktop-connect appcleaner adguard backblaze calibre chatgpt discord iina mas
 
 all:: install-brew-packages link
 
