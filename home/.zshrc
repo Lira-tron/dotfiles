@@ -278,7 +278,7 @@ source <(carapace _carapace)
 
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
 
-. "$HOME/.local/share/../bin/env"
+
 
 
 # Agent SDK CLI
