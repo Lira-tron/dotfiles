@@ -1,5 +1,5 @@
 SHELL = /bin/bash
-export PATH := /opt/homebrew/bin:$(PATH)
+export PATH := /opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:$(PATH)
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 UNAME_S := $(shell uname -s)
 
