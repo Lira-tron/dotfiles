@@ -1,4 +1,5 @@
 SHELL = /bin/bash
+export PATH := /opt/homebrew/bin:$(PATH)
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 UNAME_S := $(shell uname -s)
 
@@ -17,7 +18,7 @@ unlink::
 UNAME_S := $(shell uname -s)
 
 install-brew-packages:
-	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	command -v brew >/dev/null || /bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew install $(BREW_PACKAGES)
 ifeq ($(UNAME_S),Darwin)
 	brew install font-jetbrains-mono
