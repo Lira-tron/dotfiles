@@ -25,3 +25,4 @@
 *.cli_bash_history
 *SESSION.md
 *PROMPT.md
+*.log
