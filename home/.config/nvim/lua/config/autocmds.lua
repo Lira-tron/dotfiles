@@ -118,7 +118,7 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
-vim.api.nvim_create_autocmd("BufEnter", {
+vim.api.nvim_create_autocmd({ "BufEnter", "FileType", "DiagnosticChanged" }, {
   group = augroup("toggle_diag_virtual_text"),
   callback = function()
     local vt = vim.bo.filetype ~= "markdown"
