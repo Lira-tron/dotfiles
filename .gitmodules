@@ -1,0 +1,4 @@
+[submodule "home/.config/zsh/fzf-tab"]
+	path = home/.config/zsh/fzf-tab
+	url = https://github.com/Aloxaf/fzf-tab.git
+	branch = master
