@@ -30,6 +30,10 @@ if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
     eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
 fi
 
+if [ -d "$HOMEBREW_PREFIX/opt/mysql-client/bin" ]; then
+    path+=$HOMEBREW_PREFIX/opt/mysql-client/bin
+fi
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
     export JAVA_HOME_LATEST=/Library/Java/JavaVirtualMachines/amazon-corretto/Contents/Home
     export JAVA_HOME_25=/Library/Java/JavaVirtualMachines/amazon-corretto-25.jdk/Contents/Home
