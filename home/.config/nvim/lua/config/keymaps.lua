@@ -990,10 +990,12 @@ local function create_daily_note(date_line)
       .. "## Contents\n\n<!-- toc -->\n"
       .. "- [Tasks](#tasks)\n"
       .. "- [Actions](#actions)\n"
-      .. "- [Notes](#notes)\n<!-- tocstop -->\n\n"
+      .. "- [Notes](#notes)\n"
+      .. "- [Agent Summary](#agent-summary)\n<!-- tocstop -->\n\n"
       .. "## Tasks\n\n"
       .. "## Actions\n\n-\n\n"
-      .. "## Notes\n"
+      .. "## Notes\n\n"
+      .. "## Agent Summary\n"
   create_note(full_path, content)
   return full_path
 end
