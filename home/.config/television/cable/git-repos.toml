@@ -4,7 +4,7 @@ requirements = ["fd", "git"]
 description = "Git repositories under known project directories"
 
 [source]
-command = "fd -g .git -H -t d -d 10 --prune -E node_modules -E .gradle -E build -E dist -E .cache -E target ~/workplace ~/Source ~/Documents --exec dirname '{}'"
+command = "fd -g .git -H -t d -d 10 --prune -E node_modules -E .gradle -E build -E dist -E .cache -E target $HOME/workplace $HOME/Source $HOME/Documents --exec dirname '{}'"
 display = "{split:/:-1}"
 
 [preview]
