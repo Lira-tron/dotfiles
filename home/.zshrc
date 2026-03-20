@@ -47,6 +47,8 @@ thefuck() {
 }
 fk() { thefuck "$@"; }
 
+export ATUIN_NOBIND="true"
+eval "$(atuin init zsh)"
 
 
 # export WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>'
@@ -73,27 +75,22 @@ ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
 _tv_zsh_history() {
   emulate -L zsh
   zle -I
-  local output
-  output=$(tv zsh-history --no-status-bar --input "$LBUFFER" --inline)
+  local output key cmd
+  output=$(tv zsh-history --input "$LBUFFER" --inline --expect "ctrl-e")
   zle reset-prompt
   if [[ -n $output ]]; then
+    # If ctrl-e was pressed, first line is "ctrl-e", second is the command
+    # If enter was pressed, first line is empty, second is the command
+    key=$(head -1 <<< "$output")
+    cmd=$(tail -1 <<< "$output")
     RBUFFER=""
-    LBUFFER="$output"
+    LBUFFER="$cmd"
+    if [[ "$key" != "ctrl-e" ]]; then
+      zle accept-line
+    fi
   fi
 }
 zle -N tv-zsh-history _tv_zsh_history
-
-tv-history-prefix() {
-  local query="$BUFFER"
-  local result
-  result=$(tv zsh-history --input "'${query}" </dev/tty 2>/dev/tty)
-  if [[ -n "$result" ]]; then
-    BUFFER="$result"
-    CURSOR=${#BUFFER}
-  fi
-  zle reset-prompt
-}
-zle -N tv-history-prefix
 
 function zvm_after_init() {
   bindkey -r '\e/'
@@ -105,13 +102,11 @@ function zvm_after_init() {
 
   # bindkey '^r' fzf-history-widget
 
+  bindkey '^[[A' atuin-up-search
+  bindkey '^[OA' atuin-up-search
+
   bindkey '^r' tv-zsh-history
   bindkey '^T' tv-smart-autocomplete
-
-
-  # bind to the up key, which depends on terminal mode
-  bindkey '^[[A' tv-history-prefix
-  bindkey '^[OA' tv-history-prefix
 
   [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 

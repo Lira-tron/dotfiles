@@ -251,4 +251,5 @@ fallback_channel = "files"
 "smart_autocomplete" = "ctrl-t"
 # controls which keybinding should trigger tv
 # for command history
-"command_history" = "ctrl-r"
+# command_history handled by zvm_after_init bindkey
+# "command_history" = "ctrl-r"
