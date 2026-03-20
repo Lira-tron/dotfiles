@@ -31,7 +31,8 @@ source $BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 # source $BREW_PREFIX/share/zsh-history-substring-search/zsh-history-substring-search.zsh
 source $BREW_PREFIX/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
-source <(fzf --zsh)
+eval "$(tv init zsh)"
+# source <(fzf --zsh)
 eval "$(zoxide init zsh)"
 eval "$(mise activate zsh)"
 
@@ -81,6 +82,8 @@ function zvm_after_init() {
   # bindkey '^r' fzf-history-widget
 
   bindkey '^r' atuin-search
+  bindkey '^T' tv-smart-autocomplete
+
 
   # bind to the up key, which depends on terminal mode
   bindkey '^[[A' atuin-up-search
@@ -286,4 +289,3 @@ export PATH="$PATH:/Users/limonoct/.ask/MagentaSDK-CLI-1.0/bin"
 
 # Kiro CLI post block. Keep at the bottom of this file.
 [[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
-
