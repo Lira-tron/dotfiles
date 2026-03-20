@@ -1,0 +1,32 @@
+[metadata]
+name = "tmux-workspaces"
+description = "Browse tmux sessions and workspace directories"
+requirements = ["tmux", "fd"]
+
+[source]
+command = [
+  "{ tmux list-sessions -F '#{session_last_attached}\t[session] #{session_name}\t#{session_windows} windows\t#{session_activity}' 2>/dev/null | sort -rn | cut -f2-; fd -t d -d 1 . $HOME/workplace --format '[dir] {/}\t{}\t0'; }",
+  "tmux list-sessions -F '#{session_last_attached}\t[session] #{session_name}\t#{session_windows} windows\t#{session_activity}' 2>/dev/null | sort -rn | cut -f2-",
+  "fd -t d -d 1 . $HOME/workplace --format '[dir] {/}\t{}\t0'",
+]
+no_sort = true
+frecency = false
+display = "{split:\t:0}"
+output = "{split:\t:1}"
+
+[preview]
+command = "if echo '{split:\t:0}' | grep -q '\\[session\\]'; then tmux capture-pane -t '{split:\t:0|split:] :1}' -p 2>/dev/null || echo 'No preview'; else ls -la --color=always '{split:\t:1}'; fi"
+
+[keybindings]
+enter = "actions:connect"
+ctrl-d = ["actions:kill", "reload_source"]
+
+[actions.connect]
+description = "Attach to session or create new session from directory"
+command = "if echo '{split:\t:0}' | grep -q '\\[session\\]'; then tmux switch-client -t '{split:\t:0|split:] :1}' 2>/dev/null || tmux attach -t '{split:\t:0|split:] :1}'; else tmux new-session -d -s '{split:\t:0|split:] :1}' -c '{split:\t:1}' 2>/dev/null; tmux switch-client -t '{split:\t:0|split:] :1}' 2>/dev/null || tmux attach -t '{split:\t:0|split:] :1}'; fi"
+mode = "execute"
+
+[actions.kill]
+description = "Kill the selected tmux session"
+command = "tmux kill-session -t '{split:\t:0|split:] :1}' 2>/dev/null && echo 'Killed session' || echo 'Not a session'"
+mode = "fork"
