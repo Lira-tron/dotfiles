@@ -45,8 +45,7 @@ thefuck() {
 }
 fk() { thefuck "$@"; }
 
-export ATUIN_NOBIND="true"
-eval "$(atuin init zsh)"
+
 
 # export WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>'
 export WORDCHARS='~!#$%^&*(){}[]<>?.+;-'
@@ -69,6 +68,31 @@ ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
 #     zvm_exit_visual_mode
 # }
 
+_tv_zsh_history() {
+  emulate -L zsh
+  zle -I
+  local output
+  output=$(tv zsh-history --no-status-bar --input "$LBUFFER" --inline)
+  zle reset-prompt
+  if [[ -n $output ]]; then
+    RBUFFER=""
+    LBUFFER="$output"
+  fi
+}
+zle -N tv-zsh-history _tv_zsh_history
+
+tv-history-prefix() {
+  local query="$BUFFER"
+  local result
+  result=$(tv zsh-history --input "'${query}" </dev/tty 2>/dev/tty)
+  if [[ -n "$result" ]]; then
+    BUFFER="$result"
+    CURSOR=${#BUFFER}
+  fi
+  zle reset-prompt
+}
+zle -N tv-history-prefix
+
 function zvm_after_init() {
   bindkey -r '\e/'
   bindkey '^[f' forward-word
@@ -79,13 +103,13 @@ function zvm_after_init() {
 
   # bindkey '^r' fzf-history-widget
 
-  bindkey '^r' atuin-search
+  bindkey '^r' tv-zsh-history
   bindkey '^T' tv-smart-autocomplete
 
 
   # bind to the up key, which depends on terminal mode
-  bindkey '^[[A' atuin-up-search
-  bindkey '^[OA' atuin-up-search
+  bindkey '^[[A' tv-history-prefix
+  bindkey '^[OA' tv-history-prefix
 
   [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
