@@ -8,7 +8,7 @@ command = "df -h --output=target,fstype,size,used,avail,pcent 2>/dev/null | tail
 display = "{split: :0}"
 
 [preview]
-command = "df -h '{}' && echo && ls -la '{}' 2>/dev/null | head -20"
+command = "df -h '{}' && echo && eza -la '{}' 2>/dev/null | head -20"
 
 [keybindings]
 enter = "actions:cd"

@@ -15,7 +15,7 @@ display = "{split:\t:0}"
 output = "{split:\t:1}"
 
 [preview]
-command = "if echo '{split:\t:0}' | grep -q '\\[session\\]'; then tmux capture-pane -t '{split:\t:0|split:] :1}' -p 2>/dev/null || echo 'No preview'; else ls -la --color=always '{split:\t:1}'; fi"
+command = "if echo '{split:\t:0}' | grep -q '\\[session\\]'; then tmux capture-pane -t '{split:\t:0|split:] :1}' -p 2>/dev/null || echo 'No preview'; else eza -la --color=always '{split:\t:1}'; fi"
 
 [keybindings]
 enter = "actions:connect"
