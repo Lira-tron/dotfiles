@@ -1,0 +1,26 @@
+[metadata]
+name = "git-repos"
+requirements = ["fd", "git"]
+description = "Git repositories under known project directories"
+
+[source]
+command = "fd -g .git -H -t d -d 10 --prune -E node_modules -E .gradle -E build -E dist -E .cache -E target ~/workplace ~/Source ~/Documents --exec dirname '{}'"
+display = "{split:/:-1}"
+
+[preview]
+command = "cd '{}'; git log -n 200 --pretty=medium --all --graph --color"
+
+[keybindings]
+enter = "actions:cd"
+ctrl-e = "actions:edit"
+
+[actions.cd]
+description = "Open a new shell in the selected repository"
+command = "cd '{}' && $SHELL"
+mode = "execute"
+
+[actions.edit]
+description = "Open the repository in editor"
+command = "${EDITOR:-vim} '{}'"
+shell = "bash"
+mode = "execute"

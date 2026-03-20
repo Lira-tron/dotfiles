@@ -1,0 +1,19 @@
+[metadata]
+name = "channels"
+description = "Browse available tv channels"
+requirements = ["tv", "bat"]
+
+[source]
+command = "tv list-channels"
+
+[preview]
+command = "bat -n --color=always ~/.config/television/cable/{}.toml 2>/dev/null || echo 'Built-in channel (no local override)'"
+env = { BAT_THEME = "ansi" }
+
+[keybindings]
+enter = "actions:open"
+
+[actions.open]
+description = "Open the selected channel"
+command = "tv '{}'"
+mode = "execute"
