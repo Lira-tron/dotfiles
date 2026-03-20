@@ -176,7 +176,7 @@ right = "go_to_next_char"
 home = "go_to_input_start"
 ctrl-a = "go_to_input_start"
 end = "go_to_input_end"
-ctrl-e = "go_to_input_end"
+# ctrl-e freed for channel actions (go_to_input_end available via `end` key)
 
 # Shell integration
 # ----------------------------------------------------------------------------
