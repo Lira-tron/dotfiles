@@ -93,24 +93,6 @@ function zvm_after_init() {
 
 }
 
-if [[ -n "$SSH_CONNECTION" && "$(uname)" == "Linux" ]]; then
-  function sesh-sessions() {
-    {
-      exec </dev/tty
-      exec <&1
-      local session
-      session=$(sesh list -t -c | fzf --height 40% --reverse --border-label ' sesh ' --border --prompt '⚡  ')
-      zle reset-prompt > /dev/null 2>&1 || true
-      [[ -z "$session" ]] && return
-      sesh connect $session
-    }
-  }
-
-  zle     -N             sesh-sessions
-  bindkey -M emacs '\es' sesh-sessions
-  bindkey -M vicmd '\es' sesh-sessions
-  bindkey -M viins '\es' sesh-sessions
-fi
 
 # Directories
 # workplace is a dir with work code
@@ -136,8 +118,7 @@ alias cat="bat"
 
 alias t='tmux'
 alias tm='t new-session -As'
-alias tc='sesh connect'
-alias tn='sesh connect $(sesh list | fzf)'
+
 
 alias sizeorder="du -ah . | grep -v "/$" | sort -rh"
 
