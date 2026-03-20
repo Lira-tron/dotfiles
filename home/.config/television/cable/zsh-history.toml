@@ -10,6 +10,10 @@ output = "{split:;:1..}"
 no_sort = true
 frecency = false
 
+[keybindings]
+enter = "actions:execute"
+ctrl-e = "confirm_selection"
+
 [actions.execute]
 description = "Execute the selected command"
 command = "zsh -c '{split:;:1..}'"
