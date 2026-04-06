@@ -779,7 +779,7 @@ end
 
 -- Function to copy file path to clipboard
 local function copy_filepath_to_clipboard()
-  local filePath = vim.fn.expand("%:~") -- Gets the file path relative to the home directory
+  local filePath = vim.fn.expand("%:p") -- Gets the absolute file path
   vim.fn.setreg("+", filePath)          -- Copy the file path to the clipboard register
   vim.notify(filePath, vim.log.levels.INFO)
   vim.notify("Path copied to clipboard: ", vim.log.levels.INFO)
