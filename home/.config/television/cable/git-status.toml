@@ -18,6 +18,7 @@ layout = "portrait"
 ctrl-s = ["actions:stage", "reload_source"]
 ctrl-r = ["actions:restore", "reload_source"]
 ctrl-e = "actions:edit"
+ctrl-u = ["actions:unstage", "reload_source"]
 
 [actions.stage]
 description = "Stage the selected file"
@@ -36,3 +37,9 @@ description = "Open the selected file in editor"
 command = "f=$(echo '{}' | sed 's/\\x1b\\[[0-9;]*m//g') && ${EDITOR:-vim} \"$f\""
 shell = "bash"
 mode = "execute"
+
+[actions.unstage]
+description = "Unstage the selected file"
+command = "f=$(echo '{}' | sed 's/\\x1b\\[[0-9;]*m//g') && git restore --staged \"$f\""
+shell = "bash"
+mode = "fork"
