@@ -1,13 +1,15 @@
 [metadata]
 name = "git-status"
-description = "All changed and untracked files from git status"
+description = "All changed and untracked files from git status, colored by status"
 requirements = ["git"]
 
 [source]
-command = "git status --porcelain | sed 's/^...//' | sed 's/\"//g'"
+command = "bash $HOME/.config/television/cable/git-status-color.sh"
+ansi = true
 
 [preview]
-command = "git diff HEAD --color=always -- '{}' 2>/dev/null || cat '{}'"
+command = "f=$(echo '{}' | sed 's/\\x1b\\[[0-9;]*m//g') && git diff HEAD --color=always -- \"$f\" 2>/dev/null || cat \"$f\""
+shell = "bash"
 
 [ui]
 layout = "portrait"
@@ -19,16 +21,18 @@ ctrl-e = "actions:edit"
 
 [actions.stage]
 description = "Stage the selected file"
-command = "git add '{}'"
+command = "f=$(echo '{}' | sed 's/\\x1b\\[[0-9;]*m//g') && git add \"$f\""
+shell = "bash"
 mode = "fork"
 
 [actions.restore]
 description = "Discard changes in the selected file"
-command = "git restore '{}'"
+command = "f=$(echo '{}' | sed 's/\\x1b\\[[0-9;]*m//g') && git restore \"$f\""
+shell = "bash"
 mode = "fork"
 
 [actions.edit]
 description = "Open the selected file in editor"
-command = "${EDITOR:-vim} '{}'"
+command = "f=$(echo '{}' | sed 's/\\x1b\\[[0-9;]*m//g') && ${EDITOR:-vim} \"$f\""
 shell = "bash"
 mode = "execute"
