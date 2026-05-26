@@ -3,19 +3,14 @@ export PATH := /opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:$(PATH)
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 UNAME_S := $(shell uname -s)
 
-BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump lsd bat tree htop miller glow lazygit helm kubectl derailed/k9s/k9s awscli neovim go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet gh luarocks nvm atuin carapace tree-sitter-cli kotlin mise uv ralph-orchestrator mysql-client presenterm television
+BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump lsd bat tree htop miller glow lazygit helm kubectl derailed/k9s/k9s awscli neovim go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet gh luarocks nvm atuin carapace tree-sitter-cli kotlin mise uv ralph-orchestrator mysql-client presenterm television bun
 
 MAC_HOME_PACKAGES := betterdisplay downie permute keycastr brave-browser loupedeck obs jump-desktop-connect appcleaner adguard backblaze calibre chatgpt discord iina mas
 
 all:: install-brew-packages link
 
 link::
-	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow --ignore='.kiro/knowledge' --ignore='.gemini/knowledge' --ignore='.DS_Store' home
-	[ -L ~/.kiro/knowledge ] || ln -s ~/Documents/knowledge ~/.kiro/knowledge
-	[ -L ~/.kiro/knowledge/notes ] || ln -s ~/Documents/Notes ~/.kiro/knowledge/notes
-	[ -L ~/.gemini/knowledge ] || ln -s ~/Documents/knowledge ~/.gemini/knowledge
-	[ -L ~/.gemini/knowledge/notes ] || ln -s ~/Documents/Notes ~/.gemini/knowledge/notes
-	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow --ignore='.kiro/knowledge' --ignore='.DS_Store' home
+	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow --ignore='.DS_Store' home
 
 unlink::
 	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --delete home
