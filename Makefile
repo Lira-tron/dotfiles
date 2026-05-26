@@ -39,6 +39,12 @@ ifeq ($(UNAME_S),Darwin)
 	# brew install --cask alacritty
 	# brew install --cask wezterm
 	# brew install --cask nikitabobko/tap/aerospace
+	cd ~/.config/zsh/
+	git clone https://github.com/Aloxaf/fzf-tab
+	cd
+	brew tap oven-sh/bun
+	brew install bun
+
 endif
 
 # Mac instructions
