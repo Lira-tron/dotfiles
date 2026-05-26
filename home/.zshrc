@@ -1,5 +1,3 @@
-# https://unix.stackexchange.com/questions/599641/why-do-i-have-duplicates-in-my-zsh-history
-
 # setopt HIST_IGNORE_ALL_DUPS
 # setopt HIST_FIND_NO_DUPS
 # setopt HIST_SAVE_NO_DUPS
@@ -31,10 +29,7 @@ source $BREW_PREFIX/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 eval "$(tv init zsh)"
 # source <(fzf --zsh)
-eval "$(zoxide init zsh)"
 eval "$(mise activate zsh)"
-
-
 
 # Lazy load
 thefuck() {
@@ -281,3 +276,6 @@ zstyle ':fzf-tab:*' query-string prefix first
 source <(carapace _carapace)
 
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+
+eval "$(zoxide init zsh)"
+
