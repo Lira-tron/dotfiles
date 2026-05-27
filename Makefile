@@ -3,7 +3,7 @@ export PATH := /opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:$(PATH)
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 UNAME_S := $(shell uname -s)
 
-BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump lsd bat tree htop miller glow lazygit helm kubectl derailed/k9s/k9s awscli neovim go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet gh luarocks nvm atuin carapace tree-sitter-cli kotlin mise uv ralph-orchestrator mysql-client presenterm television oven-sh/bun/bun unison
+BREW_PACKAGES        := stow tmux xclip ripgrep wget jq fd eza zoxide autojump lsd bat tree htop miller glow lazygit helm kubectl derailed/k9s/k9s awscli neovim go yq fzf mvn gotests starship zsh-vi-mode zsh-autosuggestions zsh-syntax-highlighting thefuck zsh-history-substring-search pandoc joshmedeski/sesh/sesh xsel dust fastfetch git-delta imagemagick pkgconf libpng lua wordnet gh luarocks nvm atuin carapace tree-sitter-cli kotlin mise uv ralph-orchestrator mysql-client presenterm television unison
 
 MAC_HOME_PACKAGES := betterdisplay downie permute keycastr brave-browser loupedeck obs jump-desktop-connect appcleaner adguard backblaze calibre chatgpt discord iina mas
 
@@ -29,13 +29,13 @@ ifeq ($(UNAME_S),Darwin)
 	brew install --cask mouseless
 	brew install --cask neovide
 	brew install --cask font-fira-code-nerd-font
-	brew install --cask visual-studio-code
-	brew install --cask raycast
-	brew install --cask corretto
-	brew install --cask corretto@21
-	brew install --cask corretto@17
-	brew install --cask corretto@11
-	brew install --cask corretto@8
+	# brew install --cask visual-studio-code
+	# brew install --cask raycast
+	# brew install --cask corretto
+	# brew install --cask corretto@21
+	# brew install --cask corretto@17
+	# brew install --cask corretto@11
+	# brew install --cask corretto@8
 	# brew install --cask alacritty
 	# brew install --cask wezterm
 	# brew install --cask nikitabobko/tap/aerospace
