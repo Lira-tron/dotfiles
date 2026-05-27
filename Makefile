@@ -29,13 +29,13 @@ ifeq ($(UNAME_S),Darwin)
 	brew install --cask mouseless
 	brew install --cask neovide
 	brew install --cask font-fira-code-nerd-font
-	# brew install --cask visual-studio-code
-	# brew install --cask raycast
-	# brew install --cask corretto
-	# brew install --cask corretto@21
-	# brew install --cask corretto@17
-	# brew install --cask corretto@11
-	# brew install --cask corretto@8
+	brew install --cask visual-studio-code
+	brew install --cask raycast
+	brew install --cask corretto
+	brew install --cask corretto@21
+	brew install --cask corretto@17
+	brew install --cask corretto@11
+	brew install --cask corretto@8
 	# brew install --cask alacritty
 	# brew install --cask wezterm
 	# brew install --cask nikitabobko/tap/aerospace
