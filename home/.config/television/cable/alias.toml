@@ -3,12 +3,22 @@ name = "alias"
 description = "A channel to select from shell aliases"
 
 [source]
-# you may need to adjust the command depending on your shell
-command = "$SHELL -ic 'alias'"
+# Source rc files in a non-interactive shell so we can collect aliases without
+# the shell attempting to grab the controlling TTY (which causes SIGTTOU and
+# suspends television when navigating).
+command = "zsh -c 'source ~/.zshrc >/dev/null 2>&1; source ~/.zshrc.local >/dev/null 2>&1; alias'"
 output = "{split:=:0}"
 
 [preview]
-command = "$SHELL -ic 'alias' | grep -E '^(alias )?{split:=:0}='"
+command = "zsh -c 'source ~/.zshrc >/dev/null 2>&1; source ~/.zshrc.local >/dev/null 2>&1; alias' | grep -E '^(alias )?{split:=:0}='"
 
 [ui.preview_panel]
 size = 30
+
+[keybindings]
+ctrl-e = "actions:print_value"
+
+[actions.print_value]
+description = "Print the alias value (right-hand side) instead of the name"
+command = "zsh -c 'source ~/.zshrc >/dev/null 2>&1; source ~/.zshrc.local >/dev/null 2>&1; alias {split:=:0}' | sed -E \"s/^alias //; s/^[^=]+=//; s/^'(.*)'$/\\\\1/\""
+mode = "execute"
