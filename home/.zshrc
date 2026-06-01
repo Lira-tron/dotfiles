@@ -283,6 +283,65 @@ function setJava () {
 
 }
 
+alias ed='claude'
+alias edrev='claude --agent reviewer'
+alias edgenr='claude -r'
+alias edcode='ralph run --config /Users/limonoct/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/ai/ralph/tdd-implementer.yml -p '
+alias edplan='claude --agent planner'
+alias edplanr='claude --agent planner --r'
+alias edtech='claude --agent writer'
+alias edtechr='claude --agent writer --r'
+alias edtechn='_claude_pretty --agent writer -p "$@";'
+alias edops='ed --agent ops'
+alias edopsr='ed --agent ops -r'
+alias edopsn='_claude_pretty --agent ops -p '
+alias edcom='CLAUDE_SKIP_SESSION_HISTORY=1 claude --agent committer'
+edcomn() { CLAUDE_SKIP_SESSION_HISTORY=1 _claude_pretty --agent committer -p "$@"; }
+
+# Pretty-prints `claude -p` stream-json output as human-readable lines
+# Shows: thinking, text, tool calls (with command/file/pattern), tool results
+_claude_pretty() {
+  claude --output-format stream-json --verbose --include-partial-messages "$@" | \
+  jq -r '
+    if .type=="assistant" then
+      .message.content[]? |
+      if .type=="text" then "🤖 " + .text
+      elif .type=="thinking" then "💭 " + .thinking
+      elif .type=="tool_use" then
+        "🔧 " + .name + ": " + (
+          if .name=="Bash" then .input.command
+          elif .name=="Read" then
+            .input.file_path +
+            (if .input.offset then " (lines " + (.input.offset|tostring) +
+              "–" + ((.input.offset + (.input.limit // 2000))|tostring) + ")"
+             else "" end)
+          elif .name=="Edit" then
+            .input.file_path + "  [" +
+            ((.input.old_string // "") | .[0:40] | gsub("\n";"⏎")) +
+            " → " +
+            ((.input.new_string // "") | .[0:40] | gsub("\n";"⏎")) + "]"
+          elif .name=="Write" then
+            .input.file_path + " (" + ((.input.content // "") | length | tostring) + " chars)"
+          elif .name=="Glob" then .input.pattern + (if .input.path then " in " + .input.path else "" end)
+          elif .name=="Grep" then
+            "\"" + .input.pattern + "\"" +
+            (if .input.path then " in " + .input.path else "" end) +
+            (if .input.glob then " [" + .input.glob + "]" else "" end)
+          elif .name=="WebFetch" then .input.url
+          elif .name=="Agent" then .input.description + " (" + (.input.subagent_type // "general") + ")"
+          elif .name=="Skill" then .input.skill + (if .input.args then " " + .input.args else "" end)
+          else (.input | tostring | .[0:200]) end
+        )
+      else empty end
+    elif .type=="user" then
+      .message.content[]? |
+      if .type=="tool_result" then
+        "📥 " + (.content | if type=="array" then (.[0].text // "") else tostring end | .[0:300] | gsub("\n"; " ⏎ "))
+      else empty end
+    else empty end
+  '
+}
+
 if [ -f "$HOME/.zshrc.local" ]; then
     source "$HOME/.zshrc.local"
 fi
