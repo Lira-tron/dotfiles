@@ -1141,24 +1141,4 @@ if vim.g.vscode then
   vim.keymap.set({ "n", "v"}, "<leader>rs", "<Cmd>call VSCodeNotify('editor.action.refactor')<CR>")
   vim.keymap.set({ "n", "v"}, "<leader>cr", "<Cmd>call VSCodeNotify('editor.action.refactor')<CR>")
 
-  -- AI
-  -- Q
-  vim.keymap.set({ "n", "v" }, "<leader>anc", "<Cmd>call VSCodeNotify('aws.amazonq.inline.invokeChat')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>anq", "<Cmd>call VSCodeNotify('aws.amazonq.AmazonQChatView.focus')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>anf", "<Cmd>call VSCodeNotify('aws.amazonq.fixCode')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>ano", "<Cmd>call VSCodeNotify('aws.amazonq.optimizeCode')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>ane", "<Cmd>call VSCodeNotify('aws.amazonq.explainCode')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>and", "<Cmd>call VSCodeNotify('aws.amazonq.generateUnitTests')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>anr", "<Cmd>call VSCodeNotify('aws.amazonq.refactorCode')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>ans", "<Cmd>call VSCodeNotify('aws.amazonq.sendToPrompt')<CR>")
-
-  -- Cline
-  vim.keymap.set({ "n", "v" }, "<leader>aQ", "<Cmd>call VSCodeNotify('amzn-cline.SidebarProvider.focus')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>aq", "<Cmd>call VSCodeNotify('amzn-cline.focusChatInput')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>at", "<Cmd>call VSCodeNotify('amzn-cline.addTerminalOutputToChat')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>ae", "<Cmd>call VSCodeNotify('amzn-cline.explainCode')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>ad", "<Cmd>call VSCodeNotify('amzn-cline.dev.createTestTasks')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>ag", "<Cmd>call VSCodeNotify('amzn-cline.generateGitCommitMessage')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>ar", "<Cmd>call VSCodeNotify('amzn-cline.improveCode')<CR>")
-  vim.keymap.set({ "n", "v" }, "<leader>as", "<Cmd>call VSCodeNotify('amzn-cline.addToChat')<CR>")
 end

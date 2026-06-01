@@ -345,18 +345,3 @@ nmap <leader>Te <Action>($ExclusiveTranslateAction)
 " code screenshot (required idea plugin: code screenshots)
 " nmap <leader>cs <action>(one.util.ideaplugin.screenshoter.copyimageaction)
 
-" amazon q configuration
-" CodeWhispererRecommendationAction
-map <M-c> <Action>(CodeWhispererRecommendationAction)
-imap <C-space> <Action>(CodeWhispererRecommendationAction)
-map <leader>at <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.GenerateUnitTestsAction)
-map <leader>am <Action>(aws.toolkit.jetbrains.core.services.cwc.actions.ContextMenuActions)
-map <leader>ae <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.ExplainCodeAction)
-map <leader>af <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.FixCodeAction)
-map <leader>ao <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.OptimizeCodeAction)
-map <leader>ar <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.RefactorCodeAction)
-map <leader>as <Action>(aws.toolkit.jetbrains.core.services.cwc.commands.SendToPromptAction)
-map <leader>aq <Action>(q.openchat)
-map <leader>ac <Action>(aws.toolkit.jetbrains.core.services.cwc.inline.openChat)
-
-
