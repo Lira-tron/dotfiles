@@ -11,7 +11,6 @@
   "telemetry.enableTelemetry": false,
   "workbench.settings.enableNaturalLanguageSearch": false,
   "workbench.commandPalette.experimental.enableNaturalLanguageSearch": false,
-  "viceroy.config.lastVersion": "0.51.201448",
   "files.watcherExclude": {
     "**/build/**": true,
     "**/.git/objects/**": true,
@@ -20,14 +19,9 @@
     "**/.hg/store/**": true
   },
   "files.exclude": {
-    ".viceroy": true,
-    "apollo-overrides": true,
-    "release-info": true,
     "src/*/build": false,
     "build": false,
     "env": true,
-    "packageInfo*": true,
-    ".bemol": true,
     "**/.git": true,
     "**/.svn": true,
     "**/.hg": true,
@@ -43,25 +37,8 @@
     "**/bower_components": true,
     "**/*.code-search": true
   },
-  "[brazilPackageConfig]": {
-    "workbench.editor.languageDetection": false
-  },
-  "viceroy.marketplace.extensionUpdateChannels": {
-    "amzn.AWSGuruQLinter": "stable",
-    "amazon.controls-dsl": "stable",
-    "amzn.amzn-pippin": "stable",
-    "amzn.vscode-isengard-tooltip": "stable",
-    "mchpatr.datapath-vscode": "stable",
-    "marklel.vscode-brazil": "stable",
-    "kaze.vscode-plugin-contribution-model": "stable",
-    "mchpatr.datapath-language-server": "stable",
-    "asbx.amzn-cline": "stable"
-  },
-  "viceroy.config.internal.lastUpdateTime": "2023-08-06T15:16:23.890Z",
-  "viceroy.workspaceSyncStrategy": "automatic",
-  "viceroy.doc.welcome.showAtStartup": false,
   "vscodeWorkspaceSwitcher.paths": [
-    "/Users/limonoct/workplace"
+    "~/workspace"
   ],
   "vscodeWorkspaceSwitcher.showInActivityBar": true,
   "workbench.statusBar.visible": true,
@@ -191,25 +168,6 @@
   "[java]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "gitlens.remotes": [
-    {
-      "domain": "git.amazon.com",
-      "type": "Custom",
-      "name": "Amazon",
-      "protocol": "https",
-      "urls": {
-        "repository": "https://code.amazon.com/packages/${repoPath}",
-        "branches": "https://code.amazon.com/packages/${repoPath}/trees",
-        "branch": "https://code.amazon.com/packages/${repoPath}/trees/${branch}",
-        "commit": "https://code.amazon.com/packages/${repoPath}/commits/${id}",
-        "file": "https://code.amazon.com/packages/${repoPath}/blobs/mainline/--/${file}${line}",
-        "fileInBranch": "https://code.amazon.com/packages/${repoPath}/blobs/${branch}/--/${file}${line}",
-        "fileInCommit": "https://code.amazon.com/packages/${repoPath}/blobs/${id}/--/${file}${line}",
-        "fileLine": "#L${line}",
-        "fileRange": "#L${start}-L${end}"
-      }
-    }
-  ],
   "workbench.iconTheme": "vs-minimal",
   "git.openRepositoryInParentFolders": "never",
   "go.toolsEnvVars": {
