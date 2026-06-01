@@ -1,0 +1,156 @@
+# TDD Implementer: Iterative Test-Driven Implementation
+# Pattern: Supervisor-Worker + Critic-Actor with separated phases
+# Base: code-assist.yml preset, adapted for full TDD pipeline
+#
+# Flow:
+#   Planner (detect input + generate task folder + assign next task)
+#       ↓ test.ready
+#   TestWriter → TestReviewer ←→ TestWriter (revision loop)
+#       ↓ test.approved
+#   CodeWriter ←→ TestWriter (test.broken only if build errors in tests)
+#       ↓ code.done
+#   CodeReviewer ←→ CodeWriter (code.rejected loop)
+#       ↓ code.approved
+#   Validator ←→ TestWriter (validation.failed loop)
+#       ↓ validation.passed
+#   Committer
+#       ↓ task.committed
+#   Planner (loop — assign next pending task or finish)
+#       ↓ all.done
+#   Finalizer → Final Committer → LOOP_COMPLETE
+#
+# 9 Hats:
+# - Planner: Detects input, generates task folder, assigns tasks one at a time, loops on task.committed
+# - TestWriter: Writes failing tests (RED phase), fixes broken test code
+# - TestReviewer: Validates tests cover the task requirements
+# - CodeWriter: Writes minimal code to pass tests (GREEN + REFACTOR)
+# - CodeReviewer: Reviews code quality, patterns, standards
+# - Validator: Runs build + tests + lint — binary pass/fail
+# - Committer: Creates conventional commit
+# - Finalizer: Documents implementation when all tasks done
+# - Final Committer: Commits finalizer's documentation changes
+#
+# Usage:
+#   ralph run --config tdd-implementer.yml --prompt ".ralph/specs/my-feature"
+#   ralph run --config tdd-implementer.yml --prompt ".ralph/tasks/my-task.code-task.md"
+#   ralph run --config tdd-implementer.yml --prompt "Add a --verbose flag to the CLI"
+
+event_loop:
+  prompt_file: "PROMPT.md"
+  completion_promise: "LOOP_COMPLETE"
+  starting_event: "build.start"
+  max_iterations: 200
+  max_runtime_seconds: 14400
+  checkpoint_interval: 5
+
+cli:
+  backend: "kiro"
+  prompt_mode: "arg"
+
+core:
+  specs_dir: ".kiro/specs/"
+  tasks_dir: ".ralph/tasks/"
+  scratchpad: ".ralph/scratchpad.md"
+  guardrails:
+    - "Fresh context each iteration — re-read scratchpad for current state"
+    - "Verification is mandatory — tests/typecheck/lint must pass"
+    - "YAGNI ruthlessly — no speculative features"
+    - "KISS always — simplest solution that works"
+    - "Preserve primary sources — capture referenced code snippets with file:line attribution in scratchpad."
+    - "Confidence protocol: score decisions 0-100. >80 proceed; 50-80 proceed + document in .ralph/agent/decisions.md; <50 choose safe default + document."
+
+hats:
+  planner:
+    name: "📋 Planner"
+    description: "Detects input, generates task folder, and assigns one task at a time. Loops back after each commit to assign next pending task."
+    triggers: ["build.start", "task.committed"]
+    publishes: ["test.ready", "all.done"]
+    default_publishes: "test.ready"
+    max_activations: 200
+    backend:
+      type: "kiro"
+      agent: "ralph-planner"
+
+  test_writer:
+    name: "🧪 TestWriter"
+    description: "Writes failing tests (RED phase). Fixes broken test code."
+    triggers: ["test.ready", "test.rejected", "test.broken", "validation.failed"]
+    publishes: ["test.written"]
+    default_publishes: "test.written"
+    max_activations: 200
+    backend:
+      type: "kiro"
+      agent: "ralph-test-writer"
+
+  test_reviewer:
+    name: "🔍 TestReviewer"
+    description: "Validates tests cover task requirements and follow best testing practices."
+    triggers: ["test.written"]
+    publishes: ["test.approved", "test.rejected"]
+    default_publishes: "test.approved"
+    max_activations: 200
+    backend:
+      type: "kiro"
+      agent: "ralph-test-reviewer"
+
+  code_writer:
+    name: "⚙️ CodeWriter"
+    description: "Writes minimal code to pass tests (GREEN + REFACTOR)."
+    triggers: ["test.approved", "code.rejected"]
+    publishes: ["code.done", "test.broken"]
+    default_publishes: "code.done"
+    max_activations: 200
+    backend:
+      type: "kiro"
+      agent: "ralph-code-writer"
+
+  code_reviewer:
+    name: "👀 CodeReviewer"
+    description: "Reviews code quality, patterns, and standards."
+    triggers: ["code.done"]
+    publishes: ["code.approved", "code.rejected"]
+    default_publishes: "code.approved"
+    max_activations: 200
+    backend:
+      type: "kiro"
+      agent: "ralph-code-reviewer"
+
+  validator:
+    name: "✅ Validator"
+    description: "Exhaustive quality gate with YAGNI/KISS checks and manual E2E testing."
+    triggers: ["code.approved"]
+    publishes: ["validation.passed", "validation.failed"]
+    default_publishes: "validation.passed"
+    backend:
+      type: "kiro"
+      agent: "ralph-validator"
+
+  committer:
+    name: "📦 Committer"
+    description: "Creates conventional commit after validation passes."
+    triggers: ["validation.passed"]
+    publishes: ["task.committed"]
+    default_publishes: "task.committed"
+    backend:
+      type: "kiro"
+      agent: "smart-committer"
+
+  finalizer:
+    name: "🏁 Finalizer"
+    description: "Documents implementation and recommends steering updates when all tasks are done."
+    triggers: ["all.done"]
+    publishes: ["docs.ready"]
+    default_publishes: "docs.ready"
+    backend:
+      type: "kiro"
+      agent: "ralph-finalizer"
+
+  final_committer:
+    name: "📦 Final Committer"
+    description: "Commits documentation and steering changes produced by the Finalizer."
+    triggers: ["docs.ready"]
+    publishes: ["LOOP_COMPLETE"]
+    default_publishes: "LOOP_COMPLETE"
+    backend:
+      type: "kiro"
+      agent: "smart-committer"

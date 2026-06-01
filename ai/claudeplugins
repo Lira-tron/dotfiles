@@ -1,0 +1,13 @@
+/plugin marketplace add anthropics/skills
+/plugin install skill-creator@claude-plugins-official
+/plugin install superpowers@claude-plugins-official
+/plugin marketplace add thedotmack/claude-mem
+/plugin install claude-mem
+/plugin install frontend-design@claude-plugins-official
+
+
+Not installed:
+npx get-shit-done-redux --claude --global
+/plugin marketplace add mksglu/context-mode
+/plugin install context-mode@context-mode
+
