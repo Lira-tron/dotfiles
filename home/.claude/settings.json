@@ -1,0 +1,164 @@
+{
+  "alwaysThinkingEnabled": true,
+  "autoMemoryDirectory": "~/knowledge/memories",
+  "autoMemoryEnabled": true,
+  "availableModels": [
+    "opus",
+    "sonnet"
+  ],
+  "awaySummaryEnabled": true,
+  "editorMode": "vim",
+  "effortLevel": "xhigh",
+  "enabledPlugins": {
+    "claude-mem@thedotmack": true,
+    "frontend-design@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
+  },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "_ZO_DOCTOR": "0"
+  },
+  "extraKnownMarketplaces": {
+    "anthropic-agent-skills": {
+      "source": {
+        "repo": "anthropics/skills",
+        "source": "github"
+      }
+    },
+    "thedotmack": {
+      "source": {
+        "repo": "thedotmack/claude-mem",
+        "source": "github"
+      }
+    }
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "command": "$HOME/.claude/hooks/notify.sh",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "$HOME/.claude/hooks/log-tool-usage.sh",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "$HOME/.claude/hooks/conventional-commit-check.sh",
+            "if": "Bash(git *)",
+            "type": "command"
+          },
+          {
+            "command": "python3 $HOME/.claude/hooks/block_destructive_commands.py",
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      },
+      {
+        "hooks": [
+          {
+            "command": "$HOME/.claude/hooks/pre-write-security-scan.sh",
+            "type": "command"
+          }
+        ],
+        "matcher": "Write|Edit"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "command": "SESSION_FINAL=1 $HOME/.claude/hooks/session-history.sh",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "$HOME/.claude/hooks/notify.sh",
+            "type": "command"
+          },
+          {
+            "command": "$HOME/.claude/hooks/session-history.sh",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
+  "includeCoAuthoredBy": false,
+  "model": "claude-opus-4-5",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "WebSearch",
+      "Bash(*)"
+    ],
+    "defaultMode": "acceptEdits",
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(git push)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git remote add:*)",
+      "Bash(git remote add)",
+      "Bash(git remote set-url:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git reset --hard)",
+      "Bash(git clean -f:*)",
+      "Bash(git clean -fd:*)",
+      "Bash(git clean -fdx:*)",
+      "Bash(git filter-branch:*)",
+      "Bash(git update-ref:*)",
+      "Bash(git config --global:*)",
+      "Bash(rm -rf /)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~)",
+      "Bash(rm -rf ~/*)",
+      "Bash(rm -rf $HOME:*)",
+      "Bash(rm -rf /Users:*)",
+      "Bash(rm -rf /home:*)",
+      "Bash(sudo:*)",
+      "Bash(chown -R:*)",
+      "Bash(chmod -R 777:*)",
+      "Bash(dd if=:*)",
+      "Bash(mkfs:*)",
+      "Bash(curl * | sh:*)",
+      "Bash(curl * | bash:*)",
+      "Bash(wget * | sh:*)",
+      "Bash(wget * | bash:*)"
+    ]
+  },
+  "preferredNotifChannel": "ghostty",
+  "showThinkingSummaries": true,
+  "statusLine": {
+    "command": "$HOME/.claude/statusline.sh",
+    "type": "command"
+  },
+  "teammateMode": "auto",
+  "tui": "fullscreen"
+}
