@@ -278,7 +278,7 @@ function setJava () {
 }
 
 alias ed='claude'
-alias edr='claude'
+alias edr='claude -r'
 alias edrev='claude --agent reviewer'
 alias edgenr='claude -r'
 alias edcode='ralph run --config "$DOTFILES_DIR/dotfiles/ai/ralph/tdd-implementer.yml" -p '
