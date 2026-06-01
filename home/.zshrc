@@ -259,6 +259,30 @@ reloadzsh () {
    test -f ~/.zshrc && . ~/.zshrc
 }
 
+function setJava () {
+   if [ $1 -eq 8 ]; then
+     export JAVA_HOME=$JAVA_HOME_8
+   fi
+
+   if [ $1 -eq 11 ]; then
+     export JAVA_HOME=$JAVA_HOME_11
+   fi
+
+   if [ $1 -eq 17 ]; then
+     export JAVA_HOME=$JAVA_HOME_17
+   fi
+
+   if [ $1 -eq 0 ]; then
+     export JAVA_HOME=$JAVA_HOME_LATEST
+   fi
+
+   ln -sf $JAVA_HOME/bin/java $HOMEBREW_PREFIX/bin/java
+   ln -sf $JAVA_HOME/bin/javac $HOMEBREW_PREFIX/bin/javac
+   ln -sf $JAVA_HOME/bin/javadoc $HOMEBREW_PREFIX/bin/javadoc
+   ln -sf $JAVA_HOME/bin/javap $HOMEBREW_PREFIX/bin/javap
+
+}
+
 if [ -f "$HOME/.zshrc.local" ]; then
     source "$HOME/.zshrc.local"
 fi
