@@ -280,7 +280,7 @@ function setJava () {
 alias ed='claude'
 alias edrev='claude --agent reviewer'
 alias edgenr='claude -r'
-alias edcode='ralph run --config /Users/limonoct/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/ai/ralph/tdd-implementer.yml -p '
+alias edcode='ralph run --config "$DOTFILES_DIR/dotfiles/ai/ralph/tdd-implementer.yml" -p '
 alias edplan='claude --agent planner'
 alias edplanr='claude --agent planner --r'
 alias edtech='claude --agent writer'
