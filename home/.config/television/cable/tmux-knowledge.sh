@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Emit entries for the tmux-knowledge tv channel.
-# Usage: tmux-knowledge.sh [all|designs|mcm|memory|memories|onepagers|reviews|specs]
+# Usage: tmux-knowledge.sh [all|designs|memory|memories|onepagers|reviews|specs]
 # Format per line: <display>\t<path>\t<session-name>
 set -uo pipefail
 
@@ -19,17 +19,6 @@ cat_designs() {
     rel=${p#"$K/designs/"}
     yy=${rel%%/*}; rest=${rel#*/}; mm=${rest%%/*}; leaf=${rest#*/}
     emit "[des ${yy}-${mm}] ${leaf}" "$p" "des-${leaf}"
-  done
-}
-
-cat_mcm() {
-  [ -d "$K/mcm" ] || return 0
-  emit "[mcm] mcm" "$K/mcm" "mcm-mcm"
-  fd -t d --exact-depth 2 . "$K/mcm" --format '{}' 2>/dev/null | while read -r p; do
-    p=${p%/}
-    rel=${p#"$K/mcm/"}
-    yy=${rel%%/*}; mm=${rel#*/}
-    emit "[mcm ${yy}] ${mm}" "$p" "mcm-${yy}-${mm}"
   done
 }
 
@@ -112,12 +101,11 @@ cat_ops() {
   done
 }
 
-cat_others() { cat_mcm; cat_onepagers; cat_reviews; }
+cat_others() { cat_onepagers; cat_reviews; }
 
 case "$CAT" in
-  all)       cat_designs; cat_mcm; cat_memory; cat_memories; cat_onepagers; cat_ops; cat_projects; cat_reviews; cat_specs ;;
+  all)       cat_designs; cat_memory; cat_memories; cat_onepagers; cat_ops; cat_projects; cat_reviews; cat_specs ;;
   designs)   cat_designs ;;
-  mcm)       cat_mcm ;;
   memory)    cat_memory ;;
   memories)  cat_memories ;;
   onepagers) cat_onepagers ;;
