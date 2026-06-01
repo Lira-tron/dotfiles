@@ -6,7 +6,7 @@ compatibility: Designed for Gemini CLI
 
 # Plan Generation Skill
 
-When the user invokes this skill or asks to create a plan, follow a structured workflow with explicit approval gates. Generate three files following AWS and coding best practices:
+When the user invokes this skill or asks to create a plan, follow a structured workflow with explicit approval gates. Generate three files following coding best practices:
 
 ## ⚠️ CRITICAL REQUIREMENT: Context Section Updates
 

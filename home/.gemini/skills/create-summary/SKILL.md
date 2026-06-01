@@ -43,7 +43,7 @@ Summaries are saved to:
 Collect information about the work completed.
 
 **From Notes (when from_notes=true):**
-- Search for notes in `~/workplace/LimonoctNvim/src/LimonoctNvim/notes/journal`
+- Search for notes in `$NOTES_DIR/journal`
 - Filter notes by date range (if provided) or search for project mentions
 - Extract relevant work items, accomplishments, and decisions
 - Keep track of note file paths for linking
@@ -54,7 +54,7 @@ Collect information about the work completed.
 - Identify key accomplishments and deliverables
 - Note any code reviews, deployments, or milestones
 - Capture technical decisions and their rationale
-- Look for references to plans, tickets, MCMs
+- Look for references to plans, tickets
 
 ### Step 2: Check for Existing Summary File
 **CRITICAL**: Before creating or updating a summary:
@@ -143,14 +143,13 @@ generated_from: {notes|context}
 ## Links & References
 - **Code Reviews**: [CR-XXXXXXXX](link), [CR-YYYYYYY](link)
 - **Tickets**: [TICKET-123](link), [TICKET-456](link)
-- **MCMs**: [MCM-XXXXXXXX](link)
 - **Plans**: `~/.gemini/knowledge/plans/{YY}/{MM}/{component}/{feature}/`
 - **Documentation**: [Link 1](url), [Link 2](url)
 
 ## Source Notes
 {Only include this section if generated from notes}
-- `{YYYY-MM-DD}`: `~/workplace/LimonoctNvim/src/LimonoctNvim/notes/journal/{path}`
-- `{YYYY-MM-DD}`: `~/workplace/LimonoctNvim/src/LimonoctNvim/notes/journal/{path}`
+- `{YYYY-MM-DD}`: `$NOTES_DIR/journal/{path}`
+- `{YYYY-MM-DD}`: `$NOTES_DIR/journal/{path}`
 
 ## Tags
 `#{project-name}` `#{technology}` `#{team}` `#{year}`
@@ -288,7 +287,7 @@ The agent will automatically invoke this skill when it detects you want to gener
 - **Year Index**: Automatically maintains index of all summaries by year
 - **Searchable**: Summaries in knowledge base are searchable via `/search`
 - **Metadata**: Include frontmatter with project, date, and source information
-- **Links**: Include references to plans, code reviews, tickets, MCMs
+- **Links**: Include references to plans, code reviews, tickets
 - **Tags**: Add relevant tags for easier searching and categorization
 - **Source Tracking**: When from_notes=true, list all note files used
 - **Impact Focus**: Emphasize business and technical impact with metrics when available

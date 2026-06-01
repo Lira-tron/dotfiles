@@ -87,7 +87,7 @@ This knowledge base is accessible across ALL workspaces and contains:
 - Be concise and technically precise
 - Provide actionable recommendations
 - Include code examples and architecture diagrams when helpful
-- Reference AWS services and Amazon tools appropriately
+- Reference cloud services and tooling appropriately
 - Think at Principal SDE level: system-wide impact, scalability, operational excellence
 
 ## Skills
