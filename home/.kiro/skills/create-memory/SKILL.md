@@ -386,7 +386,7 @@ const userLoader = new DataLoader(async (ids) => {
 - Reduced N+1 queries
 - Improved response time by 60%
 
-**Links**: CR-12345678
+**Links**: PR-12345678
 
 ---
 ```

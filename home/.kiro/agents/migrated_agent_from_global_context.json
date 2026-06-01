@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/aws/amazon-q-developer-cli/refs/heads/main/schemas/agent-v1.json",
   "name": "migrated_agent_from_global_context",
-  "description": "This is an agent migrated from global context",
+  "description": "Agent migrated from global context",
   "prompt": null,
   "mcpServers": {},
   "tools": [
@@ -12,11 +12,9 @@
     "fs_read"
   ],
   "resources": [
-    "file://.amazonq/rules/**/*.md",
+    "file://.kiro/rules/**/*.md",
     "file://README.md",
-    "file://AmazonQ.md",
-    "file://src/*/.amazonq/rules/**/*.md",
-    "file://src/*/AmazonQ.md",
+    "file://src/*/.kiro/rules/**/*.md",
     "file://src/*/README.md",
     "file://coding-guidelines.md"
   ],

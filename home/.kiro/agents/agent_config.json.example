@@ -1,14 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/aws/amazon-q-developer-cli/refs/heads/main/schemas/agent-v1.json",
   "name": "example",
-  "description": "This is an example agent config (and will not be loaded unless you change it to have .json extension)",
+  "description": "Example agent config (won't be loaded unless you change the extension to .json)",
   "prompt": null,
   "mcpServers": {},
   "tools": [
     "fs_read",
     "fs_write",
     "execute_bash",
-    "use_aws",
     "gh_issue",
     "knowledge",
     "thinking",
@@ -20,9 +19,8 @@
     "fs_read"
   ],
   "resources": [
-    "file://AmazonQ.md",
     "file://README.md",
-    "file://.amazonq/rules/**/*.md"
+    "file://.kiro/rules/**/*.md"
   ],
   "hooks": {},
   "toolsSettings": {},

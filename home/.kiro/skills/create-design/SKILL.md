@@ -352,11 +352,6 @@ Diagrams are critical for design documentation, providing visual representations
 - **✅ RECOMMENDED**: Mermaid is a preferred diagramming tool for design documents
 - **LLM-readable**: Source code can be analyzed by AI tools for detailed technical review
 
-#### **Design Inspector (Allowed)**
-- **⚠️ LIMITED REVIEW**: Diagrams created in Design Inspector are allowed but have review limitations
-- **Not LLM-readable**: AI tools cannot analyze diagram content in detail without MCP server
-- **Source linking required**: MUST include links to source diagrams on https://design-inspector.a2z.com
-
 #### **Other Tools (Allowed with Restrictions)**
 - **📝 SOURCE REQUIRED**: Any other diagramming tool is allowed provided there is a clear link to the diagram source
 - **Review limitations**: Detailed technical analysis may not be possible depending on tool accessibility
