@@ -48,7 +48,7 @@ eval "$(atuin init zsh)"
 export WORDCHARS='~!#$%^&*(){}[]<>?.+;-'
 
 export FZF_DEFAULT_OPTS="--color=fg:${fg},bg:${bg},hl:${purple},fg+:${fg},bg+:${bg_highlight},hl+:${purple},info:${blue},prompt:${cyan},pointer:${cyan},marker:${cyan},spinner:${cyan},header:${cyan}"
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude .bemol'
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 export FZF_CTRL_R_OPTS="--reverse --info hidden"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
@@ -160,7 +160,7 @@ function preexec () {
 # find-in-file - usage: fif <searchTerm>
 fg() {
   if [ ! "$#" -gt 0 ]; then echo "Need a string to search for!"; return 1; fi
-  selected_file=$(rg --files-with-matches --hidden --g '!.git/' --g '!.bemol/' --no-messages "$1"  | fzf --preview "highlight -O ansi -l {} 2> /dev/null | rg --colors 'match:bg:yellow' --ignore-case --hidden --pretty --context 10 '$1' || rg --ignore-case --hidden --pretty --context 10 '$1' {}"); if [ -n "$selected_file" ]; then vim "$selected_file"; fi
+  selected_file=$(rg --files-with-matches --hidden --g '!.git/' --no-messages "$1"  | fzf --preview "highlight -O ansi -l {} 2> /dev/null | rg --colors 'match:bg:yellow' --ignore-case --hidden --pretty --context 10 '$1' || rg --ignore-case --hidden --pretty --context 10 '$1' {}"); if [ -n "$selected_file" ]; then vim "$selected_file"; fi
 }
 
 fcd() {
@@ -286,7 +286,7 @@ function setJava () {
 alias ed='claude'
 alias edrev='claude --agent reviewer'
 alias edgenr='claude -r'
-alias edcode='ralph run --config /Users/limonoct/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/ai/ralph/tdd-implementer.yml -p '
+alias edcode='ralph run --config "$DOTFILES_DIR/dotfiles/ai/ralph/tdd-implementer.yml" -p '
 alias edplan='claude --agent planner'
 alias edplanr='claude --agent planner --r'
 alias edtech='claude --agent writer'

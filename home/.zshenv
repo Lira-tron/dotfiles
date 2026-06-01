@@ -18,6 +18,12 @@ export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 export XDG_CACHE_HOME="$HOME/.cache"
 
+# Per-machine roots — override in .zshenv.local when the dotfiles repo,
+# knowledge base, or notes live somewhere other than the defaults below.
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+export KNOWLEDGE_DIR="${KNOWLEDGE_DIR:-$HOME/knowledge}"
+export NOTES_DIR="${NOTES_DIR:-$KNOWLEDGE_DIR/notes}"
+
 if [ -f "/usr/local/bin/brew" ]; then
     eval $(/usr/local/bin/brew shellenv)
 fi
