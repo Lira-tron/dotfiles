@@ -278,6 +278,7 @@ function setJava () {
 }
 
 alias ed='claude'
+alias edd='claude agents'
 alias edr='claude -r'
 alias edrev='claude --agent reviewer'
 alias edgenr='claude -r'
