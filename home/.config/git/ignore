@@ -28,4 +28,7 @@
 *.log
 lazy-lock.json
 **/.claude/settings.local.json
+/annotation-generated-src/
+/annotation-generated-tst/
+
 
