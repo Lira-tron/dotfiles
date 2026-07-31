@@ -1,0 +1,11 @@
+[[comment_types]]
+id = "issue"
+label = "Issue"
+definition = "Blocking problem that must be fixed"
+color = "#e06c75"
+
+[[comment_types]]
+id = "comment"
+label = "Comment"
+definition = "Comment"
+color = "#61afef"
