@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Emit Herdr workspace, pane, and agent rows for the herdr-workspaces tv channel.
-# Format per line: <display>\t<path-or-id>\t<target>\t<preview-pane>
+# Format per line: <display>\t<path-or-id>\t<target>\t<context>
+# Context is the preview pane for workspaces and the tab ID for panes/agents.
 set -uo pipefail
 
 MODE=${1:-all}
@@ -27,7 +28,7 @@ herdr api snapshot 2>/dev/null |
       ]
       | sort_by([-.tab.pane_count, .workspace.number, .tab.number, .pane.pane_id])
       | .[]
-      | "[pane] \(.workspace.label) │ \(.tab.label) │ \(.pane.pane_id) · \(.pane.agent // .pane.terminal_title_stripped // "shell")  (\(.tab.pane_count)p)\t\(.pane.foreground_cwd // .pane.cwd)\t\(.pane.pane_id)";
+      | "[pane] \(.workspace.label) │ \(.tab.label) │ \(.pane.pane_id) · \(.pane.agent // .pane.terminal_title_stripped // "shell")  (\(.tab.pane_count)p)\t\(.pane.foreground_cwd // .pane.cwd)\t\(.pane.pane_id)\t\(.tab.tab_id)";
 
     def agent_rows:
       [
@@ -38,7 +39,7 @@ herdr api snapshot 2>/dev/null |
       ]
       | sort_by([.workspace.number, .tab.number, .agent.pane_id])
       | .[]
-      | "[agent] \(.workspace.label) · \(.tab.label) · \(.agent.pane_id) · \(.agent.agent) · \(.agent.agent_status)\t\(.agent.foreground_cwd // .agent.cwd)\t\(.agent.pane_id)";
+      | "[agent] \(.workspace.label) · \(.tab.label) · \(.agent.pane_id) · \(.agent.agent) · \(.agent.agent_status)\t\(.agent.foreground_cwd // .agent.cwd)\t\(.agent.pane_id)\t\(.tab.tab_id)";
 
     if $mode == "all" then
       workspace_rows, agent_rows, pane_rows

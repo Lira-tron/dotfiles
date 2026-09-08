@@ -45,9 +45,29 @@ command = '''
 if printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
   herdr workspace focus '{split:\t:2}'
 elif printf '%s\n' '{split:\t:0}' | grep -q '^\[pane\]'; then
-  herdr pane zoom '{split:\t:2}' --on
+  herdr pane zoom '{split:\t:2}' --on && herdr tab focus '{split:\t:3}'
 elif printf '%s\n' '{split:\t:0}' | grep -q '^\[agent\]'; then
-  herdr agent focus '{split:\t:2}'
+  herdr agent focus '{split:\t:2}' && herdr tab focus '{split:\t:3}'
+elif printf '%s\n' '{split:\t:0}' | grep -q '^\[dir\]'; then
+  directory=$(cd '{split:\t:1}' && pwd -P)
+  workspace_id=$(
+    herdr api snapshot |
+      jq -r --arg dir "$directory" '
+        first(
+          .result.snapshot.panes[]
+          | select(
+              [.foreground_cwd, .cwd]
+              | any(. != null and (. == $dir or (. | startswith($dir + "/"))))
+            )
+          | .workspace_id
+        ) // empty
+      '
+  )
+  if [ -n "$workspace_id" ]; then
+    herdr workspace focus "$workspace_id"
+  else
+    herdr workspace create --cwd '{split:\t:1}' --label '{split:\t:2}' --focus
+  fi
 else
   herdr workspace create --cwd '{split:\t:1}' --label '{split:\t:2}' --focus
 fi
