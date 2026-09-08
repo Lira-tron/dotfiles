@@ -178,6 +178,42 @@ return {
     },
     {
       "<M-esc>", mode = "t", [[<C-\><C-n>]], desc = "Normal terminal mode",
-    }
+    },
+
+    -- Open the image under the cursor full screen
+    -- The inline `max_width`/`max_height` above do NOT apply here, image
+    -- buffers are sized to the window they live in, so a full screen window
+    -- means a full screen image. Press `q` to close it
+    {
+      "<leader>fif",
+      function()
+        local function open(src)
+          local win = Snacks.win({
+            width = 0,
+            height = 0,
+            border = "none",
+            -- The backdrop is a window with winblend, and blending breaks the
+            -- unicode placeholders used to draw the image
+            backdrop = false,
+            wo = { winblend = 0 },
+            bo = { bufhidden = "wipe" },
+          })
+          Snacks.image.buf.attach(win.buf, { src = src })
+        end
+        -- Already inside an image buffer, so just blow up that same image
+        if vim.bo.filetype == "image" then
+          return open(vim.api.nvim_buf_get_name(0))
+        end
+        -- Otherwise grab the image the cursor is sitting on in the document
+        Snacks.image.doc.at_cursor(function(src)
+          if not src then
+            vim.notify("No image under the cursor", vim.log.levels.WARN)
+            return
+          end
+          open(src)
+        end)
+      end,
+      desc = "[F]ile [I]mage [F]ull screen",
+    },
   },
 }
