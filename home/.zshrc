@@ -260,45 +260,46 @@ reloadzsh () {
 }
 
 function setJava () {
-   if [ $1 -eq 8 ]; then
-     export JAVA_HOME=$JAVA_HOME_8
+   local version=${1:-latest} home var
+
+   case $version in
+     latest|0) home=$JAVA_HOME_LATEST ;;
+     8|11|17|21|25) var=JAVA_HOME_$version; home=${(P)var} ;;
+     *) echo "setJava: expected 8, 11, 17, 21, 25 or latest (got '$version')" >&2; return 1 ;;
+   esac
+
+   if [ -z "$home" ] || [ ! -x "$home/bin/java" ]; then
+     echo "setJava: no JDK installed for '$version'" >&2
+     return 1
    fi
 
-   if [ $1 -eq 11 ]; then
-     export JAVA_HOME=$JAVA_HOME_11
+   if [ -n "$JAVA_HOME" ]; then
+     path=(${path:#$JAVA_HOME/bin})
    fi
 
-   if [ $1 -eq 17 ]; then
-     export JAVA_HOME=$JAVA_HOME_17
-   fi
+   export JAVA_HOME=$home
+   path=("$JAVA_HOME/bin" ${path:#$JAVA_HOME/bin})
 
-   if [ $1 -eq 0 ]; then
-     export JAVA_HOME=$JAVA_HOME_LATEST
-   fi
-
-   ln -sf $JAVA_HOME/bin/java $HOMEBREW_PREFIX/bin/java
-   ln -sf $JAVA_HOME/bin/javac $HOMEBREW_PREFIX/bin/javac
-   ln -sf $JAVA_HOME/bin/javadoc $HOMEBREW_PREFIX/bin/javadoc
-   ln -sf $JAVA_HOME/bin/javap $HOMEBREW_PREFIX/bin/javap
-
+   echo "JAVA_HOME=$JAVA_HOME"
 }
 
-alias ed='claude'
-alias edd='claude agents'
-alias edr='claude -r'
-alias edrev='claude --agent reviewer'
-alias edgenr='claude -r'
+alias ed='claude --dangerously-skip-permissions --aws-profile dev'
+alias edd='claude agents --dangerously-skip-permissions --aws-profile dev'
+alias edr='claude -r --dangerously-skip-permissions --aws-profile dev'
+alias edrev='claude --agent reviewer --dangerously-skip-permissions --aws-profile dev'
+alias edgen='claude --agent gen --dangerously-skip-permissions --aws-profile dev'
+alias edgenr='claude --agent gen -r --dangerously-skip-permissions --aws-profile dev'
 alias edcode='ralph run --config "$DOTFILES_DIR/dotfiles/ai/ralph/tdd-implementer.yml" -p '
-alias edplan='claude --agent planner'
-alias edplanr='claude --agent planner -r'
-alias edtech='claude --agent writer'
-alias edtechr='claude --agent writer -r'
-alias edtechn='_claude_pretty --agent writer -p "$@";'
-alias edops='ed --agent ops'
-alias edopsr='ed --agent ops -r'
-alias edopsn='_claude_pretty --agent ops -p '
-alias edcom='CLAUDE_SKIP_SESSION_HISTORY=1 claude --agent committer'
-edcomn() { CLAUDE_SKIP_SESSION_HISTORY=1 _claude_pretty --agent committer -p "$@"; }
+alias edplan='claude --agent planner --dangerously-skip-permissions --aws-profile dev'
+alias edplanr='claude --agent planner -r --dangerously-skip-permissions --aws-profile dev'
+alias edtech='claude --agent writer --dangerously-skip-permissions --aws-profile dev'
+alias edtechr='claude --agent writer -r --dangerously-skip-permissions --aws-profile dev'
+alias edtechn='_claude_pretty --agent writer --aws-profile dev --dangerously-skip-permissions -p "$@"; '
+alias edops='ed --agent ops --dangerously-skip-permissions --aws-profile dev'
+alias edopsr='ed --agent ops -r --dangerously-skip-permissions --aws-profile dev'
+alias edopsn='_claude_pretty --agent ops --dangerously-skip-permissions --aws-profile dev -p '
+alias edcom='CLAUDE_SKIP_SESSION_HISTORY=1 claude --agent committer --dangerously-skip-permissions --aws-profile dev'
+edcomn() { CLAUDE_SKIP_SESSION_HISTORY=1 _claude_pretty --agent committer --dangerously-skip-permissions --aws-profile dev -p "$@"; }
 
 # Pretty-prints `claude -p` stream-json output as human-readable lines
 # Shows: thinking, text, tool calls (with command/file/pattern), tool results
