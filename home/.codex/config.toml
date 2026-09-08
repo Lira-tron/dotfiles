@@ -105,6 +105,15 @@ trust_level = "trusted"
 [projects."/Volumes/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles"]
 trust_level = "trusted"
 
+[projects."/local/home/limonoct/.unison/backup/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/AGIControlPlaneService"]
+trust_level = "trusted"
+
+[projects."/local/home/limonoct/.config/herdr"]
+trust_level = "trusted"
+
 [marketplaces.aim]
 source_type = "local"
 source = "/local/home/limonoct/.aim/plugins/codex"
@@ -118,13 +127,16 @@ enabled = true
 [plugins."AtlasAICapabilities-all@aim"]
 enabled = true
 
+[plugins."MyCli-all@aim"]
+enabled = true
+
 [hooks.state]
 
 [hooks.state."/home/limonoct/.codex/hooks.json:stop:0:1"]
 trusted_hash = "sha256:6558234560e03d2ee96603b20aef47619432a2d08dc41a35692efa6f3a69a5a1"
 
 [hooks.state."/home/limonoct/.codex/hooks.json:stop:0:0"]
-trusted_hash = "sha256:7713563c52bb857d8ce468219de104368b8c18e1e28d80c0f997a8b4a0b4c9a8"
+trusted_hash = "sha256:c7a38901faf35b4e304771fa7dd9eec7754130c772f04b9d59ba6951b3076e3b"
 
 [hooks.state."/home/limonoct/.codex/hooks.json:session_start:0:0"]
 trusted_hash = "sha256:9406ff996ebd34307b60a3aa3737be091ccb65afc15dc858fc2851a5ad6cb6f3"
@@ -133,6 +145,15 @@ enabled = true
 [hooks.state."/home/limonoct/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:0e41eb88f22c64908f04149bfe94a79e3ca170152683a29949ec2be4a7f4abd7"
 enabled = true
+
+[hooks.state."/home/limonoct/.codex/hooks.json:pre_tool_use:0:1"]
+trusted_hash = "sha256:b57c5fde679818f2c503265c55f860179c007f5c7e2605959f14ccca877a9b0c"
+
+[hooks.state."/home/limonoct/.codex/hooks.json:session_end:0:0"]
+trusted_hash = "sha256:c28b3fbced3257ee83ac785cc99e9dbf37efe560b3d1181aa9cddb286256e2c0"
+
+[hooks.state."/home/limonoct/.codex/hooks.json:session_start:0:1"]
+trusted_hash = "sha256:9bc3ca47a4ef38ae6208ad97db3f1abdc3ae076398e5a344de87ac866f25e562"
 
 [features]
 hooks = true

@@ -10,10 +10,11 @@ MAC_HOME_PACKAGES := betterdisplay downie permute keycastr brave-browser loupede
 all:: install-brew-packages link
 
 link::
-	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow --ignore='.kiro/knowledge' --ignore='.DS_Store' home
+	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --restow --ignore='.kiro/knowledge' --ignore='.codex/agents' --ignore='.DS_Store' home
+	[ -L "$$HOME/.codex/agents" ] || ln -s "$(DIR)home/.codex/agents" "$$HOME/.codex/agents"
 
 unlink::
-	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --delete home
+	stow --verbose --no-folding --target=$$HOME --dir=$(DIR) --delete --ignore='.codex/agents' home
 
 UNAME_S := $(shell uname -s)
 
@@ -114,4 +115,3 @@ setup-vscode-java-decompiler:
 install-terminfo:
 	curl -LO https://invisible-island.net/datafiles/current/terminfo.src.gz && gunzip terminfo.src.gz && \
 	/usr/bin/tic -xe tmux-256color terminfo.src
-
