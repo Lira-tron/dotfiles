@@ -1,0 +1,50 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "bash '/home/limonoct/.codex/herdr-agent-state.sh' session",
+            "timeout": 10,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+      {
+        "command": "python3 \"$HOME/.agents/hooks/block_destructive_commands.py\"",
+        "type": "command"
+      },
+      {
+        "command": "\"$HOME/.agents/hooks/conventional-commit-check.sh\"",
+        "type": "command"
+      }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "$HOME/.codex/hooks/session-history.sh",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "command": "SESSION_FINAL=1 $HOME/.codex/hooks/session-history.sh",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  }
+}
