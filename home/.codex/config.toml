@@ -22,14 +22,15 @@ command = "uvx"
 args = ["mcp-proxy-for-aws@latest", "https://aws-mcp.us-east-1.api.aws/mcp"]
 
 [mcp_servers.diagram-tools-mcp]
-command = "/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles/home/.local/bin/diagram-tools-mcp-direct"
-startup_timeout_sec = 30
+command = "diagram-tools-mcp"
+args = []
 
 [mcp_servers.loaf_mcp]
 command = "loaf-mcp"
 
-[mcp_servers."npm:@playwright/mcp"]
-command = "npm-playwright-mcp"
+[mcp_servers.playwright]
+command = "npx"
+args = ["--no-install", "playwright-mcp"]
 
 [mcp_servers.sage-plus-service-mcp]
 command = "sage-plus-service-mcp"
@@ -93,6 +94,15 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/local/home/limonoct"]
+trust_level = "trusted"
+
+[projects."/Volumes/workplace/LimonoctNvim/src/LimonoctNvim"]
+trust_level = "trusted"
+
+[projects."/Users/limonoct"]
+trust_level = "trusted"
+
+[projects."/Volumes/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles"]
 trust_level = "trusted"
 
 [marketplaces.aim]
