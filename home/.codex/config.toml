@@ -30,7 +30,7 @@ command = "loaf-mcp"
 
 [mcp_servers.playwright]
 command = "npx"
-args = ["--no-install", "playwright-mcp"]
+args = ["-y", "@playwright/mcp@latest"]
 
 [mcp_servers.sage-plus-service-mcp]
 command = "sage-plus-service-mcp"
