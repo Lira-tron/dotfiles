@@ -1,0 +1,64 @@
+[metadata]
+name = "herdr-workspaces"
+description = "Browse Herdr workspaces, panes, agents, directories, and knowledge"
+requirements = ["herdr", "jq", "fd", "eza", "bash"]
+
+[source]
+command = [
+  '''{ bash "$HOME/.config/television/cable/herdr-panels.sh" all; fd -t d -d 1 . "$HOME/workplace" --format '[dir] {/}	{}	{/}'; bash "$HOME/.config/television/cable/tmux-knowledge.sh" sessions | head -1; bash "$HOME/.config/television/cable/tmux-knowledge.sh" projects; bash "$HOME/.config/television/cable/tmux-knowledge.sh" designs; bash "$HOME/.config/television/cable/tmux-knowledge.sh" specs; bash "$HOME/.config/television/cable/tmux-knowledge.sh" memory; bash "$HOME/.config/television/cable/tmux-knowledge.sh" memories; bash "$HOME/.config/television/cable/tmux-knowledge.sh" ops; bash "$HOME/.config/television/cable/tmux-knowledge.sh" others; }''',
+  '''bash "$HOME/.config/television/cable/herdr-panels.sh" workspaces''',
+  '''bash "$HOME/.config/television/cable/herdr-panels.sh" agents''',
+  '''bash "$HOME/.config/television/cable/herdr-panels.sh" panes''',
+  '''fd -t d -d 1 . "$HOME/workplace" --format '[dir] {/}	{}	{/}' ''',
+  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" sessions''',
+  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" projects''',
+  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" designs''',
+  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" specs''',
+  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" memory''',
+  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" memories''',
+  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" ops''',
+  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" others''',
+]
+no_sort = true
+frecency = false
+display = "{split:\t:0}"
+output = "{split:\t:1}"
+
+[preview]
+command = '''
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
+  herdr pane read '{split:\t:3}' --source recent --lines 200 --ansi
+elif printf '%s\n' '{split:\t:0}' | grep -qE '^\[(pane|agent)\]'; then
+  herdr pane read '{split:\t:2}' --source recent --lines 200 --ansi
+else
+  eza -la --color=always '{split:\t:1}'
+fi
+'''
+
+[keybindings]
+enter = "actions:connect"
+ctrl-d = ["actions:close_workspace", "reload_source"]
+
+[actions.connect]
+description = "Focus a workspace, pane, or agent, or create a workspace from a directory"
+command = '''
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
+  herdr workspace focus '{split:\t:2}'
+elif printf '%s\n' '{split:\t:0}' | grep -q '^\[pane\]'; then
+  herdr pane zoom '{split:\t:2}' --on
+elif printf '%s\n' '{split:\t:0}' | grep -q '^\[agent\]'; then
+  herdr agent focus '{split:\t:2}'
+else
+  herdr workspace create --cwd '{split:\t:1}' --label '{split:\t:2}' --focus
+fi
+'''
+mode = "execute"
+
+[actions.close_workspace]
+description = "Close the selected Herdr workspace"
+command = '''
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
+  herdr workspace close '{split:\t:2}'
+fi
+'''
+mode = "fork"

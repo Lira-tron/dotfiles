@@ -362,6 +362,19 @@ source <(carapace _carapace)
 
 eval "$(zoxide init zsh)"
 
+autoload -Uz add-zsh-hook
+
+_herdr_rename_tab_to_cwd() {
+    [[ -n "${HERDR_PANE_ID:-}" && -n "${HERDR_TAB_ID:-}" ]] || return
+
+    local tab_name="${PWD:t}"
+    [[ -n "$tab_name" ]] || tab_name="/"
+    command herdr tab rename "$HERDR_TAB_ID" "$tab_name" >/dev/null 2>&1
+}
+
+add-zsh-hook chpwd _herdr_rename_tab_to_cwd
+_herdr_rename_tab_to_cwd
+
 # if you wish to use IMDS set AWS_EC2_METADATA_DISABLED=false
 
 export AWS_EC2_METADATA_DISABLED=true

@@ -1,5 +1,6 @@
 return {
   "mrjones2014/smart-splits.nvim",
+  cond = vim.env.HERDR_ENV ~= "1",
   init = function()
     local splits = require("smart-splits")
     local modes = { "n", "c", "v", "t" }
