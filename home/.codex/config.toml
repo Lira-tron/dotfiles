@@ -3,13 +3,41 @@ forced_login_method = "api"
 check_for_update_on_startup = false
 commit_attribution = ""
 chatgpt_base_url = "http://127.0.0.1:9"
-approvals_reviewer = "auto_review"
+approvals_reviewer = "user"
+approval_policy = "on-request"
+sandbox_mode = "danger-full-access"
 model_reasoning_effort = "high"
 model = "openai.gpt-5.6-sol"
+model_context_window = 800000
+model_auto_compact_token_limit = 700000
 
 [mcp_servers.builder-mcp]
 command = "builder-mcp"
 args = ["--include-tools", "*", "--exclude-tools", "SkillsTool,WorkspaceSearch,Delegate,ToolReactivationTool"]
+enabled_tools = [
+    "ApolloReadActions",
+    "GetPipelineDetails",
+    "GetPipelineHealth",
+    "GetPipelinesRelevantToUser",
+    "GetSasCampaigns",
+    "GetSasRisks",
+    "GetSoftwareRecommendation",
+    "InternalCodeSearch",
+    "InternalSearch",
+    "MechanicDescribeTool",
+    "MechanicDiscoverTools",
+    "OncallReadActions",
+    "ReadInternalWebsites",
+    "ReadRemoteTestRun",
+    "SearchAcronymCentral",
+    "SearchSoftwareRecommendations",
+    "TaskeiGetRoomResources",
+    "TaskeiGetRooms",
+    "TaskeiGetTask",
+    "TaskeiListTasks",
+    "TicketingReadActions",
+    "WorkspaceGitDetails",
+]
 
 [mcp_servers.builder-mcp.env]
 TOOL_PERSONALIZATION_ENABLED = "false"
@@ -20,23 +48,87 @@ TOOL_PERSONALIZATION_TRAINING_DAYS = "0"
 [mcp_servers.aws-mcp]
 command = "uvx"
 args = ["mcp-proxy-for-aws@latest", "https://aws-mcp.us-east-1.api.aws/mcp"]
+enabled_tools = [
+    "aws___get_regional_availability",
+    "aws___get_tasks",
+    "aws___list_regions",
+    "aws___read_documentation",
+    "aws___recommend",
+    "aws___retrieve_skill",
+    "aws___search_documentation",
+    "aws___suggest_aws_commands",
+]
 
 [mcp_servers.diagram-tools-mcp]
 command = "diagram-tools-mcp"
 args = []
+enabled_tools = [
+    "diagram_decode",
+    "diagram_encode",
+    "diagram_get_image_url",
+]
 
 [mcp_servers.loaf_mcp]
 command = "loaf-mcp"
-
-[mcp_servers.playwright]
-command = "npx"
-args = ["-y", "@playwright/mcp@latest"]
+enabled_tools = [
+    "get_security_context",
+    "get_security_update_context",
+]
 
 [mcp_servers.sage-plus-service-mcp]
 command = "sage-plus-service-mcp"
+enabled_tools = [
+    "AskQuestion",
+    "GetAnswer",
+    "GetDocumentStatus",
+    "SearchRelevantContentAsync",
+]
 
 [mcp_servers.tickety-mcp]
 command = "tickety-mcp"
+enabled_tools = [
+    "GetApplication",
+    "GetApplicationEvents",
+    "GetApplicationForIdentities",
+    "GetCommentTemplate",
+    "GetConfiguration",
+    "GetCTIDetailsByName",
+    "GetEmailAlias",
+    "GetEmailAliasByName",
+    "GetLocation",
+    "GetResolverGroup",
+    "GetResolverGroupByName",
+    "GetResolverGroupByNameWithOverrides",
+    "GetResolverGroupWithOverrides",
+    "GetTicket",
+    "GetTicketComments",
+    "GetTicketEngagement",
+    "GetTicketEngagements",
+    "GetTicketEvents",
+    "GetTicketHoldDetails",
+    "GetTicketingSystem",
+    "GetTicketingSystemAccessGrant",
+    "GetTicketPermissions",
+    "GetTicketSensitiveFinding",
+    "GetTicketSummary",
+    "ListCategories",
+    "ListItems",
+    "ListLocations",
+    "ListMemberOverridesByResolverGroupName",
+    "ListMembersByResolverGroupName",
+    "ListTicketAttachments",
+    "ListTicketingSystemAccessGrants",
+    "ListTickets",
+    "ListTypes",
+    "MatchRoutes",
+    "SearchApplications",
+    "SearchCommentTemplates",
+    "SearchCTIs",
+    "SearchEmailAliases",
+    "SearchResolverGroups",
+    "SearchRoutes",
+    "SearchTickets",
+]
 
 [shell_environment_policy]
 inherit = "all"
@@ -114,6 +206,9 @@ trust_level = "trusted"
 [projects."/local/home/limonoct/.config/herdr"]
 trust_level = "trusted"
 
+[projects."/workplace/limonoct/MagentaSDK/src/MagentaSDK"]
+trust_level = "trusted"
+
 [marketplaces.aim]
 source_type = "local"
 source = "/local/home/limonoct/.aim/plugins/codex"
@@ -129,6 +224,54 @@ enabled = true
 
 [plugins."MyCli-all@aim"]
 enabled = true
+
+[plugins."AmazonBuilderCoreAIAgents-pipeline-assistant@aim".mcp_servers.builder-mcp]
+enabled_tools = [
+    "GetPipelineHealth",
+    "GetPipelineDetails",
+    "GetPipelinesRelevantToUser",
+    "ReadInternalWebsites",
+    "ReadRemoteTestRun",
+    "InternalCodeSearch",
+    "InternalSearch",
+]
+
+[plugins."AtlasAICapabilities-all@aim".mcp_servers.builder-mcp]
+enabled_tools = [
+    "ApolloReadActions",
+    "GetPipelineDetails",
+    "GetPipelineHealth",
+    "GetPipelinesRelevantToUser",
+    "GetSasCampaigns",
+    "GetSasRisks",
+    "GetSoftwareRecommendation",
+    "InternalCodeSearch",
+    "InternalSearch",
+    "MechanicDescribeTool",
+    "MechanicDiscoverTools",
+    "OncallReadActions",
+    "ReadInternalWebsites",
+    "ReadRemoteTestRun",
+    "SearchAcronymCentral",
+    "SearchSoftwareRecommendations",
+    "TaskeiGetRoomResources",
+    "TaskeiGetRooms",
+    "TaskeiGetTask",
+    "TaskeiListTasks",
+    "TicketingReadActions",
+    "WorkspaceGitDetails",
+]
+
+[plugins."AtlasAICapabilities-all@aim".mcp_servers.sage-plus-service-mcp]
+enabled_tools = [
+    "AskQuestion",
+    "GetAnswer",
+    "GetDocumentStatus",
+    "SearchRelevantContentAsync",
+]
+
+[plugins."MyCli-all@aim".mcp_servers.builder-mcp]
+enabled_tools = ["ReadInternalWebsites"]
 
 [hooks.state]
 
@@ -157,3 +300,4 @@ trusted_hash = "sha256:9bc3ca47a4ef38ae6208ad97db3f1abdc3ae076398e5a344de87ac866
 
 [features]
 hooks = true
+memories = true
