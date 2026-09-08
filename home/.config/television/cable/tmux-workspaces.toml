@@ -18,8 +18,8 @@ command = [
   "bash $HOME/.config/television/cable/tmux-knowledge.sh ops",
   "bash $HOME/.config/television/cable/tmux-knowledge.sh others",
 ]
-no_sort = true
-frecency = false
+no_sort = false
+frecency = true
 display = "{split:\t:0}"
 output = "{split:\t:1}"
 
