@@ -34,23 +34,77 @@ if [ -d "$HOMEBREW_PREFIX/opt/mysql-client/bin" ]; then
     path+=$HOMEBREW_PREFIX/opt/mysql-client/bin
 fi
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    export JAVA_HOME_LATEST=/Library/Java/JavaVirtualMachines/amazon-corretto/Contents/Home
-    export JAVA_HOME_25=/Library/Java/JavaVirtualMachines/amazon-corretto-25.jdk/Contents/Home
-    export JAVA_HOME_21=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home
-    export JAVA_HOME_17=/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home
-    export JAVA_HOME_11=/Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk/Contents/Home
-    export JAVA_HOME_8=/Library/Java/JavaVirtualMachines/amazon-corretto-8.jdk/Contents/Home
-else
-    export JAVA_HOME_LATEST=$HOMEBREW_PREFIX/opt/openjdk
-    export JAVA_HOME_25=$HOMEBREW_PREFIX/opt/openjdk@25
-    export JAVA_HOME_21=$HOMEBREW_PREFIX/opt/openjdk@21
-    export JAVA_HOME_17=$HOMEBREW_PREFIX/opt/openjdk@17
-    export JAVA_HOME_11=$HOMEBREW_PREFIX/opt/openjdk@11
-    export JAVA_HOME_8=$HOMEBREW_PREFIX/opt/openjdk@8
+# JAVA_HOME_<version> points at an installed JDK for that version.
+# Versions with no installed JDK stay unset.
+for _jdk_version in 8 11 17 21 25; do
+    unset "JAVA_HOME_$_jdk_version"
+
+    _jdk_home=
+    if [[ "$OSTYPE" == darwin* ]] && [[ -x /usr/libexec/java_home ]]; then
+        _jdk_selector=$_jdk_version
+        [[ "$_jdk_version" == 8 ]] && _jdk_selector=1.8
+        _jdk_home=$(/usr/libexec/java_home -v "$_jdk_selector" 2>/dev/null)
+    fi
+
+    _jdk_candidates=(
+        /usr/lib/jvm/java-$_jdk_version-amazon-corretto*(N-/)
+        /usr/lib/jvm/java-$_jdk_version-openjdk*(N-/)
+        /usr/lib/jvm/java-$_jdk_version(N-/)
+    )
+
+    if [[ -n "$HOMEBREW_PREFIX" ]]; then
+        _jdk_candidates+=(
+            "$HOMEBREW_PREFIX/opt/openjdk@$_jdk_version/libexec/openjdk.jdk/Contents/Home"
+            "$HOMEBREW_PREFIX/opt/openjdk@$_jdk_version"
+        )
+    fi
+
+    for _jdk_candidate in "$_jdk_home" "${_jdk_candidates[@]}"; do
+        _jdk_home=$_jdk_candidate
+        if [[ -n "$_jdk_home" ]] && [[ -x "$_jdk_home/bin/javac" ]]; then
+            typeset -gx "JAVA_HOME_$_jdk_version=$_jdk_home"
+            break
+        fi
+    done
+done
+
+unset JAVA_HOME_LATEST JAVA_HOME
+
+_jdk_home=
+if [[ "$OSTYPE" == darwin* ]] && [[ -x /usr/libexec/java_home ]]; then
+    _jdk_home=$(/usr/libexec/java_home 2>/dev/null)
 fi
 
-export JAVA_HOME=$JAVA_HOME_LATEST
+_jdk_candidates=()
+if [[ -n "$HOMEBREW_PREFIX" ]]; then
+    _jdk_candidates+=(
+        "$HOMEBREW_PREFIX/opt/openjdk/libexec/openjdk.jdk/Contents/Home"
+        "$HOMEBREW_PREFIX/opt/openjdk"
+    )
+fi
+_jdk_candidates+=(
+    /usr/lib/jvm/java(N-/)
+    "$JAVA_HOME_25"
+    "$JAVA_HOME_21"
+    "$JAVA_HOME_17"
+    "$JAVA_HOME_11"
+    "$JAVA_HOME_8"
+)
+
+for _jdk_candidate in "$_jdk_home" "${_jdk_candidates[@]}"; do
+    _jdk_home=$_jdk_candidate
+    if [[ -n "$_jdk_home" ]] && [[ -x "$_jdk_home/bin/javac" ]]; then
+        export JAVA_HOME_LATEST=$_jdk_home
+        export JAVA_HOME=$_jdk_home
+        break
+    fi
+done
+
+if [[ -n "$JAVA_HOME" ]]; then
+    path=("$JAVA_HOME/bin" ${path:#"$JAVA_HOME/bin"})
+fi
+
+unset _jdk_version _jdk_selector _jdk_home _jdk_candidate _jdk_candidates
 
 if [ ! -d "$HOME/.nvm" ]; then
   mkdir ~/.nvm
