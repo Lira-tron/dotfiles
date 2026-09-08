@@ -1,0 +1,12 @@
+#!/bin/sh
+
+package_root=/local/home/limonoct/brazil-pkg-cache/packages/DiagramToolsMCPServer
+version=$(
+    find "$package_root" -mindepth 1 -maxdepth 1 -type d \
+        -name 'DiagramToolsMCPServer-1.0.*' -printf '%f\n' |
+        sort -V |
+        tail -1
+)
+
+exec /home/linuxbrew/.linuxbrew/bin/node \
+    "$package_root/$version/AL2_x86_64/DEV.STD.PTHREAD/build/diagram-tools-mcp-server/dist/index.js"

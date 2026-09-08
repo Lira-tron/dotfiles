@@ -1,0 +1,128 @@
+model_provider = "amazon-bedrock"
+forced_login_method = "api"
+check_for_update_on_startup = false
+commit_attribution = ""
+chatgpt_base_url = "http://127.0.0.1:9"
+approvals_reviewer = "auto_review"
+model_reasoning_effort = "high"
+model = "openai.gpt-5.6-sol"
+
+[mcp_servers.builder-mcp]
+command = "builder-mcp"
+args = ["--include-tools", "*", "--exclude-tools", "SkillsTool,WorkspaceSearch,Delegate,ToolReactivationTool"]
+
+[mcp_servers.builder-mcp.env]
+TOOL_PERSONALIZATION_ENABLED = "false"
+TOOL_PERSONALIZATION_MIN_EXECUTIONS = "0"
+TOOL_PERSONALIZATION_ROLLOUT_PERCENTAGE = "100"
+TOOL_PERSONALIZATION_TRAINING_DAYS = "0"
+
+[mcp_servers.aws-mcp]
+command = "uvx"
+args = ["mcp-proxy-for-aws@latest", "https://aws-mcp.us-east-1.api.aws/mcp"]
+
+[mcp_servers.diagram-tools-mcp]
+command = "/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles/home/.local/bin/diagram-tools-mcp-direct"
+startup_timeout_sec = 30
+
+[mcp_servers.loaf_mcp]
+command = "loaf-mcp"
+
+[mcp_servers."npm:@playwright/mcp"]
+command = "npm-playwright-mcp"
+
+[mcp_servers.sage-plus-service-mcp]
+command = "sage-plus-service-mcp"
+
+[mcp_servers.tickety-mcp]
+command = "tickety-mcp"
+
+[shell_environment_policy]
+inherit = "all"
+
+[feedback]
+enabled = false
+
+[analytics]
+enabled = true
+
+[tui]
+vim_mode_default = true
+status_line = [
+    "model-with-reasoning",
+    "context-used",
+    "current-dir",
+    "git-branch",
+    "branch-changes",
+]
+status_line_use_colors = true
+
+[otel]
+log_user_prompt = true
+trace_exporter = "none"
+environment = "stable"
+exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/logs", protocol = "binary" } }
+metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/metrics", protocol = "binary" } }
+
+[model_providers.amazon-bedrock.aws]
+region = "us-east-2"
+profile = "codex-DO-NOT-DELETE"
+
+[projects."/workplace/limonoct/MagentaSDK1/src"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/MagentaSDK1/src/MagentaSDK"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles"]
+trust_level = "trusted"
+
+[projects."/local/home/limonoct/.claude/skills"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/MagentaSDKSid/src/MagentaSDK"]
+trust_level = "trusted"
+
+[projects."/tmp"]
+trust_level = "trusted"
+
+[projects."/local/home/limonoct/.codex"]
+trust_level = "trusted"
+
+[projects."/local/home/limonoct"]
+trust_level = "trusted"
+
+[marketplaces.aim]
+source_type = "local"
+source = "/local/home/limonoct/.aim/plugins/codex"
+
+[plugins."AmazonBuilderCoreAIAgents-core@aim"]
+enabled = true
+
+[plugins."AmazonBuilderCoreAIAgents-pipeline-assistant@aim"]
+enabled = true
+
+[plugins."AtlasAICapabilities-all@aim"]
+enabled = true
+
+[hooks.state]
+
+[hooks.state."/home/limonoct/.codex/hooks.json:stop:0:1"]
+trusted_hash = "sha256:6558234560e03d2ee96603b20aef47619432a2d08dc41a35692efa6f3a69a5a1"
+
+[hooks.state."/home/limonoct/.codex/hooks.json:stop:0:0"]
+trusted_hash = "sha256:7713563c52bb857d8ce468219de104368b8c18e1e28d80c0f997a8b4a0b4c9a8"
+
+[hooks.state."/home/limonoct/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:9406ff996ebd34307b60a3aa3737be091ccb65afc15dc858fc2851a5ad6cb6f3"
+enabled = true
+
+[hooks.state."/home/limonoct/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:0e41eb88f22c64908f04149bfe94a79e3ca170152683a29949ec2be4a7f4abd7"
+enabled = true
+
+[features]
+hooks = true
