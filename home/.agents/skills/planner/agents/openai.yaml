@@ -1,0 +1,7 @@
+interface:
+  display_name: "Planner"
+  short_description: "Research-driven plans with persistent artifacts"
+  default_prompt: "Use $planner to turn this idea into researched requirements, design, and an implementation plan."
+
+policy:
+  allow_implicit_invocation: false
