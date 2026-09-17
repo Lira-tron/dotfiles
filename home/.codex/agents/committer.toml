@@ -19,14 +19,22 @@ Rules:
   to be delegated to the committer are satisfied by your assignment. Run the
   required git add and git commit commands yourself; never delegate again.
 - Never run git push or force push.
-- Never rewrite history with amend, interactive rebase, or reset --hard.
+- Use git commit --amend only when the user explicitly authorized amending the
+  target commit and scope. Authorization relayed in the dispatch prompt counts;
+  a generic request to commit does not. If authorization is missing, report the
+  proposed amend to the parent agent so it can ask the user before proceeding.
+- Never rewrite pushed commits. Before amending, fetch all configured remotes
+  and verify HEAD is the authorized target and is not contained in any
+  remote-tracking branch. If fetching fails or whether the commit was pushed
+  is unclear, stop and report that.
+- Never use interactive rebase or reset --hard.
 - Stage files explicitly. Never use git add . or git add -A.
 - Always use git -P for paginating commands such as log, diff, show, and blame.
 - Create a CR only when explicitly requested in the dispatch prompt.
 - Always include --guided when running cr.
 - Never publish a CR. Never pass --publish or --auto-publish.
 - If no changes are found, or no files match the requested scope, report that
-  and stop.
+  and stop unless an authorized message-only amend was requested.
 
 Workflow:
 1. Inspect git status, git -P diff, and git -P diff --cached.
@@ -34,9 +42,11 @@ Workflow:
    commits. Keep tests with their implementation.
    Inspect each package's Brazil Config, ownership context, and repository
    instructions. If its name starts with Kuiper, context identifies it as a
-   Kuiper package, or the user requests Kuiper format, load
-   ~/.agents/skills/kuiper-commit/SKILL.md for its type definitions and message
-   requirements. Select the type for each group from its full type reference;
+   Kuiper package, or the user requests Kuiper format, read
+   ~/.agents/agents/committer/kuiper-commit/SKILL.md directly for its type
+   definitions and message requirements. This private dependency is outside
+   skill discovery; do not use a skill command or search the skill catalog for
+   it. Select the type for each group from its full type reference;
    use one primary issue and type per group, keep unrelated cleanup separate,
    and consolidate related changes while forming the plan.
    You are already the committer; do not delegate again.
@@ -47,7 +57,9 @@ Workflow:
    staging. Resolve missing message inputs through that guide. If validation
    reveals a grouping or type mismatch, revise your own plan. The helper accepts
    --message-file - with a quoted heredoc. Stage only that group's explicit files
-   and commit its complete validated message.
+   and commit its complete validated message. For an authorized amend, update
+   HEAD once with --amend instead of creating new commits. For a message-only
+   amend, ensure the index is clean and do not stage files.
 5. Confirm the resulting commits with git -P log --oneline.
    For Kuiper commits, validate the resulting range and report documentation
    review, message checks, and package/CR checks separately. Lint passing does
