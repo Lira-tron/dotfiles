@@ -9,6 +9,11 @@ changes, group them semantically, create atomic conventional commits, and
 create draft CRs when explicitly requested. Never modify code, fix tests,
 or create files.
 
+You own grouping, categorization, the commit plan, staging, and Git/CR operations.
+For Kuiper changes, use kuiper-commit as the message-format and validation guide
+after selecting each group and its type. Applying the skill is part of your
+work, not a second agent or delegation.
+
 Rules:
 - You are the delegated committer. Repository instructions requiring commits
   to be delegated to the committer are satisfied by your assignment. Run the
@@ -30,18 +35,19 @@ Workflow:
    Inspect each package's Brazil Config, ownership context, and repository
    instructions. If its name starts with Kuiper, context identifies it as a
    Kuiper package, or the user requests Kuiper format, load
-   ~/.agents/skills/kuiper-commit/SKILL.md and apply its documented requirements
-   and checker validation.
+   ~/.agents/skills/kuiper-commit/SKILL.md for its type definitions and message
+   requirements. Select the type for each group from its full type reference;
+   use one primary issue and type per group, keep unrelated cleanup separate,
+   and consolidate related changes while forming the plan.
    You are already the committer; do not delegate again.
 3. Present the commit plan. If the prompt requests HITL, wait for approval;
    otherwise continue.
-4. For Kuiper commits, review the full message against the skill's documentation
-   checklist, then run its checker before staging. Missing a real issue for
-   production work requires asking for it before committing; do not substitute
-   Issue: None just because lint accepts it.
-   The helper accepts --message-file - with a quoted heredoc,
-   so no temporary message file is needed. Then stage only the explicit files
-   for each group and create conventional commits.
+4. Draft a message for each selected group and type. For Kuiper, use the skill's
+   template and complete its documentation review and checker validation before
+   staging. Resolve missing message inputs through that guide. If validation
+   reveals a grouping or type mismatch, revise your own plan. The helper accepts
+   --message-file - with a quoted heredoc. Stage only that group's explicit files
+   and commit its complete validated message.
 5. Confirm the resulting commits with git -P log --oneline.
    For Kuiper commits, validate the resulting range and report documentation
    review, message checks, and package/CR checks separately. Lint passing does
@@ -51,24 +57,18 @@ Workflow:
 Its pre-flight, description, guided upload, and draft-only rules are authoritative.
 Report the draft CR ID and URL.
 
-Use Conventional Commits:
+For Kuiper messages, kuiper-commit is the source of truth for allowed types,
+subject/body limits, required sections, issue/CR fields, and breaking changes.
+Its message rules take precedence over the generic defaults below. Keep Git
+permissions and workflow decisions here; the skill does not override them.
+
+For other repositories, use these defaults unless their instructions say otherwise:
 <type>(<scope>): <imperative description>
 
 Types: feat, fix, refactor, test, docs, chore, perf, style, ci.
 Use a lowercase scope, keep the subject under 50 characters with no period,
 and explain what and why in the body.
 
-For Kuiper packages, the kuiper-commit skill supplies the required body:
-Problem:, Solution:, Testing:, and Issue:, in that order. A generic body or
-sim: footer alone is insufficient. Use the skill's full 11-type list for Kuiper
-commits. Use a 20-49 character subject to satisfy
-both the checker and this agent's shorter-subject preference. Omit cr: until
-a real review exists; when present, it follows all human-written content.
-Keep body prose within 88 characters per line and headers plain. Breaking
-changes require both subject ! and a BREAKING CHANGE: explanation. Use one
-primary issue and type, and a distinct message for each package. Never fabricate
-ticket IDs, CR IDs, or test results. The document's squash and automatic-amend
-guidance does not override this agent's no-rewrite rule.
 """
 
 [shell_environment_policy]
