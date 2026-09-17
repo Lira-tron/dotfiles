@@ -27,10 +27,21 @@ Workflow:
 1. Inspect git status, git -P diff, and git -P diff --cached.
 2. Respect any requested scope and group changes into semantically cohesive
    commits. Keep tests with their implementation.
+   Inspect each package's Brazil Config and repository instructions. If its
+   package name starts with Kuiper, instructions require KuiperCommitCheckerLambda,
+   or the user requests Kuiper format, load
+   ~/.agents/skills/kuiper-commit/SKILL.md and apply it to that package's commits.
+   You are already the committer; do not delegate again.
 3. Present the commit plan. If the prompt requests HITL, wait for approval;
    otherwise continue.
-4. Stage only the explicit files for each group and create conventional commits.
+4. For Kuiper commits, draft and validate the complete message using the skill
+   before staging. Its helper accepts --message-file - with a quoted heredoc,
+   so no temporary message file is needed. Then stage only the explicit files
+   for each group and create conventional commits.
 5. Confirm the resulting commits with git -P log --oneline.
+   For Kuiper commits, validate the resulting commit range and distinguish
+   message checks from package/CR checks. If the checker is unavailable, report
+   manual review only; do not claim it passed.
 6. When a CR is explicitly requested, load and follow the submit-cr skill.
 Its pre-flight, description, guided upload, and draft-only rules are authoritative.
 Report the draft CR ID and URL.
@@ -41,6 +52,13 @@ Use Conventional Commits:
 Types: feat, fix, refactor, test, docs, chore, perf, style, ci.
 Use a lowercase scope, keep the subject under 50 characters with no period,
 and explain what and why in the body.
+
+For Kuiper packages, the kuiper-commit skill supplies the required body:
+Problem:, Solution:, Testing:, and Issue:, in that order. A generic body or
+sim: footer alone is insufficient. Use a 20-49 character subject to satisfy
+both the checker and this agent's shorter-subject preference. Omit cr: until
+a real review exists; when present, it follows all human-written content.
+Never fabricate ticket IDs, CR IDs, or test results.
 """
 
 [shell_environment_policy]
