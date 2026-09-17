@@ -10,6 +10,14 @@ herdr api snapshot 2>/dev/null |
   jq -r --arg mode "$MODE" '
     .result.snapshot as $snapshot |
 
+    def status_icon:
+      {
+        blocked: "×",
+        working: "◐",
+        done: "✓",
+        idle: "○"
+      }[. // "unknown"] // "·";
+
     def workspace_rows:
       $snapshot.workspaces[] as $workspace |
       (first(
@@ -39,7 +47,7 @@ herdr api snapshot 2>/dev/null |
       ]
       | sort_by([.workspace.number, .tab.number, .agent.pane_id])
       | .[]
-      | "[agent] \(.workspace.label) · \(.tab.label) · \(.agent.pane_id) · \(.agent.agent) · \(.agent.agent_status)\t\(.agent.foreground_cwd // .agent.cwd)\t\(.agent.pane_id)\t\(.tab.tab_id)";
+      | "[agent] \(.agent.agent_status | status_icon) \(.workspace.label) · \(.tab.label) · \(.agent.pane_id) · \(.agent.agent) · \(.agent.agent_status)\t\(.agent.foreground_cwd // .agent.cwd)\t\(.agent.pane_id)\t\(.tab.tab_id)";
 
     if $mode == "all" then
       workspace_rows, agent_rows, pane_rows
