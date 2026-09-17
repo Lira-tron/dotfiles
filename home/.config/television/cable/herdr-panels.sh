@@ -14,7 +14,8 @@ herdr api snapshot 2>/dev/null |
       {
         blocked: "×",
         working: "◐",
-        done: "✓",
+        # Television 0.15.9 filters U+2713; its Nerd Font checkmark renders correctly.
+        done: "\uf00c",
         idle: "○"
       }[. // "unknown"] // "·";
 
