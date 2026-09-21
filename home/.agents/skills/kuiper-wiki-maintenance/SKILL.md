@@ -86,8 +86,17 @@ Use the actual requested targets and source IDs; repeat flags for multiple value
 Processing queues routed work and captures baselines; authors still need to fill
 the staged drafts. Review `prepare` and `diff` before asking the human to approve
 the exact manifest. Never self-approve, alter approval hashes, or publish changed
-drafts under an old approval. Leave published human-request changes uncommitted.
+drafts under an old approval. Prepared requests can produce a snapshot-bound
+draft CR with `intake review-cr ID --expected-manifest HASH`. The CR is a diff
+view marked DO NOT MERGE; local approval still controls publication.
 Use the equivalent `feedback` lifecycle for a correction request.
+
+`publishing status` reports the default reviewer and pending commit receipts.
+When configured, every validated page publication creates a scoped local Git
+commit, including routine agent updates. A failed Git follow-up uses
+`publishing retry RECEIPT`; it never requires republishing or staging unrelated
+files. Unknown CR creation results need the operator to verify remote state and
+use `publishing reconcile-review`, rather than automatically creating another CR.
 
 ## Query the published wiki
 
