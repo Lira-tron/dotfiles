@@ -1,0 +1,4 @@
+interface:
+  display_name: "mutate4go"
+  short_description: "Run differential Go mutation testing"
+  default_prompt: "Use $mutate4go to mutation-test the changed Go file and eliminate every survivor."

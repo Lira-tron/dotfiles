@@ -1,0 +1,4 @@
+interface:
+  display_name: "crap4go"
+  short_description: "Run and interpret Go CRAP analysis"
+  default_prompt: "Use $crap4go to analyze the changed Go code and explain every failing CRAP score."

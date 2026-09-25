@@ -1,0 +1,4 @@
+interface:
+  display_name: "dry4java"
+  short_description: "Find structural duplication in Java"
+  default_prompt: "Use $dry4java to inspect the changed Java code for meaningful duplication."

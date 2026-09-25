@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gherkin Mutator"
+  short_description: "Run APS Gherkin acceptance mutation"
+  default_prompt: "Use $gherkin-mutator to mutation-test these Gherkin scenarios with the project runner adapter."

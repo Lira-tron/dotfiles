@@ -1,0 +1,186 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+data_root="${QUALITY_GATES_DATA_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/agent-tools/quality-gates}"
+cache_root="${QUALITY_GATES_CACHE_HOME:-${XDG_CACHE_HOME:-$HOME/.cache}/agent-tools/quality-gates}"
+bin_dir="$data_root/bin"
+lib_dir="$data_root/lib"
+source_root="$cache_root/src"
+
+usage() {
+  print -r -- "Usage:"
+  print -r -- "  quality-tool list"
+  print -r -- "  quality-tool root"
+  print -r -- "  quality-tool path <tool>"
+  print -r -- "  quality-tool ensure <tool>..."
+}
+
+list_tools() {
+  print -rl -- \
+    crap4go mutate4go dry4go \
+    crap4java mutate4java dry4java \
+    gherkin-parser gherkin-ir-dry-checker ir-dry-checker gherkin-mutator
+}
+
+canonical_tool() {
+  case "$1" in
+    ir-dry-checker) print -r -- "gherkin-ir-dry-checker" ;;
+    *) print -r -- "$1" ;;
+  esac
+}
+
+repository_for() {
+  case "$1" in
+    crap4go|mutate4go|dry4go|crap4java|mutate4java|dry4java)
+      print -r -- "$1"
+      ;;
+    gherkin-parser|gherkin-ir-dry-checker|gherkin-mutator)
+      print -r -- "Acceptance-Pipeline-Specification"
+      ;;
+    *)
+      print -u2 -r -- "Unsupported tool: $1"
+      return 1
+      ;;
+  esac
+}
+
+update_source() {
+  local repository="$1"
+  local source_dir="$source_root/$repository"
+  mkdir -p "$source_root"
+
+  if [[ -d "$source_dir/.git" ]]; then
+    git -C "$source_dir" pull --ff-only >&2
+  elif [[ -e "$source_dir" ]]; then
+    print -u2 -r -- "Tool source exists but is not a Git checkout: $source_dir"
+    return 1
+  else
+    git clone --depth 1 "https://github.com/unclebob/$repository.git" "$source_dir"
+  fi
+
+  print -r -- "$source_dir"
+}
+
+install_go_tool() {
+  local tool="$1"
+  local repository="$2"
+  local source_dir="$3"
+  local command="$tool"
+
+  mkdir -p "$bin_dir"
+  (
+    cd "$source_dir"
+    go build -o "$bin_dir/$tool" "./cmd/$command"
+  )
+
+  if [[ "$repository" == "Acceptance-Pipeline-Specification" && "$tool" == "gherkin-ir-dry-checker" ]]; then
+    ln -sfn "gherkin-ir-dry-checker" "$bin_dir/ir-dry-checker"
+  fi
+}
+
+install_java_tool() {
+  local tool="$1"
+  local source_dir="$2"
+  local jar=""
+  local candidate
+  local -a candidates
+
+  if [[ "$tool" == "mutate4java" ]]; then
+    {
+      print -r -- '<project xmlns="http://maven.apache.org/POM/4.0.0"'
+      print -r -- '         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
+      print -r -- '         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">'
+      print -r -- '  <modelVersion>4.0.0</modelVersion>'
+      print -r -- '  <groupId>com.unclebob</groupId>'
+      print -r -- '  <artifactId>wiki-workspace</artifactId>'
+      print -r -- '  <version>0.1.0-SNAPSHOT</version>'
+      print -r -- '  <packaging>pom</packaging>'
+      print -r -- '</project>'
+    } > "$cache_root/pom.xml"
+  fi
+
+  (
+    cd "$source_dir"
+    mvn -q -DskipTests package
+  )
+
+  candidates=("$source_dir"/target/"$tool"-*.jar(N))
+  for candidate in "${candidates[@]}"; do
+    if [[ "${candidate:t}" != original-* && "${candidate:t}" != *-sources.jar && "${candidate:t}" != *-javadoc.jar ]]; then
+      jar="$candidate"
+      break
+    fi
+  done
+
+  if [[ -z "$jar" ]]; then
+    print -u2 -r -- "Built JAR not found for $tool"
+    return 1
+  fi
+
+  mkdir -p "$bin_dir" "$lib_dir"
+  cp "$jar" "$lib_dir/$tool.jar"
+  {
+    print -r -- "#!/usr/bin/env zsh"
+    print -r -- "set -euo pipefail"
+    print -r -- "exec java -jar \"\${0:A:h}/../lib/$tool.jar\" \"\$@\""
+  } > "$bin_dir/$tool"
+  chmod +x "$bin_dir/$tool"
+}
+
+ensure_tool() {
+  local requested="$1"
+  local tool
+  local repository
+  local source_dir
+
+  tool="$(canonical_tool "$requested")"
+  repository="$(repository_for "$tool")"
+  source_dir="$(update_source "$repository")"
+
+  case "$tool" in
+    crap4go|mutate4go|dry4go|gherkin-parser|gherkin-ir-dry-checker|gherkin-mutator)
+      install_go_tool "$tool" "$repository" "$source_dir"
+      ;;
+    crap4java|mutate4java|dry4java)
+      install_java_tool "$tool" "$source_dir"
+      ;;
+  esac
+
+  print -r -- "Installed $tool at $bin_dir/$tool"
+}
+
+if (( $# == 0 )); then
+  usage
+  exit 1
+fi
+
+case "$1" in
+  list)
+    (( $# == 1 )) || { usage; exit 1; }
+    list_tools
+    ;;
+  root)
+    (( $# == 1 )) || { usage; exit 1; }
+    print -r -- "$data_root"
+    ;;
+  path)
+    (( $# == 2 )) || { usage; exit 1; }
+    tool="$(canonical_tool "$2")"
+    repository_for "$tool" >/dev/null
+    print -r -- "$bin_dir/$tool"
+    ;;
+  ensure)
+    (( $# >= 2 )) || { usage; exit 1; }
+    shift
+    for tool in "$@"; do
+      ensure_tool "$tool"
+    done
+    ;;
+  -h|--help|help)
+    usage
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+esac

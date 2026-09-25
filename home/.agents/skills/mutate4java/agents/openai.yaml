@@ -1,0 +1,4 @@
+interface:
+  display_name: "mutate4java"
+  short_description: "Run differential Java mutation testing"
+  default_prompt: "Use $mutate4java to mutation-test the changed Java file and eliminate every survivor."

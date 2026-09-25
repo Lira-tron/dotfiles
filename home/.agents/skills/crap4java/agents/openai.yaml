@@ -1,0 +1,4 @@
+interface:
+  display_name: "crap4java"
+  short_description: "Run Java CRAP analysis with JaCoCo"
+  default_prompt: "Use $crap4java to analyze the changed Java methods and explain any high CRAP scores."

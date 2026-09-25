@@ -1,0 +1,4 @@
+interface:
+  display_name: "Quality Gates"
+  short_description: "Check tests, complexity, duplication, and mutation"
+  default_prompt: "Use $quality-gates to verify this change with existing tests and applicable CRAP, DRY, and mutation checks."

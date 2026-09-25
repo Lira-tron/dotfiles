@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gherkin IR DRY Checker"
+  short_description: "Analyze repetition in Gherkin JSON IR"
+  default_prompt: "Use $gherkin-ir-dry-checker to analyze this parsed feature and explain useful simplifications."

@@ -1,0 +1,16 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+uml_source_root="${0:A:h:h}"
+uml_data_root="${UML_VIEWER_DATA_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/agent-tools/uml-viewer}"
+uml_binary="$uml_data_root/bin/uml-viewer"
+mkdir -p "$uml_data_root/bin"
+(
+  cd "$uml_source_root"
+  go build -o "$uml_binary" .
+)
+if [[ "${1:-}" == "--install" ]]; then
+  print -r -- "$uml_binary"
+  exit 0
+fi
+exec "$uml_binary" "$@"

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Go — finish the implementation"
+  short_description: "Build, test, commit, simplify, review, and verify"
+policy:
+  allow_implicit_invocation: false

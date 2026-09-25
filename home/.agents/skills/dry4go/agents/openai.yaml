@@ -1,0 +1,4 @@
+interface:
+  display_name: "dry4go"
+  short_description: "Find structural duplication in Go"
+  default_prompt: "Use $dry4go to inspect the changed Go code for meaningful duplication."
