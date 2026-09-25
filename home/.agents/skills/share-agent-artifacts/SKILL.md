@@ -5,17 +5,24 @@ description: Create, move, or update durable agent artifacts intended for both C
 
 # Share Agent Artifacts
 
-Manage shared Claude Code and Codex artifacts from the dotfiles repository:
+Manage shared Claude Code and Codex artifacts from the appropriate dotfiles repository:
 
-`/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles/home/.agents`
+| Content | Canonical source |
+|---|---|
+| Amazon-specific workflows, internal tools, or internal references | `/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/home/.agents` (internal parent) |
+| General-purpose artifacts suitable for public distribution | `/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles/home/.agents` (public child) |
 
-GNU Stow exposes this as `~/.agents`. Edit the repository source, not the live home path.
+GNU Stow exposes both sources as `~/.agents`. Sharing between clients does not
+determine public visibility. Keep Amazon-specific content in the internal parent;
+when a generic artifact needs an Amazon integration, keep that integration there.
+Edit the repository source, not the live home path.
 
 ## Sharing model
 
 Keep one canonical artifact under `home/.agents/<kind>/`. Do not assume either client automatically discovers files there. Expose the canonical artifact from each client's expected location with a relative symlink or, when their formats differ, a thin tool-specific adapter.
 
-For a compatible skill named `<name>`, use:
+For a compatible skill named `<name>`, keep its canonical files and discovery
+links together in the selected repository:
 
 ```text
 home/.agents/skills/<name>/         # canonical files
@@ -27,11 +34,11 @@ Only share an artifact when both clients can consume the same format and semanti
 
 ## Workflow
 
-1. Inspect the canonical and client-specific paths with `readlink`, and compare existing contents before changing them.
+1. Select the repository by content using the table above. Inspect the canonical and client-specific paths in both repositories with `readlink`, and compare existing contents before changing them.
 2. Place durable common files under `home/.agents`; do not adopt credentials, caches, histories, generated state, or other machine-specific data.
-3. Add the minimum relative links or adapters needed for Claude Code and Codex discovery.
+3. Add the minimum relative links or adapters needed for Claude Code and Codex discovery in the same repository as the canonical artifact. When moving an artifact between repositories, move its existing client links too.
 4. Remove a duplicate only after verifying it matches the canonical copy or the user selected which copy is authoritative.
-5. Run `make link` from the dotfiles repository.
+5. Run `make link` from the internal parent at `/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles` so both source trees are re-stowed.
 6. Verify each live client path with `readlink -f` and confirm it resolves to the intended canonical artifact.
 
 Preserve unrelated work in the repository and keep changes limited to the requested artifact.

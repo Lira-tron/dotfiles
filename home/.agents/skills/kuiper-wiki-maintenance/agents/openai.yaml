@@ -1,4 +1,0 @@
-interface:
-  display_name: "Kuiper Wiki Maintenance"
-  short_description: "Manage wiki sources, intake, logs and schedules"
-  default_prompt: "Use $kuiper-wiki-maintenance to inspect the wiki and handle the requested knowledge-base maintenance."

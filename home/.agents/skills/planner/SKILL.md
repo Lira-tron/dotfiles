@@ -1,6 +1,6 @@
 ---
 name: planner
-description: Runs an interactive, research-driven planning workflow that turns rough ideas into approved requirements, research, design, and incremental implementation plans under .codex/specs. Use only when explicitly invoked with $planner.
+description: Use when the user asks to create a plan, create a spec, make a plan, write or draft a plan or specification, or plan a feature, even without naming the skill, or explicitly invokes $planner. Runs an interactive, research-driven planning workflow that turns rough ideas into approved requirements, research, design, and incremental implementation plans under .codex/specs.
 ---
 
 # Planner
@@ -44,7 +44,7 @@ the recorded phase. Do not restart or overwrite approved work.
 
 ## Completion
 
-Planning is complete only when the selected artifacts are approved, the final
-state is reflected in `SESSION.md`, and the planning artifacts are committed
-through the `commit` skill with scope restricted to `project_dir`. Never run
-`git add`, `git commit`, or `git push` directly.
+Planning is complete when the selected artifacts are approved and the final
+state is reflected in `SESSION.md`. Keep planning artifacts local; do not stage,
+commit, or push them, directly or through delegation. Do not force-add ignored
+artifacts or change Git ignore rules to include them.

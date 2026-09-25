@@ -1,7 +1,9 @@
 # Planner Workflow
 
-Follow this workflow in order, while allowing the user to return from research
-or design to requirements whenever new information changes the problem.
+Start with project setup. Requirements clarification and research may alternate
+in any order, including research before requirements approval. The user may
+return from design to either activity when new information changes the problem.
+Requirements and research approval remain prerequisites for design.
 
 ## Phase 1: Establish the project
 
@@ -38,6 +40,9 @@ Ask the user to choose:
 
 Do not choose silently. Record the choice in `SESSION.md`.
 
+For preliminary research, go to Phase 4, then return to Phase 3 to incorporate
+the findings into the requirements.
+
 **Gate:** Wait for the user's choice.
 
 ## Phase 3: Clarify and approve requirements
@@ -71,8 +76,8 @@ When the user says clarification is complete, rewrite `requirements.md` into:
 Present the consolidated document and revise it until the user explicitly
 approves it. Update `SESSION.md` after approval.
 
-**Gate:** Do not proceed to research or design until the consolidated
-requirements are explicitly approved.
+**Gate:** Consolidated requirements must be explicitly approved before design.
+Research may begin or resume before this approval to resolve open questions.
 
 ## Phase 4: Research the problem
 
@@ -129,15 +134,15 @@ Share findings periodically rather than researching silently for a long
 period. When the planned research is complete, create or update a concise
 research synthesis in `research/summary.md`, present it, and revise as needed.
 
-**Gate:** Do not leave research until the user confirms it is sufficient.
-Offer to return to requirements if findings expose new questions. Update
-`SESSION.md` after the gate.
+**Gate:** Ask whether research is sufficient or the user wants to return to
+requirements clarification. Record the choice in `SESSION.md`. Research must be
+confirmed sufficient before design.
 
 ## Phase 5: Iteration checkpoint
 
 Summarize:
 
-- approved requirements;
+- requirements and their approval status;
 - strongest research findings and source limitations;
 - decisions made;
 - assumptions and open questions.
@@ -149,9 +154,11 @@ Ask the user to choose:
 - conduct additional research.
 
 If requirements change, update and reconsolidate `requirements.md`, then obtain
-fresh approval before moving forward.
+fresh approval before design. Research may continue while requirements are
+being clarified.
 
-**Gate:** Do not begin design without explicit confirmation.
+**Gate:** Begin design only after requirements are approved, research is
+confirmed sufficient, and the user explicitly chooses to proceed.
 
 ## Phase 6: Create and approve the design
 
@@ -253,7 +260,7 @@ session. If requested, keep it under 100 lines and include:
 
 - `Objective`
 - `Key Requirements`
-- `Acceptance Criteria`
+- `Acceptance Criteria` as Given-When-Then scenarios from the approved `design.md`
 - `Constraints and Out of Scope`
 - `First Unit of Work`
 - `References`, including the exact `project_dir`
@@ -262,20 +269,18 @@ Create no implementation code and launch no implementation process. Present the
 resolved `PROMPT.md` path so the user can start the separate implementation
 workflow themselves. Update `SESSION.md`.
 
-## Phase 10: Commit planning artifacts
+## Phase 10: Finalize planning artifacts
 
 After the final selected artifacts are approved:
 
 1. Ensure `SESSION.md` reflects the completed planning state.
-2. Invoke the `commit` skill with scope restricted to the planning artifacts in
-   `project_dir`.
-3. Do not include unrelated workspace changes.
-4. Do not create a code review. If the user asks for one, finish the planning
+2. Report the artifact paths and leave the files in `project_dir`.
+3. Do not create a code review. If the user asks for one, finish the planning
    workflow and direct them to a separate review workflow.
-5. Report the resulting commit.
 
-Never run `git add`, `git commit`, `git push`, or review-creation commands
-directly.
+Do not stage, commit, or push planning artifacts, directly or through
+delegation. Do not force-add ignored artifacts or change Git ignore rules to
+include them. Completion does not require a Git repository or a commit.
 
 ## SESSION.md recovery contract
 

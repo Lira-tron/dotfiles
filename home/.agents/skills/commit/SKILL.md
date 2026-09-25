@@ -18,11 +18,15 @@ Pass the user's intent to the committer:
 - **HITL**: Include `hitl` when the user requests approval before committing.
 - **CR**: Include `create a CR` only when the user explicitly requests one.
 - **Arguments**: Preserve other arguments supplied with the skill invocation.
+- **Amend**: Preserve an amend request, its target and scope, and the user's
+  explicit authorization in the dispatch. Do not infer amend authorization
+  from a generic commit request. If authorization is missing, present the
+  proposed amend and ask the user before dispatching it.
 
 Use this dispatch prompt:
 
 ```text
-Commit uncommitted changes. Scope: {scope or "all"}. {hitl if requested} {create a CR if requested}
+{Create commits or amend the authorized target, preserving the user's request}. Scope: {scope or "all"}. {explicit amend authorization and target if applicable} {hitl if requested} {create a CR if requested}
 ```
 
 In Claude Code, dispatch `Agent(subagent_type="committer",
