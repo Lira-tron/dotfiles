@@ -1,25 +1,18 @@
 [metadata]
 name = "herdr-workspaces"
-description = "Browse Herdr workspaces, panes, agents, directories, and knowledge"
+description = "Browse Herdr workspaces, agents, panes, and directories"
 requirements = ["herdr", "jq", "fd", "eza", "bash"]
 
 [source]
 command = [
-  '''{ bash "$HOME/.config/television/cable/herdr-panels.sh" all; fd -t d -d 1 . "$HOME/workplace" --format '[dir] {/}	{}	{/}'; bash "$HOME/.config/television/cable/tmux-knowledge.sh" sessions | head -1; bash "$HOME/.config/television/cable/tmux-knowledge.sh" projects; bash "$HOME/.config/television/cable/tmux-knowledge.sh" designs; bash "$HOME/.config/television/cable/tmux-knowledge.sh" specs; bash "$HOME/.config/television/cable/tmux-knowledge.sh" memory; bash "$HOME/.config/television/cable/tmux-knowledge.sh" memories; bash "$HOME/.config/television/cable/tmux-knowledge.sh" ops; bash "$HOME/.config/television/cable/tmux-knowledge.sh" others; }''',
-  '''bash "$HOME/.config/television/cable/herdr-panels.sh" workspaces''',
   '''bash "$HOME/.config/television/cable/herdr-panels.sh" agents''',
+  '''bash "$HOME/.config/television/cable/herdr-panels.sh" all''',
+  '''bash "$HOME/.config/television/cable/herdr-panels.sh" workspaces''',
   '''bash "$HOME/.config/television/cable/herdr-panels.sh" panes''',
   '''fd -t d -d 1 . "$HOME/workplace" --format '[dir] {/}	{}	{/}' ''',
-  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" sessions''',
-  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" projects''',
-  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" designs''',
-  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" specs''',
-  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" memory''',
-  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" memories''',
-  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" ops''',
-  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" others''',
 ]
-no_sort = false
+# Preserve the source's agent frequency ranking and All view's type grouping.
+no_sort = true
 frecency = true
 display = "{split:\t:0}"
 output = "{split:\t:1}"
@@ -37,6 +30,7 @@ fi
 
 [keybindings]
 enter = "actions:connect"
+ctrl-e = "cycle_sources"
 ctrl-d = ["actions:close_workspace", "reload_source"]
 
 [actions.connect]
@@ -49,16 +43,13 @@ elif printf '%s\n' '{split:\t:0}' | grep -q '^\[pane\]'; then
 elif printf '%s\n' '{split:\t:0}' | grep -q '^\[agent\]'; then
   herdr agent focus '{split:\t:2}' && herdr tab focus '{split:\t:3}'
 elif printf '%s\n' '{split:\t:0}' | grep -q '^\[dir\]'; then
-  directory=$(cd '{split:\t:1}' && pwd -P)
+  directory_label='{split:\t:2}'
   workspace_id=$(
     herdr api snapshot |
-      jq -r --arg dir "$directory" '
+      jq -r --arg label "$directory_label" '
         first(
-          .result.snapshot.panes[]
-          | select(
-              [.foreground_cwd, .cwd]
-              | any(. != null and (. == $dir or (. | startswith($dir + "/"))))
-            )
+          .result.snapshot.workspaces[]
+          | select(.label == $label)
           | .workspace_id
         ) // empty
       '

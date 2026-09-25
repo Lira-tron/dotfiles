@@ -6,38 +6,22 @@ chatgpt_base_url = "http://127.0.0.1:9"
 approvals_reviewer = "user"
 approval_policy = "on-request"
 sandbox_mode = "danger-full-access"
-model_reasoning_effort = "high"
-model = "openai.gpt-5.6-sol"
+model_reasoning_effort = "xhigh"
 model_context_window = 800000
 model_auto_compact_token_limit = 700000
+model = "openai.gpt-6-astra"
+plan_mode_reasoning_effort = "xhigh"
 
 [mcp_servers.builder-mcp]
 command = "builder-mcp"
 args = ["--include-tools", "*", "--exclude-tools", "SkillsTool,WorkspaceSearch,Delegate,ToolReactivationTool"]
-enabled_tools = [
-    "ApolloReadActions",
-    "GetPipelineDetails",
-    "GetPipelineHealth",
-    "GetPipelinesRelevantToUser",
-    "GetSasCampaigns",
-    "GetSasRisks",
-    "GetSoftwareRecommendation",
-    "InternalCodeSearch",
-    "InternalSearch",
-    "MechanicDescribeTool",
-    "MechanicDiscoverTools",
-    "OncallReadActions",
-    "ReadInternalWebsites",
-    "ReadRemoteTestRun",
-    "SearchAcronymCentral",
-    "SearchSoftwareRecommendations",
-    "TaskeiGetRoomResources",
-    "TaskeiGetRooms",
-    "TaskeiGetTask",
-    "TaskeiListTasks",
-    "TicketingReadActions",
-    "WorkspaceGitDetails",
-]
+enabled_tools = ["ApolloReadActions", "GetPipelineDetails", "GetPipelineHealth", "GetPipelinesRelevantToUser", "GetSasCampaigns", "GetSasRisks", "GetSoftwareRecommendation", "InternalCodeSearch", "InternalSearch", "MechanicDescribeTool", "MechanicDiscoverTools", "OncallReadActions", "QuipEditor", "ReadInternalWebsites", "ReadRemoteTestRun", "SearchAcronymCentral", "SearchSoftwareRecommendations", "TaskeiGetRoomResources", "TaskeiGetRooms", "TaskeiGetTask", "TaskeiListTasks", "TicketingReadActions", "TicketingWriteActions", "WorkspaceGitDetails"]
+
+[mcp_servers.builder-mcp.tools.QuipEditor]
+approval_mode = "prompt"
+
+[mcp_servers.builder-mcp.tools.TicketingWriteActions]
+approval_mode = "prompt"
 
 [mcp_servers.builder-mcp.env]
 TOOL_PERSONALIZATION_ENABLED = "false"
@@ -48,87 +32,190 @@ TOOL_PERSONALIZATION_TRAINING_DAYS = "0"
 [mcp_servers.aws-mcp]
 command = "uvx"
 args = ["mcp-proxy-for-aws@latest", "https://aws-mcp.us-east-1.api.aws/mcp"]
+enabled_tools = ["aws___get_presigned_url", "aws___get_regional_availability", "aws___get_tasks", "aws___list_regions", "aws___read_documentation", "aws___retrieve_skill", "aws___run_script", "aws___search_documentation"]
+
+[mcp_servers.aws-mcp.tools.aws___get_presigned_url]
+approval_mode = "prompt"
+
+[mcp_servers.aws-mcp.tools.aws___run_script]
+approval_mode = "prompt"
+
+[mcp_servers.slack-enterprise-mcp]
+command = "slack-enterprise-mcp"
+startup_timeout_sec = 30
+default_tools_approval_mode = "writes"
+
+[mcp_servers.pipelines-mcp]
+command = "pipelines-mcp"
+startup_timeout_sec = 30
+default_tools_approval_mode = "approve"
 enabled_tools = [
-    "aws___get_regional_availability",
-    "aws___get_tasks",
-    "aws___list_regions",
-    "aws___read_documentation",
-    "aws___recommend",
-    "aws___retrieve_skill",
-    "aws___search_documentation",
-    "aws___suggest_aws_commands",
+    "pipelines-get-structure",
+    "pipelines-get-overview",
+    "pipelines-get-events",
+    "pipelines-get-revisions",
+    "pipelines-get-inflight",
+    "pipelines-get-deployment",
+    "pipelines-list",
+    "pipelines-search",
+    "pipelines-get-latest-approved-revision",
+    "pipelines-get-latest-revision-of-target",
+    "pipelines-get-previous-revision",
+    "pipelines-get-revisions-for-targets-in-stage",
+    "pipelines-get-revision-for-target-event",
+    "pipelines-get-target-event",
+    "pipelines-get-workflow-revisions",
+    "pipelines-get-commit-metadata",
+    "pipelines-diff-target-revisions",
+    "pipelines-where-is-my-commit",
 ]
 
 [mcp_servers.diagram-tools-mcp]
 command = "diagram-tools-mcp"
-args = []
-enabled_tools = [
-    "diagram_decode",
-    "diagram_encode",
-    "diagram_get_image_url",
-]
+enabled_tools = ["diagram_decode", "diagram_encode", "diagram_get_image_url"]
 
-[mcp_servers.loaf_mcp]
-command = "loaf-mcp"
-enabled_tools = [
-    "get_security_context",
-    "get_security_update_context",
-]
+[mcp_servers.diagram-tools-mcp.tools.diagram_decode]
+approval_mode = "approve"
+
+[mcp_servers.diagram-tools-mcp.tools.diagram_encode]
+approval_mode = "approve"
+
+[mcp_servers.diagram-tools-mcp.tools.diagram_get_image_url]
+approval_mode = "approve"
 
 [mcp_servers.sage-plus-service-mcp]
 command = "sage-plus-service-mcp"
-enabled_tools = [
-    "AskQuestion",
-    "GetAnswer",
-    "GetDocumentStatus",
-    "SearchRelevantContentAsync",
-]
+enabled_tools = ["AskQuestion", "GetAnswer", "GetDocumentStatus", "SearchRelevantContentAsync"]
 
 [mcp_servers.tickety-mcp]
 command = "tickety-mcp"
-enabled_tools = [
-    "GetApplication",
-    "GetApplicationEvents",
-    "GetApplicationForIdentities",
-    "GetCommentTemplate",
-    "GetConfiguration",
-    "GetCTIDetailsByName",
-    "GetEmailAlias",
-    "GetEmailAliasByName",
-    "GetLocation",
-    "GetResolverGroup",
-    "GetResolverGroupByName",
-    "GetResolverGroupByNameWithOverrides",
-    "GetResolverGroupWithOverrides",
-    "GetTicket",
-    "GetTicketComments",
-    "GetTicketEngagement",
-    "GetTicketEngagements",
-    "GetTicketEvents",
-    "GetTicketHoldDetails",
-    "GetTicketingSystem",
-    "GetTicketingSystemAccessGrant",
-    "GetTicketPermissions",
-    "GetTicketSensitiveFinding",
-    "GetTicketSummary",
-    "ListCategories",
-    "ListItems",
-    "ListLocations",
-    "ListMemberOverridesByResolverGroupName",
-    "ListMembersByResolverGroupName",
-    "ListTicketAttachments",
-    "ListTicketingSystemAccessGrants",
-    "ListTickets",
-    "ListTypes",
-    "MatchRoutes",
-    "SearchApplications",
-    "SearchCommentTemplates",
-    "SearchCTIs",
-    "SearchEmailAliases",
-    "SearchResolverGroups",
-    "SearchRoutes",
-    "SearchTickets",
-]
+enabled_tools = ["GetApplication", "GetApplicationEvents", "GetApplicationForIdentities", "GetCommentTemplate", "GetConfiguration", "GetCTIDetailsByName", "GetEmailAlias", "GetEmailAliasByName", "GetLocation", "GetResolverGroup", "GetResolverGroupByName", "GetResolverGroupByNameWithOverrides", "GetResolverGroupWithOverrides", "GetTicket", "GetTicketComments", "GetTicketEngagement", "GetTicketEngagements", "GetTicketEvents", "GetTicketHoldDetails", "GetTicketingSystem", "GetTicketingSystemAccessGrant", "GetTicketPermissions", "GetTicketSensitiveFinding", "GetTicketSummary", "ListCategories", "ListItems", "ListLocations", "ListMemberOverridesByResolverGroupName", "ListMembersByResolverGroupName", "ListTicketAttachments", "ListTicketingSystemAccessGrants", "ListTickets", "ListTypes", "MatchRoutes", "SearchApplications", "SearchCommentTemplates", "SearchCTIs", "SearchEmailAliases", "SearchResolverGroups", "SearchRoutes", "SearchTickets"]
+
+[mcp_servers.local-chorus-mcp]
+command = "local-chorus-mcp"
+
+[mcp_servers.local-chorus-mcp.tools.search]
+approval_mode = "approve"
+
+[mcp_servers.leolens-mcp]
+command = "leolens-mcp"
+
+[mcp_servers.leolens-mcp.tools.ask_leolens]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp]
+command = "kuiper-confluence-mcp"
+
+[mcp_servers.kuiper-confluence-mcp.env]
+CONFLUENCE_BASE_URL = "https://wiki.kbobjects.com"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_attachments]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_content_history]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_page_ancestors]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_page_by_title]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_page_children]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_page_comments]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_page_content]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_page_ecc]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_page_labels]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_page_properties]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_page_storage]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_page_version]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_page_version_diff]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_pages_by_label]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_space]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_spaces]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_get_tables_from_page]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-confluence-mcp.tools.kuiper_confluence_search_pages]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-jira-mcp]
+command = "kuiper-jira-mcp"
+
+[mcp_servers.kuiper-jira-mcp.env]
+JIRA_BASE_URL = "https://jira.kbobjects.com"
+
+[mcp_servers.kuiper-jira-mcp.tools.get_jira_issue]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-jira-mcp.tools.get_jira_myself]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-jira-mcp.tools.get_jira_project]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-jira-mcp.tools.get_jira_watchers]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-jira-mcp.tools.get_multiple_jira_issues]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-jira-mcp.tools.get_remote_links]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-jira-mcp.tools.get_sprint_burndown]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-jira-mcp.tools.get_team_worklogs]
+approval_mode = "approve"
+
+[mcp_servers.dsai-mcp]
+command = "dsai-mcp"
+
+[mcp_servers.pippin-mcp]
+command = "pippin-mcp-server"
+
+[mcp_servers.pippin-mcp.tools.pippin_upload_artifact_image]
+approval_mode = "approve"
+
+[mcp_servers.pippin-mcp.tools.pippin_update_artifact]
+approval_mode = "approve"
+
+[mcp_servers.omnia-mcp]
+command = "omnia-mcp"
+
+[mcp_servers.spec-studio-mcp]
+command = "mcp-spec-studio-server"
+
+[mcp_servers.spec-studio-mcp.tools.get-revision-metadata]
+approval_mode = "approve"
+
+[mcp_servers.spec-studio-mcp.tools.get-spec-content]
+approval_mode = "approve"
 
 [shell_environment_policy]
 inherit = "all"
@@ -149,64 +236,101 @@ status_line = [
     "branch-changes",
 ]
 status_line_use_colors = true
+screen_reader_detection_done = true
 
 [otel]
-log_user_prompt = true
+log_user_prompt = false
 trace_exporter = "none"
 environment = "stable"
 exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/logs", protocol = "binary" } }
 metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/metrics", protocol = "binary" } }
 
 [model_providers.amazon-bedrock.aws]
-region = "us-east-2"
-profile = "codex-DO-NOT-DELETE"
+# region = "us-west-2"
+region = "us-west-2"
+# profile = "codex-DO-NOT-DELETE"
+profile = "dev"
 
-[projects."/workplace/limonoct/MagentaSDK1/src"]
-trust_level = "trusted"
 
-[projects."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim"]
-trust_level = "trusted"
-
-[projects."/workplace/limonoct/MagentaSDK1/src/MagentaSDK"]
-trust_level = "trusted"
-
-[projects."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles"]
-trust_level = "trusted"
-
-[projects."/local/home/limonoct/.claude/skills"]
-trust_level = "trusted"
-
-[projects."/workplace/limonoct/MagentaSDKSid/src/MagentaSDK"]
-trust_level = "trusted"
-
-[projects."/tmp"]
-trust_level = "trusted"
-
-[projects."/local/home/limonoct/.codex"]
+[projects."/workplace"]
 trust_level = "trusted"
 
 [projects."/local/home/limonoct"]
 trust_level = "trusted"
 
-[projects."/Volumes/workplace/LimonoctNvim/src/LimonoctNvim"]
+[projects."/tmp"]
+trust_level = "trusted"
+
+[projects."/Volumes/workplace"]
 trust_level = "trusted"
 
 [projects."/Users/limonoct"]
 trust_level = "trusted"
 
-[projects."/Volumes/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles"]
-trust_level = "trusted"
-
-[projects."/local/home/limonoct/.unison/backup/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles"]
-trust_level = "trusted"
-
-[projects."/workplace/limonoct/AGIControlPlaneService"]
-trust_level = "trusted"
-
-[projects."/local/home/limonoct/.config/herdr"]
+[projects."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim"]
 trust_level = "trusted"
 
 [projects."/workplace/limonoct/MagentaSDK/src/MagentaSDK"]
+trust_level = "trusted"
+
+[projects."/local/home/limonoct/.codex"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/MagentaSDKSid/src/MagentaSDK"]
+trust_level = "trusted"
+
+[projects."/local/home/limonoct/.aws"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/BotsBuildAiCapabilities/src/BotsBuildAiCapabilities"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/KuiperArtifactManagementServiceXrayReview/src/KuiperArtifactManagementServiceCDK"]
+trust_level = "trusted"
+
+[projects."/local/home/limonoct/KuiperBotsBuildOpsAgent/src/KuiperBotsBuildOpsAgent"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/KuiperArtifactManagementService/src/KuiperArtifactManagementServiceCDK"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/KuiperBotsBuildOpsAgent"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/StudioOncallAgentCore/src/StudioOncallAgentCore"]
+trust_level = "trusted"
+
+[projects."/local/home/limonoct/.config/television"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/AlexaStudioDevelopmentAgents/src/AlexaStudioAutoWiki"]
+trust_level = "trusted"
+
+[projects."/local/home/limonoct/.codex/skills"]
+trust_level = "trusted"
+
+[projects."/tmp/codex-simplify-research/fixture"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/KuiperArtifactManagementService"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/KuiperArtifactManagementService/src/KuiperArtifactManagementService"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/KuiperPipeline-Limonoct/src"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/KuiperArtifactManagementService/src/KuiperArtifactManagementServiceTests"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/AlexaSkillTestingService"]
 trust_level = "trusted"
 
 [marketplaces.aim]
@@ -220,9 +344,6 @@ enabled = true
 enabled = true
 
 [plugins."AtlasAICapabilities-all@aim"]
-enabled = true
-
-[plugins."MyCli-all@aim"]
 enabled = true
 
 [plugins."AmazonBuilderCoreAIAgents-pipeline-assistant@aim".mcp_servers.builder-mcp]
@@ -270,8 +391,11 @@ enabled_tools = [
     "SearchRelevantContentAsync",
 ]
 
-[plugins."MyCli-all@aim".mcp_servers.builder-mcp]
-enabled_tools = ["ReadInternalWebsites"]
+[plugins."MyCli-mycli@aim"]
+enabled = true
+
+[plugins."AmazonBuilderCoreAIAgents-runtime-configuration-assistant@aim"]
+enabled = true
 
 [hooks.state]
 

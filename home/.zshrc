@@ -115,6 +115,7 @@ alias gt='gotests -all -w -parallel '
 alias k='kubectl'
 
 alias checkPort='lsof -n -i'
+alias umlStop='pkill -e -INT -u "$UID" -f "^([^[:space:]]*/)?uml-viewer[[:space:]]+serve([[:space:]]|$)" || print -r -- "Nothing was killed"'
 
 alias lg='lazygit'
 alias gb='git branch'
@@ -277,7 +278,8 @@ function setJava () {
    echo "JAVA_HOME=$JAVA_HOME"
 }
 
-alias ed='claude --dangerously-skip-permissions --aws-profile dev'
+# alias ed='claude --dangerously-skip-permissions --aws-profile dev'
+alias ed='codex --aws-profile dev'
 alias edd='claude agents --dangerously-skip-permissions --aws-profile dev'
 alias edr='claude -r --dangerously-skip-permissions --aws-profile dev'
 alias edrev='claude --agent reviewer --dangerously-skip-permissions --aws-profile dev'

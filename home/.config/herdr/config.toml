@@ -211,10 +211,10 @@ command = "herdr-splits.resize-right"
 # sidebar_max_width = 36
 
 # Start with the sidebar collapsed. Changes take effect on the next launch.
-# sidebar_start_collapsed = false
+sidebar_start_collapsed = true
 
 # Collapsed sidebar presentation: "compact" keeps the narrow status rail, "hidden" uses zero width.
-# sidebar_collapsed_mode = "compact"
+sidebar_collapsed_mode = "compact"
 
 # Terminal width at or below which Herdr uses the mobile single-column layout.
 # Increase this for foldables, tablets, or wide phone terminals.
@@ -228,7 +228,7 @@ command = "herdr-splits.resize-right"
 # Automatically copy text selected with the mouse.
 # Set false to retain drag or double-click word selection until Ctrl+C,
 # or Cmd+C when the host forwards it, copies and clears it.
-# copy_on_select = true
+copy_on_select = false
 
 # Host cursor policy: "auto", "native", or "drawn".
 # "auto" draws Herdr's own cursor on native Windows builds and WSL to avoid ConPTY cursor flicker, and uses the native terminal cursor elsewhere.
