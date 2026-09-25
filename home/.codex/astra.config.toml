@@ -1,0 +1,6 @@
+model = "openai.gpt-6-astra"
+model_reasoning_effort = "high"
+
+[model_providers.amazon-bedrock.aws]
+region = "us-west-2"
+profile = "dev"
