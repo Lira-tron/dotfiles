@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Remember and revisit the pane left by a Herdr Television selection."""
+"""Share previous-pane history between Herdr tab shortcuts and Television."""
 
+import fcntl
 import hashlib
 import json
 import os
@@ -46,18 +47,44 @@ def remember(path, pane_id):
 def main():
     endpoint = Path(os.environ["HERDR_SOCKET_PATH"])
     history = history_path(endpoint)
-    current = request(endpoint, "session.snapshot")["snapshot"]["focused_pane_id"]
+    history.parent.mkdir(parents=True, exist_ok=True)
+    # Shell keybindings run concurrently; serialize their focus/history changes.
+    with history.with_suffix(".lock").open("w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        return navigate(endpoint, history, sys.argv[1])
 
-    if sys.argv[1] == "connect":
+
+def navigate(endpoint, history, action):
+    snapshot = request(endpoint, "session.snapshot")["snapshot"]
+    current = snapshot["focused_pane_id"]
+
+    if action in ("connect", "next-tab", "previous-tab"):
         previous = history.read_text() if history.exists() else None
         remember(history, current)
-        result = subprocess.run(["bash", "-c", sys.stdin.read()])
-        if result.returncode or request(endpoint, "session.snapshot")["snapshot"]["focused_pane_id"] == current:
+        try:
+            if action == "connect":
+                result = subprocess.run(["bash", "-c", sys.stdin.read()]).returncode
+            else:
+                tabs = sorted(
+                    (tab for tab in snapshot["tabs"]
+                     if tab["workspace_id"] == snapshot["focused_workspace_id"]),
+                    key=lambda tab: tab["number"],
+                )
+                if tabs:
+                    index = next(i for i, tab in enumerate(tabs)
+                                 if tab["tab_id"] == snapshot["focused_tab_id"])
+                    offset = 1 if action == "next-tab" else -1
+                    request(endpoint, "tab.focus", tab_id=tabs[(index + offset) % len(tabs)]["tab_id"])
+                result = 0
+            if result or request(endpoint, "session.snapshot")["snapshot"]["focused_pane_id"] == current:
+                remember(history, previous)
+            return result
+        except (OSError, RuntimeError):
             remember(history, previous)
-        return result.returncode
-    elif sys.argv[1] == "previous":
+            raise
+    elif action == "previous":
         if not history.exists():
-            raise RuntimeError("No previous pane yet; first switch panes with the picker.")
+            raise RuntimeError("No previous pane yet; first switch with the picker or Ctrl+A n/p.")
         previous = history.read_text()
         if previous != current:
             remember(history, current)
@@ -67,7 +94,7 @@ def main():
                 remember(history, previous)
                 raise
     else:
-        raise RuntimeError("Expected connect or previous.")
+        raise RuntimeError("Expected connect, next-tab, previous-tab, or previous.")
     return 0
 
 
