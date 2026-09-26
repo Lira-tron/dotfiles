@@ -68,6 +68,21 @@ return {
     { "<leader>gp", false },
     { "<leader>gP", false },
 
+    {
+      "<leader>gd",
+      function()
+        Snacks.picker.git_diff({ base = "origin", group = true })
+      end,
+      desc = "Git Diff (origin)",
+    },
+    {
+      "<leader>gD",
+      function()
+        Snacks.picker.git_diff()
+      end,
+      desc = "Git Diff (hunks)",
+    },
+
     -- Open git log in vertical view
     {
       "<leader>gl",

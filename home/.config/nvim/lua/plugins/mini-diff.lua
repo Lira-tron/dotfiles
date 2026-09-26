@@ -1,5 +1,21 @@
 return {
   "nvim-mini/mini.diff",
+  keys = {
+    {
+      "<leader>gn",
+      function()
+        require("mini.diff").goto_hunk("next")
+      end,
+      desc = "Next Diff Hunk",
+    },
+    {
+      "<leader>gp",
+      function()
+        require("mini.diff").goto_hunk("prev")
+      end,
+      desc = "Previous Diff Hunk",
+    },
+  },
   opts = function(_, opts)
     local diff = require("mini.diff")
     local requests = {}
