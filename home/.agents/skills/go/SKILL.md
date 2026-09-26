@@ -100,7 +100,7 @@ unit coverage, and CRAP before advancing. Simplify itself does not commit.
 
 Invoke `overall-code-review` with the same complete goal scope, current local
 code, and recorded comparison base. Follow that skill's `edrevn` workflow and
-require `.codex/reviews/OverallReview.md`.
+require `.ai/reviews/OverallReview.md`.
 
 Assess all action items, especially blockers, majors, and architectural
 feedback. Apply warranted fixes and retain a reason for every item left

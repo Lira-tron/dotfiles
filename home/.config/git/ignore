@@ -3,6 +3,10 @@
 *.iml
 *.ipr
 *.idea/
+*.ai/
+*.codex/
+*.claude/
+*.kiro/
 /build
 /coverage
 /tmp.DS_Store

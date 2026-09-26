@@ -1,6 +1,6 @@
 ---
 name: planner
-description: Use when the user asks to create a plan, create a spec, make a plan, write or draft a plan or specification, or plan a feature, even without naming the skill, or explicitly invokes $planner. Runs an interactive, research-driven planning workflow that turns rough ideas into approved requirements, research, design, and incremental implementation plans under .codex/specs.
+description: Use when the user asks to create a plan, create a spec, make a plan, write or draft a plan or specification, or plan a feature, even without naming the skill, or explicitly invokes $planner. Runs an interactive, research-driven planning workflow that turns rough ideas into approved requirements, research, design, and incremental implementation plans under .ai/specs.
 ---
 
 # Planner
@@ -35,7 +35,7 @@ For a new session, gather in one prompt:
 
 - `rough_idea` (required): direct text, a local file, or a URL.
 - `project_dir` (optional): default to
-  `.codex/specs/{feature_name}/` under the current workspace, where
+  `.ai/specs/{feature_name}/` under the current workspace, where
   `{feature_name}` is a concise kebab-case name derived from the idea.
 
 If `SESSION.md` already exists in the selected directory, read it and the

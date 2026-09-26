@@ -1,6 +1,6 @@
 ---
 name: overall-code-review
-description: Use when the user asks for an overall code review. Run edrevn on the supplied link or review scope, assess all findings including blockers, majors, and architectural feedback, apply warranted fixes, and record every disposition in .codex/reviews/OverallReview.md.
+description: Use when the user asks for an overall code review. Run edrevn on the supplied link or review scope, assess all findings including blockers, majors, and architectural feedback, apply warranted fixes, and record every disposition in .ai/reviews/OverallReview.md.
 ---
 
 # Overall code review
@@ -102,9 +102,9 @@ unavailable checks and partially implemented fixes explicitly.
 
 ## 4. Write the disposition report
 
-Create `<target directory>/.codex/reviews/OverallReview.md` for every run,
+Create `<target directory>/.ai/reviews/OverallReview.md` for every run,
 including runs with all findings fixed or no findings. Keep it inside the
-reviewed repository or package, not the user's global `.codex` directory.
+reviewed repository or package, not the user's global `.ai` directory.
 If the file already exists, append a dated run section and preserve earlier
 results.
 

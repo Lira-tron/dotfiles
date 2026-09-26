@@ -12,7 +12,7 @@ For a new planning session:
 1. Resolve the rough idea from direct text, a local file, or a URL.
 2. Derive a concise kebab-case feature name.
 3. Resolve `project_dir`, defaulting to
-   `.codex/specs/{feature_name}/` under the workspace.
+   `.ai/specs/{feature_name}/` under the workspace.
 4. Check whether the directory exists and contains files. Never overwrite a
    non-empty directory; ask the user for another path.
 5. Propose this initial structure:
