@@ -1,6 +1,79 @@
+local function toggle_upstream(vertical)
+  local original = vim.b.minidiff_original
+  if original then
+    if original.vertical then
+      vim.api.nvim_win_close(0, true)
+      return
+    end
+    if not vim.api.nvim_buf_is_valid(original.buf) then
+      vim.notify("Original buffer is no longer available", vim.log.levels.WARN)
+      return
+    end
+    vim.api.nvim_win_set_buf(0, original.buf)
+    vim.fn.winrestview(original.view)
+    return
+  end
+
+  local buf = vim.api.nvim_get_current_buf()
+  local data = require("mini.diff").get_buf_data(buf)
+  if not data or data.ref_text == nil then
+    vim.notify(
+      "No diff baseline available for this buffer",
+      vim.log.levels.WARN
+    )
+    return
+  end
+
+  local view = vim.fn.winsaveview()
+  local preview = vim.api.nvim_create_buf(false, true)
+  local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":t")
+  vim.api.nvim_buf_set_name(
+    preview,
+    "upstream://" .. preview .. "/" .. filename
+  )
+  vim.api.nvim_buf_set_lines(
+    preview,
+    0,
+    -1,
+    false,
+    vim.split(data.ref_text:gsub("\n$", ""), "\n", { plain = true })
+  )
+  vim.b[preview].minidiff_original =
+    { buf = buf, view = view, vertical = vertical }
+  vim.bo[preview].bufhidden = "wipe"
+  vim.bo[preview].filetype = vim.bo[buf].filetype
+  vim.bo[preview].modified = false
+  vim.bo[preview].modifiable = false
+  vim.bo[preview].readonly = true
+  vim.keymap.set("n", "q", "<leader>gU", {
+    buffer = preview,
+    remap = true,
+    desc = "Close Upstream Baseline",
+  })
+  if vertical then
+    vim.cmd.vsplit()
+  end
+  vim.api.nvim_win_set_buf(0, preview)
+  vim.fn.winrestview(view)
+end
+
 return {
   "nvim-mini/mini.diff",
   keys = {
+    {
+      "<leader>gu",
+      function()
+        toggle_upstream(true)
+      end,
+      desc = "Upstream Baseline File (Vertical Split)",
+    },
+    {
+      "<leader>gU",
+      function()
+        toggle_upstream(false)
+      end,
+      desc = "Toggle Upstream Baseline File",
+    },
     {
       "<leader>gn",
       function()
@@ -15,6 +88,8 @@ return {
       end,
       desc = "Previous Diff Hunk",
     },
+    { "gng", "<leader>gn", remap = true, desc = "Next Diff Hunk" },
+    { "gpg", "<leader>gp", remap = true, desc = "Previous Diff Hunk" },
   },
   opts = function(_, opts)
     local diff = require("mini.diff")
