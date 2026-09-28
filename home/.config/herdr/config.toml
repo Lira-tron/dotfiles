@@ -140,8 +140,8 @@ navigate_pane_right = "l"     # right arrow always focuses the pane to the right
 [[keys.command]]
 key = "prefix+w"
 type = "popup"
-# Distinguish Ctrl+M from Enter inside the Television popup.
-command = "printf '\\033[?1049h\\033[>1u'; exec tv herdr-workspaces"
+# Load the tool PATH and distinguish Ctrl+M from Enter inside Television.
+command = "zsh -c \"printf '\\033[?1049h\\033[>1u'; exec tv herdr-workspaces\""
 width = "80%"
 height = "80%"
 
