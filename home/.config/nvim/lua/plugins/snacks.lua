@@ -98,6 +98,14 @@ return {
       desc = "[G]it [L]og vertical view",
     },
 
+    {
+      "<leader>sN",
+      function()
+        Snacks.picker.grep({ cwd = vim.fn.expand("~/knowledge/notes") })
+      end,
+      desc = "Search Notes",
+    },
+
     -- -- Iterate through incomplete tasks in Snacks_picker
     {
       "<leader>sti",
