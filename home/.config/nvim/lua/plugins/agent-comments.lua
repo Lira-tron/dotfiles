@@ -1,69 +1,114 @@
-local function copy_comments()
-  local comments = require("nvim-agent-comments")
-  local review, err = require("nvim-agent-comments.cli").collect({
-    bufnr = 0,
-    store_name = comments.config.store_name,
-  })
-  if not review then
+local function copy_text(text)
+  if vim.fn.has("clipboard") == 1 then
+    return vim.fn.setreg("+", text) == 0
+  end
+  -- Use the existing terminal clipboard integration for remote sessions.
+  return vim.fn.OSCYank(text) == 1
+end
+
+local function copy_open_threads()
+  local thread_path = require("nvim-agent-comments.thread").target(0)
+  local root = require("nvim-agent-comments.root")
+  local project, err = root.find(thread_path or vim.api.nvim_buf_get_name(0))
+  if not project then
     return vim.notify(err, vim.log.levels.ERROR)
   end
-  if #review.comments == 0 then
-    return vim.notify("No project comments to copy")
-  end
-
-  local function git(args, fallback)
-    local command = { "git", "-C", review.root }
-    vim.list_extend(command, args)
-    local result = vim.system(command, { text = true }):wait()
-    return result.code == 0 and vim.trim(result.stdout) or fallback
-  end
-
-  local project = vim.fn.fnamemodify(review.root, ":t")
-  local branch = git({ "symbolic-ref", "--quiet", "--short", "HEAD" }, "HEAD")
-  local commit = git({ "rev-parse", "--short", "HEAD" }, "unavailable")
-  local lines = {
-    ("## Session: pkg/%s@%s/working-tree"):format(project, branch),
-    "",
-    "I reviewed your code and have the following comments. Please address them.",
-    "",
-    "Reviewing working tree (HEAD: " .. commit .. ")",
-    "",
-    "Comment types: COMMENT (General feedback), ISSUE (Problem to fix)",
-    "",
-    "## Local Neovim Comments",
-    "",
-  }
-  for index, comment in ipairs(review.comments) do
-    local first = comment.resolved_start_line or comment.start_line
-    local last = comment.resolved_end_line or comment.end_line
-    local location = comment.path .. ":" .. first
-    if last ~= first then
-      location = location .. "-" .. last
-    end
-    local stale = comment.status == "stale" and " [stale location]" or ""
-    local body = comment.body:gsub("\r\n", "\n"):gsub("\n", "\n   ")
-    lines[#lines + 1] = ("%d. **[%s]** `%s`%s - %s"):format(
-      index,
-      (comment.type or "comment"):upper(),
-      location,
-      stale,
-      body
+  local path, path_err = thread_path, nil
+  if not path then
+    path, path_err = root.store_path(
+      project, require("nvim-agent-comments").config.store_name
     )
-    lines[#lines + 1] = ""
   end
+  if not path then
+    return vim.notify(path_err, vim.log.levels.ERROR)
+  end
+  local saved, load_err = require("nvim-agent-comments.store").load(path)
+  if not saved then
+    return vim.notify(load_err, vim.log.levels.ERROR)
+  end
+  local references = {}
+  for _, comment in ipairs(saved.comments) do
+    if comment.state ~= "done" then
+      references[#references + 1] = comment.thread_number
+          and ("#%d"):format(comment.thread_number)
+        or ("ID `%s`"):format(comment.id)
+    end
+  end
+  if #references == 0 then
+    return vim.notify("No open threads to copy")
+  end
+  local text = ("Read Neovim comment threads %s in `%s`. ")
+    :format(table.concat(references, ", "), path)
+    .. "Read each thread's full conversation and address my latest unanswered "
+    .. "message in each. Skip DONE threads."
+  if not copy_text(text) then
+    return vim.notify("Could not copy thread references", vim.log.levels.ERROR)
+  end
+  vim.notify(("Copied %d open thread references for your agent"):format(#references))
+end
 
-  local text = table.concat(lines, "\n")
-  local copied
-  if vim.fn.has("clipboard") == 1 then
-    copied = vim.fn.setreg("+", text) == 0
-  else
-    -- Use the existing terminal clipboard integration for remote sessions.
-    copied = vim.fn.OSCYank(text) == 1
+local function copy_current_comment()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local thread_path, thread_id = require("nvim-agent-comments.thread").target(bufnr)
+  local root = require("nvim-agent-comments.root")
+  local project, err = root.find(thread_path or vim.api.nvim_buf_get_name(bufnr))
+  if not project then
+    return vim.notify(err, vim.log.levels.ERROR)
   end
-  if not copied then
-    return vim.notify("Could not copy project comments", vim.log.levels.ERROR)
+  local path, path_err = thread_path, nil
+  if not path then
+    path, path_err = root.store_path(
+      project, require("nvim-agent-comments").config.store_name
+    )
   end
-  vim.notify(("Copied %d comments for your agent"):format(#review.comments))
+  if not path then
+    return vim.notify(path_err, vim.log.levels.ERROR)
+  end
+  local saved, load_err = require("nvim-agent-comments.store").load(path)
+  if not saved then
+    return vim.notify(load_err, vim.log.levels.ERROR)
+  end
+  local relative = root.relative(project, vim.api.nvim_buf_get_name(bufnr))
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  local cursor = vim.api.nvim_win_get_cursor(0)[1]
+  local candidates = vim.tbl_filter(function(comment)
+    if thread_id then
+      return comment.id == thread_id
+    end
+    if comment.path ~= relative then
+      return false
+    end
+    local resolved = require("nvim-agent-comments.anchors").resolve(lines, comment)
+    return cursor >= (resolved.start_line or comment.start_line)
+      and cursor <= (resolved.end_line or comment.end_line)
+  end, saved.comments)
+  if #candidates == 0 then
+    return vim.notify("No comment on the current line")
+  end
+  local function copy(comment)
+    if not comment then
+      return
+    end
+    local reference = comment.thread_number
+        and ("thread #%d"):format(comment.thread_number)
+      or ("with ID `%s`"):format(comment.id)
+    local text = ("Read Neovim comment %s in `%s`. "
+      .. "Read the full conversation and address my latest unanswered message.")
+      :format(reference, path)
+    if not copy_text(text) then
+      return vim.notify("Could not copy thread reference", vim.log.levels.ERROR)
+    end
+    vim.notify("Copied thread reference for your agent")
+  end
+  if #candidates == 1 then
+    return copy(candidates[1])
+  end
+  vim.ui.select(candidates, {
+    prompt = "Copy comment thread",
+    format_item = function(comment)
+      return (comment.thread_number and ("#%d "):format(comment.thread_number) or "") .. comment.body
+    end,
+  }, copy)
 end
 
 local function clear_comments()
@@ -94,7 +139,9 @@ local function clear_comments()
   if answer ~= 1 then
     return
   end
-  local ok, save_err = store.save(path, store.empty(), signature)
+  local cleared = store.empty()
+  cleared.next_thread_number = saved.next_thread_number
+  local ok, save_err = store.save(path, cleared, signature)
   if not ok then
     return vim.notify(save_err, vim.log.levels.ERROR)
   end
@@ -107,7 +154,7 @@ local function clear_comments()
 end
 
 return {
-  "Lira-tron/nvim-agent-comments",
+  dir = "/workplace/limonoct/nvim-agent-comments",
   enabled = not vim.g.vscode,
   lazy = false,
   init = function()
@@ -121,14 +168,13 @@ return {
       local highlights = {
         CommentBackdrop = "Normal",
         CommentBoxActiveBorder = "FloatBorder",
-        CommentBoxStaleBorder = "DiagnosticError",
+        CommentBoxStaleBorder = "CommentBoxStale",
         CommentBoxText = "NormalFloat",
         CommentBoxTitle = "FloatTitle",
         CommentBoxHint = "Comment",
         CommentBoxSaved = "DiagnosticOk",
-        CommentBoxStale = "DiagnosticError",
-        CommentReplyBorder = "DiagnosticOk",
-        CommentReplyText = "DiagnosticOk",
+        CommentBoxDone = "DiagnosticOk",
+        CommentReplyBorder = "CommentReplyText",
         CommentPicker = "NormalFloat",
         CommentPickerSelected = "PmenuSel",
       }
@@ -158,9 +204,19 @@ return {
       desc = "Add agent comment to selection",
     },
     {
-      "<leader>ae",
+      "<leader>ai",
       "<cmd>NvimAgentCommentsEdit<cr>",
-      desc = "Edit agent comment",
+      desc = "Edit latest message or reply",
+    },
+    {
+      "<leader>ae",
+      "<cmd>NvimAgentCommentsThread<cr>",
+      desc = "Open agent comment thread",
+    },
+    {
+      "<leader>at",
+      "<cmd>NvimAgentCommentsDone<cr>",
+      desc = "Toggle thread DONE",
     },
     {
       "<leader>ad",
@@ -178,9 +234,24 @@ return {
       desc = "Search project comments",
     },
     {
-      "<leader>ah",
+      "<leader>aha",
       "<cmd>NvimAgentCommentsToggle<cr>",
-      desc = "Show/hide agent comments",
+      desc = "Show/hide all agent comments",
+    },
+    {
+      "<leader>ahg",
+      "<cmd>NvimAgentCommentsToggle done<cr>",
+      desc = "Show/hide DONE threads",
+    },
+    {
+      "<leader>ahi",
+      "<cmd>NvimAgentCommentsToggle issue<cr>",
+      desc = "Show/hide Issue threads",
+    },
+    {
+      "<leader>ahc",
+      "<cmd>NvimAgentCommentsToggle comment<cr>",
+      desc = "Show/hide Comment threads",
     },
     {
       "<leader>an",
@@ -204,9 +275,14 @@ return {
       desc = "Reanchor comment to selection",
     },
     {
-      "<leader>at",
-      copy_comments,
-      desc = "Copy comments for agent",
+      "<leader>ag",
+      copy_current_comment,
+      desc = "Copy thread reference for agent",
+    },
+    {
+      "<leader>aG",
+      copy_open_threads,
+      desc = "Copy all open thread references for agent",
     },
     {
       "<leader>aq",

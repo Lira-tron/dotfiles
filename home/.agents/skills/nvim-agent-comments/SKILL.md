@@ -1,28 +1,36 @@
 ---
 name: nvim-agent-comments
-description: Reads and acts on project-local Neovim agent comments and appends replies. Use when a repository contains .ai/comments/nvim-agent-comments.json, a legacy .nvim-agent-comments.json, or the user mentions Neovim agent comments.
+description: Reads and acts on Neovim agent comments, appends JSON replies, and returns full answers with relevant code excerpts in chat. Use for pasted thread references with a store path, mentions of Neovim agent comments, or repositories containing .ai/comments/nvim-agent-comments.json or .nvim-agent-comments.json.
 ---
 
 # nvim-agent-comments
 
-This plugin lets developers attach instructions to source lines from Neovim. Its store is `.ai/comments/nvim-agent-comments.json`, relative to the Git repository or worktree root.
+Read and update source-anchored conversation threads in `.ai/comments/nvim-agent-comments.json`, relative to the Git repository or worktree root.
 
 ## Start here
 
-Find the nearest Git repository or worktree root for the commented source file, then read `.ai/comments/nvim-agent-comments.json` there. Read this path directly: `.ai/` may be globally ignored by Git and omitted from ordinary file searches.
+When a pasted reference supplies a comment-store path, read that exact file and resolve source paths from its repository root. Otherwise, find the nearest Git repository or worktree root for the commented source file and read `.ai/comments/nvim-agent-comments.json` there. Read the path directly: `.ai/` may be globally ignored by Git and omitted from ordinary file searches.
 
-If the new store is absent, check the legacy `.nvim-agent-comments.json` at the same root. The updated plugin migrates a valid legacy store on project access. If both files exist, use the new store and leave the legacy file untouched; do not merge them automatically. If neither exists, the project has no saved agent comments. A custom `store_name` is a filename within `.ai/comments/`; the old default name `.nvim-agent-comments.json` is an alias for the new default.
+When discovering the default store, if the new store is absent, check the legacy `.nvim-agent-comments.json` at the same root. If both files exist, use the new store and leave the legacy file untouched; do not merge them automatically. If neither exists, the project has no saved agent comments.
 
 Do not edit comment text or anchors unless the user explicitly asks you to. You may append an agent reply after handling a comment, as described below.
 
-Handle each comment based on its body:
+Read each comment and its conversation before determining the requested action:
 
 - If it requests a change, make the change. Ask a focused question only when the answer affects the implementation.
 - If it asks a question, quote the relevant source and explain it in context.
 
-The top-level object contains `version` and `comments`. Each comment's `path` is relative to the repository root, not to `.ai/comments/`. To inspect one file, select records whose `path` exactly matches its project-relative POSIX path.
+The top-level object contains `version` (currently `1`) and `comments`. Each comment's `path` is relative to the repository root, not to `.ai/comments/`. To inspect one file, select records whose `path` exactly matches its project-relative POSIX path.
 
-Comments have an optional `type`: `comment` (general feedback) or `issue` (a problem to address). Older records without a type are Comments. Use the body to determine the requested action, and preserve the type when appending a reply.
+Comments have an optional `type`: `comment` (general feedback) or `issue` (a problem to address). The type applies to the entire thread; replies do not have separate types. Older records without a type are Comments. Preserve the type when appending a reply.
+
+Comments also have an optional `state`: `open` or `done`; absent means open. Skip DONE threads in a general sweep unless the user explicitly asks to revisit them. Preserve the state when appending an agent reply and do not mark threads DONE automatically. This completion state is separate from the anchor's `status` (`resolved` or `stale`).
+
+Comments may have a stable project-local `thread_number`. When the user names “thread #2”, select the comment whose `thread_number` is `2`; never substitute its array position. Preserve this number, the comment `id`, and the top-level `next_thread_number` counter. Include the thread number in your report when present, so the user can discuss threads one by one.
+
+For a pasted list such as “threads #2, #5”, handle only those threads in the supplied store. Match an explicit `ID` reference against `id`. If the instruction says “Skip DONE threads”, check their current state when reading the store and skip any that are now DONE.
+
+Read the whole conversation: `body` is the original user message, followed by `replies` in order. A reply with `role: "user"` is a follow-up; `role: "agent"` or an absent role is an agent answer. Act on the latest unanswered user message, using earlier messages as context. If several user messages follow the last agent answer, address them together. Do not repeat work already answered unless the user asks you to revisit it.
 
 ## Resolve an anchor
 
@@ -48,23 +56,23 @@ Use the resolved range only when the context has one match. If the file is missi
 For each resolved comment:
 
 1. Read the resolved range and nearby code.
-2. Interpret the body in that local context.
+2. Interpret the latest user message in the context of the source and the full conversation.
 3. Explain the attached source when the user asks a question.
 4. Answer the question or make the requested change.
 5. Run relevant tests after code changes.
-6. Append a reply to the comment's `replies` array summarizing the answer or completed change.
-7. Report the comment ID, resolved location, and result.
+6. Append the full answer or completed-change explanation to the comment's `replies` array.
+7. Return the full answer in the chat conversation, including the thread number, comment ID, resolved location, and relevant code excerpts.
 
-A reply is an object with a non-empty `body`, for example `{"body": "Added the timeout check and verified the retry tests."}`. Re-read the active store immediately before replying and locate the comment by its `id`; do not recreate a comment that the user deleted. Preserve the latest fields, other comments, and existing replies, and create `replies` as an array when it is absent.
+A reply is an object with `role: "agent"` and a non-empty `body`, for example `{"role": "agent", "body": "Added the timeout check and verified the retry tests."}`. Re-read the active store immediately before replying and locate the comment by its `id`; do not recreate a comment that the user deleted. Preserve the latest fields, thread numbers, counter, other comments, and all user and agent replies, and create `replies` as an array when it is absent.
 
-Do not run a command just to obtain a timestamp; `created_at` is optional and should only be included when the time is already available. Write the store atomically. If it changes while preparing the update, reload it and reapply the reply. Do not append a reply when the requested work failed or is incomplete. Neovim displays replies beneath the original comment and refreshes when the store changes.
+Do not run a command just to obtain a timestamp; `created_at` is optional and should only be included when the time is already available. Write the store atomically. If it changes while preparing the update, reload it and reapply the reply. Do not append a reply when the requested work failed or is incomplete.
 
-Give enough context that the user does not need to reopen the file. Leave out unrelated implementation details.
+After successfully handling a thread, saving the JSON reply and answering in chat are both required. Return the full explanation in chat so the user can keep discussing it; a confirmation that the JSON was updated or a short completion summary is insufficient. For code questions and changes, include a relevant fenced code snippet from the source you read, explain how it answers the latest user message, and report any validation performed. Give each requested thread its own answer, identified by thread number or ID. Leave out unrelated implementation details.
 
 Use this format for an explanation:
 
 ````markdown
-### `c_example` at `lua/example.lua:21`
+### Thread #2 (`c_example`) at `lua/example.lua:21`
 
 > Handle the timeout before retrying
 
@@ -78,25 +86,6 @@ local result = fetch_user(id)
 For a range, write the location as `path:start-end` and quote the relevant range. For a stale comment, show its original range and explain why resolution failed. Include stored context when it helps the user identify the intended code. Never invent a current location.
 
 Do not delete, edit, re-anchor, or mark a comment complete unless the user asks. Appending the reply described above is the only automatic store edit.
-
-## Neovim commands
-
-Use these commands when explaining how to manage comments:
-
-```text
-:NvimAgentCommentsAdd                 add at the current line
-:NvimAgentCommentsAddVisual           add over a visual line range
-:NvimAgentCommentsEdit                edit at the current line
-:NvimAgentCommentsDelete              delete at the current line
-:NvimAgentCommentsJump                jump to an anchor
-:NvimAgentCommentsList                browse, search, and delete with Snacks
-:NvimAgentCommentsSearch              open the simple comment search
-:NvimAgentCommentsToggle              show or hide comments without deleting
-:NvimAgentCommentsReanchor            attach a stale comment to a line or range
-:NvimAgentCommentsRetrieve [path]     emit project comments as JSON
-```
-
-Adding and editing open a Markdown editor below the source, starting at three rows and growing with text. New entries default to Comment; Ctrl-T switches between Comment and Issue in the editor. In Insert mode, Enter adds a newline and Escape enters Normal mode. Ctrl-S or Ctrl-Enter saves and closes; Normal-mode `q` or Enter also saves. Normal-mode Escape or Ctrl-C cancels without saving. The Snacks picker supports Ctrl-D to delete the highlighted comment and its replies. Saved comments render as virtual lines and do not alter source text.
 
 ## Failures
 
