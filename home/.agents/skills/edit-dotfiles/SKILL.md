@@ -5,7 +5,9 @@ description: Edit config files inside the stow-based dotfiles repo and re-stow t
 
 # Edit Dotfiles
 
-Modify config files in the user's stow-based dotfiles repo, then re-link them into `$HOME` with `make link`. Never touch `$HOME` directly.
+Modify config files in a task worktree of the user's stow-based dotfiles repo,
+then activate validated changes through the stable Stow sources and `make link`.
+Never edit the live `$HOME` copy.
 
 ## Why this skill exists
 
@@ -15,7 +17,8 @@ The user's home configs are managed by GNU Stow. Real files live in two source t
 - Gets silently overwritten by the next `make link --restow`.
 - Can corrupt the symlink graph if a real file replaces a symlink.
 
-The right move is always: edit the source, then re-stow.
+The paths below identify the stable canonical sources. Edit their counterparts
+in the selected task worktree, then integrate and re-stow.
 
 ## The mental flip: `~/.<anything>` → dotfiles source
 
@@ -30,7 +33,9 @@ readlink "$HOME/<rel>"
 # e.g. readlink ~/.zshrc → /workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles/home/.zshrc
 ```
 
-If `readlink` returns a path inside one of the two dotfiles repos, that's the file to edit. If it returns nothing (not a symlink), you've found one of two cases:
+If `readlink` returns a path inside one of the two dotfiles repos, map that file
+to the same repository-relative path in the task worktree. If it returns nothing
+(not a symlink), you've found one of two cases:
 
 - The file isn't tracked yet — create it under the appropriate `<repo>/home/<rel>` and stow will pick it up.
 - The file is a real file shadowing a tracked source — that's a stow conflict in waiting; handle it via the conflict workflow below.
@@ -62,11 +67,32 @@ Then, **even if the path looks obvious, ask which repo to edit.** The user expli
 
 If the file already exists in only one of the two, mention that and recommend that one. If it exists in both, that's a real problem — surface it before editing (one of them is dead weight or a mistake).
 
-### 2. Edit the source file
+### 2. Edit the source in a task worktree
 
-Use the client's normal file-editing tool against the chosen `<repo>/home/<path>`. Match the existing file's style. Don't refactor adjacent code or fix unrelated lint — surgical changes only.
+Read `~/.agents/skills/worktree/SKILL.md`. Create or reuse the task worktree for
+the selected repository, then edit its `home/<path>` counterpart. Match existing
+style and keep edits surgical.
 
-If the file doesn't exist yet, create it at `<repo>/home/<path>` (creating parent directories as needed).
+The internal parent belongs to a Brazil package; the public child is a separate
+Git repository ignored by that package. A Brazil worktree does not copy the
+public checkout. For a task spanning both, create a linked Git worktree of the
+public repository at the expected nested path, using its verified intended
+branch. Do not replace that nested path with a symlink to the primary checkout.
+
+Create new files in the selected task source tree.
+
+### 2.5. Validate and integrate before activation
+
+Validate in the task worktrees. With local commits and integration authorized,
+delegate scoped commits to the committer and fast-forward the stable canonical
+checkouts to those commits, preserving unrelated edits. If a stable branch has
+advanced incompatibly, reconcile in the task worktree rather than overwriting
+the stable checkout. Honor an explicit no-commit or no-activation restriction;
+present the validated changes for the missing authorization.
+
+Run `make link` only from the stable parent after integration. Live configuration
+links must continue to point at stable canonical sources, not disposable task
+worktrees. Keep worktrees and their evidence until integration is verified.
 
 ### 3. Run `make link`
 

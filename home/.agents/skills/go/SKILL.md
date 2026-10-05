@@ -12,8 +12,10 @@ workflow only when requested; an ordinary "go ahead" is not an invocation.
 Invocation authorizes scoped local fixes and checkpoint commits through the
 `commit` skill's named committer. Honor an explicit no-commit or review-only
 restriction: report the affected gates as blocked and do not run mutation on
-uncommitted code. Do not push, amend, rewrite history, create a CR, or use Git
-worktrees. This skill changes the local implementation; it does not deploy it.
+uncommitted code. Do not push, amend, rewrite history, or create a CR.
+Read `~/.agents/skills/worktree/SKILL.md` and reuse this task's worktree; transfer
+existing work through that procedure if necessary. This skill changes the local
+implementation; it does not deploy it.
 
 ## Establish scope and evidence
 
@@ -37,7 +39,9 @@ into the run directory after the tool and any required recovery finish.
 
 Verify that transient run artifacts are ignored by Git so writing evidence
 does not dirty a mutation checkpoint. If needed, exclude only this run directory
-locally through `.git/info/exclude`; honor repository policy for versioned reports.
+locally through the path returned by `git rev-parse --git-path info/exclude`;
+preserve existing entries because that file is shared across worktrees. Honor
+repository policy for versioned reports.
 
 Record the base revision, original goal, target paths, staged/unstaged changes,
 relevant untracked files, and renamed/deleted paths in the run directory.
