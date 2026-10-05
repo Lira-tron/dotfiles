@@ -25,12 +25,25 @@ with HEAD. Do not assume `origin/mainline`, guess `HEAD~1`, or substitute an
 older goal base. Ask for an explicit base if the upstream boundary cannot be
 established; never default to the whole repository.
 
+Create a run directory at `<owning repository or package>/.ai/go/<run-id>/`.
+Keep **every workflow-generated artifact under that target's `.ai/`**: scope
+snapshots, patches, helper scripts, build/test logs, coverage, CRAP/DRY results,
+Lean projects and checker evidence, mutation results and recovered backups,
+and the final summary. Use `.ai/reviews/` for the review reports in step 5.
+Pass absolute output paths and this requirement to every delegated skill,
+agent, and tool, overriding their default temporary or external evidence
+locations. If a tool requires a fixed output path, relocate completed artifacts
+into the run directory after the tool and any required recovery finish.
+
+Verify that transient run artifacts are ignored by Git so writing evidence
+does not dirty a mutation checkpoint. If needed, exclude only this run directory
+locally through `.git/info/exclude`; honor repository policy for versioned reports.
+
 Record the base revision, original goal, target paths, staged/unstaged changes,
-relevant untracked files, and renamed/deleted paths in a run directory outside
-the repository. Keep logs and proof artifacts there. **Keep the comparison base
-fixed across commits** and update the in-scope line/function inventory as fixes
-change the code. A clean working tree after a checkpoint does not mean the
-implementation disappeared.
+relevant untracked files, and renamed/deleted paths in the run directory.
+**Keep the comparison base fixed across commits** and update the in-scope
+line/function inventory as fixes change the code. A clean working tree after
+a checkpoint does not mean the implementation disappeared.
 
 Preserve unrelated work. Never commit or stash someone else's changes just to
 make the mutation precondition pass. Track each gate as `passed`, `failed`,
@@ -73,7 +86,7 @@ executable lines or weaken assertions to increase the score.
 
 Apply [the shared CRAP policy](../quality-gates/references/quality-gates.md)
 only to affected functions in the captured change scope: normally
-**CRAP <= 8**, with its documented single-question conditional exception.
+**CRAP <= 10**, with its documented single-question conditional exception.
 Preserve stricter project limits and report stricter tool failures separately.
 Improve tests or simplify the actual responsibility when this gate fails.
 Rerun the affected checks and `bbr` after edits before committing.
@@ -96,11 +109,16 @@ native reviewers; in Claude Code, invoke its `/simplify` capability.
 Apply useful improvements within scope. If code or tests change, rerun build,
 unit coverage, and CRAP before advancing. Simplify itself does not commit.
 
-## 5. Run overall code review
+## 5. Run code reviews
 
 Invoke `overall-code-review` with the same complete goal scope, current local
-code, and recorded comparison base. Follow that skill's `edrevn` workflow and
-require `.ai/reviews/OverallReview.md`.
+code, and recorded comparison base. Follow that skill's `edrevn` workflow,
+saving the complete raw review to `.ai/reviews/review.md` and the finding
+dispositions to `.ai/reviews/OverallReview.md` inside the reviewed target.
+
+If `~/.agents/skills/go/references/local-reviews.md` exists, read it and run its
+applicable reviews in this step. Resolve the path from the user's home directory;
+local integrations share this workflow's scope, evidence, and completion rules.
 
 Assess all action items, especially blockers, majors, and architectural
 feedback. Apply warranted fixes and retain a reason for every item left
@@ -122,7 +140,7 @@ current code. Supply the persisted goal scope explicitly; a default
 Follow the scope and checker procedure in the gate details.
 
 After review, DRY, or proof-driven fixes, rerun build, unit coverage, CRAP, and
-affected DRY/proof checks. Revisit simplify or overall review when new production
+affected DRY/proof checks. Revisit simplify or the step 5 reviews when new production
 changes materially alter their conclusions. Do not reuse evidence from older
 source or tests.
 
@@ -135,8 +153,8 @@ remain failed, unproved, or unsupported prevent an all-passed result.
 
 Before **every mutation execution**, require a valid recorded checkpoint and
 an empty `git status --porcelain=v1 --untracked-files=all`. Ignored build caches
-and external evidence do not need commits. Unrelated dirty work blocks mutation;
-do not include it in a commit without authorization.
+and ignored `.ai/` evidence do not need commits. Unrelated dirty work blocks
+mutation; do not include it in a commit without authorization.
 
 Before any tool invocation, including a scan, resolve and retire active recovery
 backups as described in the gate details. A clean Git status alone cannot detect
@@ -171,8 +189,8 @@ Use the committer for any remaining validated task changes. Finish with a clean
 task working tree and record the final checkpoint hashes. If unrelated work or
 an unavailable check prevents completion, report the exact limitation.
 
-Write a concise summary in the external run directory and report its path,
-the overall review path, commits, build result, changed-code coverage numerator
+Write a concise summary in `.ai/go/<run-id>/` and report its path,
+all review report paths, commits, build result, changed-code coverage numerator
 and denominator, maximum in-scope CRAP, DRY dispositions, mutation results, and
 Lean proof status/assumptions. List unresolved issues first. Claim completion
 only when all required gates pass or have a justified applicability exclusion;

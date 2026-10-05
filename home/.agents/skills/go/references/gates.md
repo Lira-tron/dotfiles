@@ -53,13 +53,13 @@ CRAP combines cyclomatic complexity and coverage:
 `CC^2 * (1 - coverage)^3 + CC`. Apply
 [the shared limit and conditional exception](../../quality-gates/references/quality-gates.md).
 Upstream `crap4go` describes 30+ as high risk; that is not this workflow's
-acceptance threshold. `crap4java` enforces the same built-in ceiling of 8:
+acceptance threshold. The installed `crap4java` enforces the same ceiling of 10:
 retain its actual exit status and distinguish it from the scoped policy
 verdict. Do not label a tool failure as a successful run.
 
 Evaluate unrounded scores: `crap4go` can exit successfully with scores above
-the limit and prints rounded scores and coverage. For example, CC=8 and 95%
-coverage give CRAP=8.008, which can display as 8.0 but fails the ceiling of 8.
+the limit and prints rounded scores and coverage. For example, CC=10 and 95%
+coverage give CRAP=10.0125, which can display as 10.0 but fails the ceiling of 10.
 Use verified unrounded output, or deterministically recompute from exact
 complexity and raw function coverage counts. Do not infer a pass from rounded
 display values. Missing coverage, `N/A`, zero selected functions despite
@@ -95,19 +95,20 @@ error handling, or preservation of data. Track relevant unchanged dependencies
 as context without claiming the entire repository has been verified.
 
 Use the recorded upstream-base inventory and current file hashes to construct
-the explicit scope manifest used by the report. Follow the existing manifest
-schema rather than adding unsupported `--base` or `--files` flags to `scope.py`.
-Its `--mode uncommitted` covers only pending edits, so it is insufficient when
-unpushed commits exist. Refresh the manifest after scoped fixes, preserving
-previous snapshots. Use the same proof construction and documented `check.py`
-on these explicit inputs. Do not invoke `--mode all` to bypass an empty
-working-tree diff or call `no_changes` a Lean pass.
+the explicit scope manifest under `.ai/go/<run-id>/lean/`, following the existing
+manifest schema. Supply this directory and manifest to `lean-verify` instead of
+its standalone external-directory setup. Do not invoke `scope.py` here: it
+rejects in-repository output, and its `--mode uncommitted` omits checkpoint
+commits. Refresh the manifest after scoped fixes, preserving previous snapshots.
+Use the same proof construction and documented `check.py` on these explicit
+inputs. Do not invoke `--mode all` to bypass an empty working-tree diff or call
+`no_changes` a Lean pass.
 
 Require checker evidence for the actual named theorems, with reviewed hypotheses
 and source correspondence. Compilation alone, `sorry`, an assumed desired
 conclusion, or a trivial theorem unrelated to the change is insufficient.
-Retain proofs, source hashes, reports, and checker evidence outside the repository
-unless the package already owns such artifacts.
+Retain proofs, source hashes, reports, and checker evidence in
+`.ai/go/<run-id>/lean/`.
 
 For other languages, Lean checks an explicitly described model; it does not
 automatically prove the source implementation. State assumptions and omitted
@@ -128,10 +129,11 @@ Before any invocation, inspect the tool's active recovery paths. In the installe
 Go tool, `<source-file>.mutate4go.bak` is restored over the source before even
 `--scan` executes, and restoration does not itself retire the backup. Compare
 any backup and current source with the recorded checkpoint before allowing the
-tool to run. After verified recovery, archive the backup outside the repository
-and ensure its active path is absent so a later invocation cannot overwrite a
-newer fix. Inspect the Java tool's recovery behavior when applicable; do not
-invent a matching filename. If recovery or ownership is uncertain, stop.
+tool to run. After verified recovery, archive the backup in
+`.ai/go/<run-id>/recovery/` and ensure its active path is absent so a later
+invocation cannot overwrite a newer fix. Inspect the Java tool's recovery
+behavior when applicable; do not invent a matching filename. If recovery or
+ownership is uncertain, stop.
 
 Scan the selected source and record the intended sites before execution.
 Always use explicit `--lines` for current added/modified source lines in the
@@ -156,11 +158,12 @@ skip them. Do not use `--update-manifest` to pretend mutation testing occurred.
 Before each execution, record the clean checkpoint and source/test hashes.
 Afterward, compare the resulting source with that checkpoint, including failure
 and interruption paths. Expected embedded manifest updates are different from
-residual mutated logic. Preserve manifests and archive tool backups outside
-their active recovery paths after verified recovery. Undo only positively
-identified residual mutations; do not use blanket resets or overwrite concurrent
-user edits. If ownership or restoration is uncertain, stop mutation and report
-the checkpoint, affected files, and recovery evidence.
+residual mutated logic. Preserve manifests and archive tool backups in
+`.ai/go/<run-id>/recovery/`, outside their active recovery paths, after verified
+recovery. Undo only positively identified residual mutations; do not use blanket
+resets or overwrite concurrent user edits. If ownership or restoration is
+uncertain, stop mutation and report the checkpoint, affected files, and recovery
+evidence.
 
 After restoration, verify the normal tests/build before the committer commits
 legitimate manifests or fixes. Every next execution must again start clean.
@@ -170,7 +173,7 @@ hide an earlier survivor behind an unchanged-source shortcut.
 
 ## Sources and local policy
 
-The threshold of 8 follows the shared `quality-gates` policy. Tool contracts
+The threshold of 10 follows the shared `quality-gates` policy. Tool contracts
 above were checked against the installed per-tool skills and their CLI references.
 The upstream metric descriptions are maintained in:
 

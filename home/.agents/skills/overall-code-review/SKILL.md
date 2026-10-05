@@ -28,7 +28,9 @@ existing local changes so findings can be reconciled with current code.
 
 ## 2. Run edrevn and read its report
 
-From the target repository or package, run:
+Create `<target directory>/.ai/reviews/` and keep all generated review artifacts
+there, including raw reports, command logs, and preserved reports from earlier
+runs. From the target repository or package, run:
 
 ```sh
 edrevn "<provide the actual link or explain what to review>"
@@ -37,8 +39,10 @@ edrevn "<provide the actual link or explain what to review>"
 Pass the actual scope as one argument, not the placeholder. Include these
 instructions in that same argument:
 
-> Save the complete review to `<absolute target directory>/review.md`. Review
-> only: do not edit source files, commit, or publish anything.
+> Save the complete review to
+> `<absolute target directory>/.ai/reviews/review.md`. Keep all generated review
+> artifacts under `<absolute target directory>/.ai/`. Review only: do not edit
+> source files, commit, or publish anything.
 
 `edrevn` may be an interactive zsh function rather than an executable. If a
 normal command shell cannot find it, use the user's configured interactive shell:
@@ -52,11 +56,12 @@ as data through the positional argument; never interpolate user input into the
 shell program. `pipefail` preserves failures from the review command's output
 pipeline. Do not substitute a different reviewer when `edrevn` is unavailable.
 
-Preserve an existing `review.md` before a new run. Wait for the command to
-finish, inspect its output, and verify that a nonempty report was produced by
-this invocation. The configured reviewer may normally save elsewhere; use an
-explicitly reported alternate path only after verifying it belongs to this run,
-and retain the complete report as the target directory's `review.md`.
+Preserve an existing `.ai/reviews/review.md` under `.ai/reviews/` before a new
+run. Wait for the command to finish, inspect its output, and verify that a
+nonempty report was produced by this invocation. The configured reviewer may
+normally save elsewhere; use an explicitly reported alternate path only after
+verifying it belongs to this run, and move the complete report to the target
+directory's `.ai/reviews/review.md`.
 
 Read the entire report, not just its overall summary or severity counts.
 If execution fails or produces no usable fresh report, investigate the error
@@ -108,9 +113,9 @@ reviewed repository or package, not the user's global `.ai` directory.
 If the file already exists, append a dated run section and preserve earlier
 results.
 
-Record the scope, reviewed revision/base, source `review.md` path, run outcome,
-and any mismatch with the current working tree. Include a row for every unique
-item, with repeated occurrences mapped to that row:
+Record the scope, reviewed revision/base, source `.ai/reviews/review.md` path,
+run outcome, and any mismatch with the current working tree. Include a row for
+every unique item, with repeated occurrences mapped to that row:
 
 ```markdown
 ## Overall code review — <date and time>

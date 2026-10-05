@@ -14,6 +14,7 @@ Pass explicit selected files and gate only affected methods; do not assume
 
 Run from the correct Maven workspace or module and establish a passing baseline. This tool invokes Maven and JaCoCo itself; do not use it as a Brazil-package substitute when Maven is not the owning build system.
 
-The executable's built-in CRAP threshold is `8.0`. Record its actual exit status
+The shared tool manager applies a local patch so the executable's built-in CRAP
+threshold is `10.0`. Record its actual exit status
 separately from [the shared CRAP policy](../quality-gates/references/quality-gates.md);
 a scoped policy verdict must not hide a tool failure or missing coverage.

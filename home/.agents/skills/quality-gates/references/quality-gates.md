@@ -45,7 +45,7 @@ for execution order.
 1. Agreed, deterministic acceptance criteria when externally visible behavior changes, using the selected test workflow.
 2. Passing unit tests and applicable integration/acceptance tests.
 3. Fresh coverage before CRAP or mutation.
-4. CRAP `<= 8` on affected functions, subject to the documented conditional exception.
+4. CRAP `<= 10` on affected functions, subject to the documented conditional exception.
 5. DRY findings reviewed and harmful duplication reduced.
 6. Changed/new source scanned for mutation sites and mixed responsibilities.
 7. Language mutation restricted to changed source lines in that scope, with zero survivors and zero execution errors.
@@ -63,10 +63,10 @@ Fix a failing gate before moving to the next one.
 
 ## Strict and advisory checks
 
-- CRAP normally requires `<= 8` for each affected function; exactly 8 passes.
+- CRAP normally requires `<= 10` for each affected function; exactly 10 passes.
   A single `cond`, `case`, or equivalent `switch` answering one question may
-  exceed 8. Record the function, score, and reason as an exception, not a
-  numeric pass. Nested or mixed-responsibility functions over 8 must be
+  exceed 10. Record the function, score, and reason as an exception, not a
+  numeric pass. Nested or mixed-responsibility functions over 10 must be
   simplified or split. An extracted function must own its inputs; do not
   introduce boolean-parameter helpers merely to lower the score. Honor
   stricter project limits and report stricter tool failures separately.

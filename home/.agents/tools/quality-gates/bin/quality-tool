@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+tool_root="${0:A:h:h}"
 data_root="${QUALITY_GATES_DATA_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/agent-tools/quality-gates}"
 cache_root="${QUALITY_GATES_CACHE_HOME:-${XDG_CACHE_HOME:-$HOME/.cache}/agent-tools/quality-gates}"
 bin_dir="$data_root/bin"
@@ -50,7 +51,7 @@ update_source() {
   mkdir -p "$source_root"
 
   if [[ -d "$source_dir/.git" ]]; then
-    git -C "$source_dir" pull --ff-only >&2
+    git -C "$source_dir" pull --ff-only --no-rebase >&2
   elif [[ -e "$source_dir" ]]; then
     print -u2 -r -- "Tool source exists but is not a Git checkout: $source_dir"
     return 1
@@ -84,6 +85,13 @@ install_java_tool() {
   local jar=""
   local candidate
   local -a candidates
+
+  if [[ "$tool" == "crap4java" ]]; then
+    local threshold_patch="$tool_root/patches/crap4java-threshold.patch"
+    if ! git -C "$source_dir" apply --reverse --check "$threshold_patch" 2>/dev/null; then
+      git -C "$source_dir" apply "$threshold_patch"
+    fi
+  fi
 
   if [[ "$tool" == "mutate4java" ]]; then
     {

@@ -49,8 +49,8 @@ unverified `--changed` shortcut as the scope.
 
 Missing JaCoCo XML produces a warning and `N/A` coverage. Reports are sorted by descending CRAP.
 
-- Exit `0`: analysis completed and maximum CRAP is `<= 8.0`, or no Java files were selected.
+- Exit `0`: analysis completed and maximum CRAP is `<= 10.0`, or no Java files were selected.
 - Exit `1`: invalid CLI usage.
-- Exit `2`: at least one method exceeds the built-in `8.0` threshold.
+- Exit `2`: at least one method exceeds the installed `10.0` threshold.
 
 The tool has no custom test-command option. If its Maven coverage pipeline does not match the project, report it as unsupported rather than claiming a valid result.

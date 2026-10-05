@@ -31,8 +31,14 @@ requests by returning findings without editing.
   as the common input.
 - Read the changed files and enough surrounding code to understand the contracts
   and existing conventions. Note the appropriate focused validation command.
+- When scoped files include `.smithy` or `smithy-build.json`, read
+  `~/.agents/skills/smithy/SKILL.md` and its referenced guide. Give every reviewer
+  the resolved guide path and require them to read it. If it is unavailable,
+  report Smithy-rule review as unverified and continue the supported cleanup.
+  Do not load Smithy guidance when those files are outside the review scope.
 - Prepare one common review input: repository root, target paths, full diff
-  (including relevant new-file contents), user focus, and applicable constraints.
+  (including relevant new-file contents), user focus, applicable constraints,
+  comparison base, and the paths of any language guides loaded for this scope.
   A shared temporary file is fine for a large diff. If the scope is too large to
   review fully, narrow it with the user instead of silently truncating it.
 
@@ -54,6 +60,10 @@ Give each reviewer the common input and exactly one lens from below. Tell each:
 > the observed issue, its practical cost, and a specific behavior-preserving
 > fix. Cite any existing helper you propose reusing and check that its semantics
 > match. Do not manufacture findings to fill a quota; an empty result is valid.
+> Read any supplied language guides and report violations in the scoped changes.
+> If a correction would change public or generated APIs, report it as requiring
+> a separate contract change instead of proposing it as behavior-preserving cleanup.
+> Include the revision/base and guide files you actually read in your result.
 
 The reviewers analyze the same stable version of the code. Do not modify the
 reviewed files until all four finish. If the user or another process changes
@@ -103,6 +113,8 @@ expression or turn the cleanup into an architectural rewrite.
 - Deduplicate overlapping findings and inspect each candidate against the
   current code. Skip false positives, subjective style changes, broad rewrites,
   and suggestions whose behavior preservation cannot be established.
+  Keep confirmed language-rule violations requiring contract changes in the
+  report as unapplied findings; do not silently discard or fix them as cleanup.
 - Apply the smallest useful fixes yourself. The coordinator is the sole writer;
   reviewers must never patch overlapping files.
 - Preserve observable behavior, public interfaces, error semantics, ordering,
@@ -122,6 +134,8 @@ Do not weaken tests to accommodate a refactor.
 Summarize the scope, improvements, and validation result. State any failed
 review or unavailable check. If no worthwhile changes remain, say so. Do not
 claim equivalence or performance gains that were not established.
+For Smithy scopes, include the reviewed revision/base, guide files actually read,
+and any unapplied model-rule findings.
 
 For the implementation rationale and source comparison, maintainers can read
 [the research notes](references/research.md); normal runs do not need them.
