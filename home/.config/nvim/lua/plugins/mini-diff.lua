@@ -1,4 +1,27 @@
-local function toggle_upstream(vertical)
+local function update_preview(preview, buf, data)
+  local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":t")
+  local label = vim.b[buf].minidiff_base_label or "Default"
+  vim.api.nvim_buf_set_name(
+    preview,
+    "diff-baseline://" .. preview .. "/" .. label .. "/" .. filename
+  )
+  vim.bo[preview].readonly = false
+  vim.bo[preview].modifiable = true
+  vim.api.nvim_buf_set_lines(
+    preview,
+    0,
+    -1,
+    false,
+    vim.split(data.ref_text:gsub("\n$", ""), "\n", { plain = true })
+  )
+  vim.bo[preview].modified = false
+  vim.bo[preview].modifiable = false
+  vim.bo[preview].readonly = true
+  vim.b[preview].minidiff_preview_ref = data.ref_text
+  vim.b[preview].minidiff_preview_label = label
+end
+
+local function toggle_baseline(vertical)
   local original = vim.b.minidiff_original
   if original then
     if original.vertical then
@@ -26,29 +49,15 @@ local function toggle_upstream(vertical)
 
   local view = vim.fn.winsaveview()
   local preview = vim.api.nvim_create_buf(false, true)
-  local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":t")
-  vim.api.nvim_buf_set_name(
-    preview,
-    "upstream://" .. preview .. "/" .. filename
-  )
-  vim.api.nvim_buf_set_lines(
-    preview,
-    0,
-    -1,
-    false,
-    vim.split(data.ref_text:gsub("\n$", ""), "\n", { plain = true })
-  )
+  update_preview(preview, buf, data)
   vim.b[preview].minidiff_original =
     { buf = buf, view = view, vertical = vertical }
   vim.bo[preview].bufhidden = "wipe"
   vim.bo[preview].filetype = vim.bo[buf].filetype
-  vim.bo[preview].modified = false
-  vim.bo[preview].modifiable = false
-  vim.bo[preview].readonly = true
   vim.keymap.set("n", "q", "<leader>gU", {
     buffer = preview,
     remap = true,
-    desc = "Close Upstream Baseline",
+    desc = "Close Diff Baseline",
   })
   if vertical then
     vim.cmd.vsplit()
@@ -61,18 +70,25 @@ return {
   "nvim-mini/mini.diff",
   keys = {
     {
+      "<leader>gC",
+      function()
+        require("config.diff-scope").pick()
+      end,
+      desc = "Choose Diff Scope",
+    },
+    {
       "<leader>gu",
       function()
-        toggle_upstream(true)
+        toggle_baseline(true)
       end,
-      desc = "Upstream Baseline File (Vertical Split)",
+      desc = "Diff Baseline File (Vertical Split)",
     },
     {
       "<leader>gU",
       function()
-        toggle_upstream(false)
+        toggle_baseline(false)
       end,
-      desc = "Toggle Upstream Baseline File",
+      desc = "Toggle Diff Baseline File",
     },
     {
       "<leader>gn",
@@ -92,108 +108,34 @@ return {
     { "gpg", "<leader>gp", remap = true, desc = "Previous Diff Hunk" },
   },
   opts = function(_, opts)
-    local diff = require("mini.diff")
-    local requests = {}
-
-    local function refresh(buf)
-      if not vim.api.nvim_buf_is_valid(buf) then
-        return
-      end
-
-      local path = vim.api.nvim_buf_get_name(buf)
-      path = vim.uv.fs_realpath(path) or path
-      local cwd = vim.fn.fnamemodify(path, ":h")
-      local filename = vim.fn.fnamemodify(path, ":t")
-      local request = {}
-      requests[buf] = request
-
-      local function git(args, callback)
-        local command = { "git", "-C", cwd }
-        vim.list_extend(command, args)
-        vim.system(
-          command,
-          { text = true },
-          vim.schedule_wrap(function(result)
-            if requests[buf] == request and vim.api.nvim_buf_is_valid(buf) then
-              callback(result)
-            end
-          end)
-        )
-      end
-
-      local function read_reference(ref)
-        git(
-          { "ls-tree", "--format=%(objectname)", ref, "--", filename },
-          function(tree)
-            if tree.code ~= 0 then
-              diff.disable(buf)
-              return
-            end
-            local blob = vim.trim(tree.stdout)
-            if blob == "" then
-              -- Files added since the reference are entirely new.
-              diff.set_ref_text(buf, "")
-              return
-            end
-            git({ "show", blob }, function(content)
-              if content.code ~= 0 then
-                diff.disable(buf)
-                return
-              end
-              diff.set_ref_text(buf, content.stdout)
-            end)
-          end
-        )
-      end
-
-      git({ "check-ignore", "--quiet", "--", filename }, function(ignored)
-        if ignored.code ~= 1 then
-          diff.disable(buf)
-          return
-        end
-        git({ "merge-base", "HEAD", "@{upstream}" }, function(base)
-          -- The common ancestor excludes incoming upstream-only changes.
-          read_reference(base.code == 0 and vim.trim(base.stdout) or "HEAD")
-        end)
-      end)
-    end
-
-    opts.source = {
-      name = "git_upstream",
-      attach = function(buf)
-        if vim.fn.executable("git") == 0 then
-          return false
-        end
-        refresh(buf)
-      end,
-      detach = function(buf)
-        requests[buf] = nil
-      end,
-    }
+    opts.source = require("config.diff-scope").source()
     -- These hunks include commits: keep staging/resetting in the Git client.
     opts.mappings = vim.tbl_extend("force", opts.mappings or {}, {
       apply = "",
       reset = "",
     })
 
-    local group =
-      vim.api.nvim_create_augroup("MiniDiffUpstream", { clear = true })
-    vim.api.nvim_create_autocmd(
-      { "BufEnter", "BufWritePost", "FileChangedShellPost" },
-      {
-        group = group,
-        callback = function(event)
-          if requests[event.buf] then
-            refresh(event.buf)
+    vim.api.nvim_create_autocmd("User", {
+      group = vim.api.nvim_create_augroup("MiniDiffPreview", { clear = true }),
+      pattern = "MiniDiffUpdated",
+      callback = function(event)
+        local data = require("mini.diff").get_buf_data(event.buf)
+        if not data or data.ref_text == nil then
+          return
+        end
+        for _, preview in ipairs(vim.api.nvim_list_bufs()) do
+          local original = vim.b[preview].minidiff_original
+          if
+            original
+            and original.buf == event.buf
+            and (
+              vim.b[preview].minidiff_preview_ref ~= data.ref_text
+              or vim.b[preview].minidiff_preview_label
+                ~= vim.b[event.buf].minidiff_base_label
+            )
+          then
+            update_preview(preview, event.buf, data)
           end
-        end,
-      }
-    )
-    vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
-      group = group,
-      callback = function()
-        for buf in pairs(requests) do
-          refresh(buf)
         end
       end,
     })

@@ -71,16 +71,16 @@ return {
     {
       "<leader>gd",
       function()
-        Snacks.picker.git_diff({ base = "origin", group = true })
+        require("config.diff-scope").git_diff(true)
       end,
-      desc = "Git Diff (origin)",
+      desc = "Git Diff (scope, files)",
     },
     {
       "<leader>gD",
       function()
-        Snacks.picker.git_diff()
+        require("config.diff-scope").git_diff(false)
       end,
-      desc = "Git Diff (hunks)",
+      desc = "Git Diff (scope, hunks)",
     },
 
     -- Open git log in vertical view
@@ -101,7 +101,7 @@ return {
     {
       "<leader>sN",
       function()
-        Snacks.picker.grep({ cwd = vim.fn.expand("~/knowledge/notes") })
+        Snacks.picker.grep({ title = "Grep Notes", cwd = vim.fn.expand("~/knowledge/notes") })
       end,
       desc = "Search Notes",
     },

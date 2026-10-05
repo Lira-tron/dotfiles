@@ -219,7 +219,7 @@ return {
       desc = "Toggle thread DONE",
     },
     {
-      "<leader>ad",
+      "<leader>aD",
       "<cmd>NvimAgentCommentsDelete<cr>",
       desc = "Delete agent comment",
     },

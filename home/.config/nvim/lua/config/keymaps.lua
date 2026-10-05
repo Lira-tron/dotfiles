@@ -5,8 +5,24 @@
 vim.keymap.set({ "n", "v" }, "gn", "<nop>")
 vim.keymap.set({ "n", "v" }, "gN", "<nop>")
 
-vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "C-d keep cursor in middle" })
-vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "C-u keep cursor in middle" })
+for _, direction in ipairs({ "d", "u" }) do
+  local key = "<C-" .. direction .. ">"
+  vim.keymap.set("n", key, function()
+    local before = vim.api.nvim_win_get_cursor(0)
+    local count = vim.v.count > 0 and tostring(vim.v.count) or ""
+    vim.cmd.normal({ args = { count .. vim.keycode(key) }, bang = true })
+
+    -- Virtual rows count toward the source line immediately below them.
+    local row = before[1] - (direction == "u" and 1 or 0)
+    if vim.deep_equal(before, vim.api.nvim_win_get_cursor(0))
+      and row < vim.api.nvim_buf_line_count(0)
+      and vim.api.nvim_win_text_height(0, { start_row = row, end_row = row }).fill > 0
+    then
+      vim.cmd.normal({ args = { direction == "d" and "j" or "k" }, bang = true })
+    end
+    vim.cmd.normal({ args = { "zz" }, bang = true })
+  end, { desc = "C-" .. direction .. " keep cursor in middle" })
+end
 vim.keymap.set("n", "n", "nzzzv", { desc = "search keep cursor in middle" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "search keep cursor in middle" })
 
