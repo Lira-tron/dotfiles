@@ -1,7 +1,6 @@
 model_provider = "amazon-bedrock"
 forced_login_method = "api"
 check_for_update_on_startup = false
-commit_attribution = ""
 chatgpt_base_url = "http://127.0.0.1:9"
 approvals_reviewer = "user"
 approval_policy = "on-request"
@@ -29,16 +28,9 @@ TOOL_PERSONALIZATION_MIN_EXECUTIONS = "0"
 TOOL_PERSONALIZATION_ROLLOUT_PERCENTAGE = "100"
 TOOL_PERSONALIZATION_TRAINING_DAYS = "0"
 
-[mcp_servers.aws-mcp]
-command = "uvx"
-args = ["mcp-proxy-for-aws@latest", "https://aws-mcp.us-east-1.api.aws/mcp"]
-enabled_tools = ["aws___get_presigned_url", "aws___get_regional_availability", "aws___get_tasks", "aws___list_regions", "aws___read_documentation", "aws___retrieve_skill", "aws___run_script", "aws___search_documentation"]
-
-[mcp_servers.aws-mcp.tools.aws___get_presigned_url]
-approval_mode = "prompt"
-
-[mcp_servers.aws-mcp.tools.aws___run_script]
-approval_mode = "prompt"
+[mcp_servers.aws-knowledge-mcp-server]
+url = "https://knowledge-mcp.global.api.aws"
+enabled_tools = ["aws___get_regional_availability", "aws___list_regions", "aws___read_documentation", "aws___retrieve_skill", "aws___search_documentation"]
 
 [mcp_servers.slack-enterprise-mcp]
 command = "slack-enterprise-mcp"
@@ -336,9 +328,19 @@ trust_level = "trusted"
 [projects."/workplace/limonoct/nvim-agent-comments"]
 trust_level = "trusted"
 
+[projects."/workplace/limonoct/KuiperArtifactManagementService/src/KuiperArtifactManagementServiceModel"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/KuiperArtifactManagementService/src/KuiperPipelineAutomations"]
+trust_level = "trusted"
+
 [marketplaces.aim]
 source_type = "local"
 source = "/local/home/limonoct/.aim/plugins/codex"
+
+[marketplaces.gopls-mcp-marketplace]
+source_type = "git"
+source = "https://github.com/xieyuschen/gopls-mcp.git"
 
 [plugins."AmazonBuilderCoreAIAgents-core@aim"]
 enabled = true
@@ -400,6 +402,9 @@ enabled = true
 [plugins."AmazonBuilderCoreAIAgents-runtime-configuration-assistant@aim"]
 enabled = true
 
+[plugins."gopls-mcp@gopls-mcp-marketplace"]
+enabled = true
+
 [hooks.state]
 
 [hooks.state."/home/limonoct/.codex/hooks.json:stop:0:1"]
@@ -425,6 +430,10 @@ trusted_hash = "sha256:c28b3fbced3257ee83ac785cc99e9dbf37efe560b3d1181aa9cddb286
 [hooks.state."/home/limonoct/.codex/hooks.json:session_start:0:1"]
 trusted_hash = "sha256:9bc3ca47a4ef38ae6208ad97db3f1abdc3ae076398e5a344de87ac866f25e562"
 
+[hooks.state."gopls-mcp@gopls-mcp-marketplace:hooks/codex-hooks.json:session_start:0:0"]
+trusted_hash = "sha256:7b2905439f10f0d7fd5ffea3cfe9b2d9d36d77308da43065922d1e1f34b002c1"
+
 [features]
 hooks = true
 memories = true
+guardian_reuse_parent_compaction = false
