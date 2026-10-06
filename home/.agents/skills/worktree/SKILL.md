@@ -40,6 +40,11 @@ and branches intact; do not automatically stash, reset, or commit them.
 
 ## Create the worktree
 
+Name new worktrees and their branches with two short, descriptive words joined
+by a hyphen, such as `fix-index` or `ams-publish`. Use lowercase and the same
+name for a Brazil workspace. Keep review/ticket IDs, usernames, dates, and
+hashes in `.ai/` records rather than in names.
+
 When the Git root is a Brazil package root, read
 `~/.agents/skills/worktree/references/brazil.md` and use that procedure. A
 separately versioned nested repository is its own Git target. If the Brazil
@@ -57,7 +62,8 @@ intended upstream if creation did not establish it; quality gates must not
 guess a base because the task branch has no upstream.
 
 Check for an existing task path and branch before creating anything. Reuse the
-matching task; resolve a conflicting name without resetting an existing
+matching task. If the name belongs to a different task, append the smallest
+available numeric suffix, such as `fix-index-2`, without resetting an existing
 branch. Initialize only required submodules in the new checkout.
 
 ## Run and finish the task
