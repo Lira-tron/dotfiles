@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Emit Herdr workspace, directory, pane, and agent rows for the herdr-workspaces tv channel.
+# Emit workspace, directory, pane, agent, and worktree rows for the Herdr picker.
 # Format per line: <display>\t<path-or-id>\t<target>\t<context>
 # Context is the preview pane for workspaces and the tab ID for panes/agents.
 set -uo pipefail
@@ -91,3 +91,7 @@ herdr api snapshot 2>/dev/null |
       error("unknown mode: \($mode)")
     end
   '
+
+if [[ $MODE == all ]]; then
+  python3 "$HOME/.config/television/cable/worktrees.py" all
+fi

@@ -1,6 +1,6 @@
 [metadata]
 name = "herdr-workspaces"
-description = "Browse Herdr workspaces, agents, panes, and directories"
+description = "Browse Herdr workspaces, agents, panes, directories, and Git worktrees"
 requirements = ["herdr", "jq", "fd", "eza", "bash", "python3"]
 
 [source]
@@ -10,6 +10,7 @@ command = [
   '''bash "$HOME/.config/television/cable/herdr-panels.sh" workspaces''',
   '''bash "$HOME/.config/television/cable/herdr-panels.sh" panes''',
   '''fd -t d -d 1 . "$HOME/workplace" --format '[dir] {/}	{}	{/}' ''',
+  '''python3 "$HOME/.config/television/cable/worktrees.py" all''',
 ]
 # Preserve the source's agent frequency ranking and All view's type grouping.
 no_sort = true
@@ -19,7 +20,9 @@ output = "{split:\t:1}"
 
 [preview]
 command = '''
-if printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
+  python3 "$HOME/.config/television/cable/worktrees.py" preview '{split:\t:1}'
+elif printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
   herdr pane read '{split:\t:3}' --source recent --lines 200 --ansi
 elif printf '%s\n' '{split:\t:0}' | grep -qE '^\[(pane|agent)\]'; then
   herdr pane read '{split:\t:2}' --source recent --lines 200 --ansi
@@ -38,7 +41,9 @@ ctrl-m = "actions:previous_pane"
 description = "Focus a workspace, pane, or agent, or create a workspace from a directory"
 command = '''
 python3 "$HOME/.config/television/cable/herdr-previous-pane.py" connect <<'HERDR_CONNECT'
-if printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
+  python3 "$HOME/.config/television/cable/worktrees.py" open '{split:\t:1}'
+elif printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
   herdr workspace focus '{split:\t:2}'
 elif printf '%s\n' '{split:\t:0}' | grep -q '^\[pane\]'; then
   herdr pane zoom '{split:\t:2}' --on && herdr tab focus '{split:\t:3}'

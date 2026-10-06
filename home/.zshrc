@@ -28,6 +28,7 @@ source $BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $BREW_PREFIX/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 eval "$(tv init zsh)"
+source "$HOME/.config/zsh/tvw.zsh"
 # source <(fzf --zsh)
 eval "$(mise activate zsh)"
 

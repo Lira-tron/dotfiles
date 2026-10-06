@@ -146,6 +146,13 @@ width = "80%"
 height = "80%"
 
 [[keys.command]]
+key = "prefix+t"
+type = "popup"
+command = "zsh -c \"source \\\"\\$HOME/.config/zsh/tvw.zsh\\\"; tvw\""
+width = "80%"
+height = "80%"
+
+[[keys.command]]
 key = "prefix+n"
 type = "shell"
 command = "python3 \"$HOME/.config/television/cable/herdr-previous-pane.py\" next-tab"
