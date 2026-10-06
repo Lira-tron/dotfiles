@@ -1,13 +1,14 @@
 ---
 name: worktree
-description: Create or reuse a task worktree before implementation, builds, tests, reviews, or commits. Use when starting or continuing coding work, creating a branch, or moving existing edits into an isolated checkout.
+description: Select the task checkout before implementation, builds, tests, reviews, or commits. Use when starting or continuing coding work, creating a branch, or moving existing edits into an isolated checkout.
 ---
 
-# Work in a task worktree
+# Select the task checkout
 
-All implementation work uses a task worktree. Read-only discovery and primary
-checkout maintenance may run outside it. Creating a worktree does not authorize
-commits, publication, deployment, or deletion beyond the user's task.
+Implementation uses a task worktree unless Codex's checkout selection below
+keeps the current branch. Read-only discovery and primary checkout maintenance
+may run outside a task worktree. Creating a worktree does not authorize commits,
+publication, deployment, or deletion beyond the user's task.
 
 ## Select the task and repository
 
@@ -15,12 +16,21 @@ commits, publication, deployment, or deletion beyond the user's task.
    first resolve the canonical source using `edit-dotfiles`.
 2. Inspect `git worktree list --porcelain`, the current branch, and Git status.
    Reuse the worktree already holding this task, including follow-up fixes,
-   reviews, and commits. Create a sibling for a different implementation task.
+   reviews, and commits.
    Do not create another worktree for each workflow phase or committer.
-3. Record the primary checkout, task worktree, intended integration branch,
-   starting commit, and upstream for each repository in the task's `.ai/`.
-   Pass absolute task paths to tools and delegated agents; a shell `cd` does
-   not change every tool's working directory.
+3. **Codex:** When no task worktree is being reused and the current checkout is
+   a regular Git checkout on a branch, ask whether to create a task worktree or
+   continue on that branch. Wait for the answer. Honor a choice already made
+   for this task. This rule takes precedence over automatic worktree requirements
+   in other skills. Other clients create a sibling worktree for a different
+   implementation task.
+4. Record the primary checkout, selected checkout, user's choice, intended
+   integration branch, starting commit, and upstream for each repository in the
+   task's `.ai/`. Pass absolute task paths and the choice to tools and delegated
+   agents; a shell `cd` does not change every tool's working directory.
+
+When continuing on the current branch, skip starting-point selection, transfer,
+and creation; continue at **Run and finish the task**.
 
 If the existing task has edits outside a worktree, read
 [transfer.md](references/transfer.md) before moving it. A new checkout alone
@@ -69,7 +79,7 @@ branch. Initialize only required submodules in the new checkout.
 ## Run and finish the task
 
 Perform task edits, builds, tests, reviews, commits, and CR/PR commands in the
-selected worktree. Keep `.ai/` evidence inside its owning repository. Invoke
+selected checkout. Keep `.ai/` evidence inside its owning repository. Invoke
 the user's quality workflows only when requested; worktree setup does not
 implicitly invoke `/go`. The committer and read-only reviewers use this task's
 paths. Independent concurrent implementations use separate worktrees.
@@ -81,8 +91,9 @@ shared with sibling worktrees; preserve existing entries.
 Worktrees isolate local files, not AWS accounts, databases, ports, or other
 external resources. Coordinate access to shared development environments.
 
-Keep the worktree available for revisions. Before authorized cleanup, fetch,
-verify where every task commit is retained, and preserve useful ignored `.ai/`
-records. A clean status alone does not establish that removal is safe. Use the
-owning worktree tool without force; do not delete worktrees automatically when
-a subagent or session exits. Report the worktree path with the result.
+When using a worktree, keep it available for revisions. Before authorized
+cleanup, fetch, verify where every task commit is retained, and preserve useful
+ignored `.ai/` records. A clean status alone does not establish that removal is
+safe. Use the owning worktree tool without force; do not delete worktrees
+automatically when a subagent or session exits. Report the selected checkout
+path with the result.
