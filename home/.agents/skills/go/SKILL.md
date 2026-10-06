@@ -1,6 +1,6 @@
 ---
 name: go
-description: Finalize an implementation when the user invokes /go or $go. Build with bbr, enforce new-code unit coverage and CRAP, commit, simplify, run Codex /review and overall code review, assess DRY, verify properties with Lean 4, and run mutation testing only from committed checkpoints. Not a trigger for Go-language questions or ordinary approval.
+description: Finalize an implementation when the user invokes /go or $go. Build with bbr, enforce new-code unit coverage and CRAP, commit, simplify, run reviewers in parallel, resolve their findings, assess DRY, verify properties with Lean 4, and run mutation testing only from committed checkpoints. Not a trigger for Go-language questions or ordinary approval.
 ---
 
 # Go — finish the implementation
@@ -31,7 +31,8 @@ Create a run directory at `<owning repository or package>/.ai/go/<run-id>/`.
 Keep **every workflow-generated artifact under that target's `.ai/`**: scope
 snapshots, patches, helper scripts, build/test logs, coverage, CRAP/DRY results,
 Lean projects and checker evidence, mutation results and recovered backups,
-and the final summary. Use `.ai/reviews/` for the review reports in step 5.
+and the final summary. Use `.ai/reviews/` for all review reports, logs, and finding
+dispositions in steps 5 and 6, including the record of changes made after review.
 Pass absolute output paths and this requirement to every delegated skill,
 agent, and tool, overriding their default temporary or external evidence
 locations. If a tool requires a fixed output path, relocate completed artifacts
@@ -111,35 +112,70 @@ diff. In Codex, keep orchestration in a session that can launch simplify's
 native reviewers; in Claude Code, invoke its `/simplify` capability.
 
 Apply useful improvements within scope. If code or tests change, rerun build,
-unit coverage, and CRAP before advancing. Simplify itself does not commit.
+unit coverage, and CRAP, then use the named committer to checkpoint the changes
+before review. Simplify itself does not commit. Record the checkpoint SHA for
+each owning package while retaining its original comparison base.
 
-## 5. Run code reviews
+## 5. Run reviewers in parallel
 
-Invoke `overall-code-review` with the same complete goal scope, current local
-code, and recorded comparison base. Follow that skill's `edrevn` workflow,
-saving the complete raw review to `.ai/reviews/review.md` and the finding
-dispositions to `.ai/reviews/OverallReview.md` inside the reviewed target.
+Prepare all applicable reviews below before launching them. Give each reviewer
+the same complete goal inventory, fixed comparison bases, and recorded checkpoint
+SHAs. All task source and tests must be committed. An uncommitted-only review
+after a checkpoint does not cover this scope.
 
-Also run Codex's built-in `/review` as a required, separate review. For automation,
-run `codex review` from the task worktree with custom instructions specifying the
-recorded comparison base, task paths, checkpoint commits, and pending task edits
-(including relevant untracked files). Review the same complete goal scope; an
-uncommitted-only review after a checkpoint is insufficient.
+Launch the review passes concurrently through separate jobs or agents, starting
+all of them before waiting for results. Request review only: reviewers must not
+edit source or tests, commit, or start their own fix loops. Keep the reviewed
+files unchanged until every reviewer finishes. If the snapshot changes meanwhile,
+invalidate affected results and repeat those reviews on a validated checkpoint.
 
-Save its complete output to `.ai/reviews/CodexReview.md` and record each finding's
-source and disposition in `.ai/reviews/OverallReview.md`. Require a fresh,
-completed review; unavailable tooling or unusable output blocks this gate.
+Give each reviewer its own absolute output paths under the target's `.ai/reviews/`.
+Preserve earlier reports there before rerunning. The coordinator alone writes
+the combined `.ai/reviews/OverallReview.md` in step 6. Track each review separately;
+unavailable tooling, failed execution, or unusable output blocks that review.
 
-If `~/.agents/skills/go/references/local-reviews.md` exists, read it and run its
-applicable reviews in this step. Resolve the path from the user's home directory;
-local integrations share this workflow's scope, evidence, and completion rules.
+### 5a. Codex /review
 
-Assess all action items, especially blockers, majors, and architectural
-feedback. Apply warranted fixes and retain a reason for every item left
-unfixed. A confirmed, in-scope, unresolved blocker or major prevents completion;
+Run Codex's built-in `/review`. For automation, use `codex review` from the task
+worktree with custom instructions specifying the shared scope and checkpoint.
+Save the complete output to `.ai/reviews/CodexReview.md`.
+
+### 5b. Overall code review
+
+Invoke `overall-code-review` in review-only mode and follow its `edrevn` workflow.
+Save the complete raw review to `.ai/reviews/review.md`. For this invocation,
+return the findings and defer fixes and the combined disposition report to step 6.
+
+### 5c. Local reviews
+
+Before launching the parallel stage, read
+`~/.agents/skills/go/references/local-reviews.md` if it exists, resolving the path
+from the user's home directory. Run its applicable review passes alongside 5a and
+5b with the same scope, checkpoint, review-only boundary, and evidence rules.
+
+## 6. Resolve findings and record updates
+
+Wait for all review passes to finish, then consolidate their findings. Deduplicate
+overlaps while retaining every source, severity, and reviewer outcome. Assess all
+action items, especially blockers, majors, and architectural feedback. The
+coordinator applies warranted fixes; reviewers never edit concurrently.
+
+Write `.ai/reviews/OverallReview.md` using the `overall-code-review` disposition
+format. For each finding, record what was updated, the affected files and code
+locations, the validation result, and the resulting checkpoint when fixed. For
+anything left unchanged, record why. Include each review's scope, checkpoint,
+report path, and status, including failures or reviews with no findings.
+Preserve earlier rounds so the report records both the feedback and subsequent
+changes. A confirmed, in-scope, unresolved blocker or major prevents completion;
 a documented false positive is not an unresolved defect.
 
-## 6. Check DRY, verify Lean properties, and checkpoint
+After fixes, rerun build, unit coverage, and CRAP, then use the named committer
+to checkpoint the changes. Refresh affected reviews against that checkpoint
+without changing the comparison bases; follow any stricter resubmission rules
+from local integrations. Repeat assessment for new findings. Evidence invalidated
+by later edits cannot count as a passing review.
+
+## 7. Check DRY, verify Lean properties, and checkpoint
 
 Run `dry4go` for Go or `dry4java` for Java and investigate candidates involving
 the captured changed functions, comparing with relevant existing source and
@@ -153,17 +189,18 @@ current code. Supply the persisted goal scope explicitly; a default
 `uncommitted` run after a commit can return `no_changes` and is not verification.
 Follow the scope and checker procedure in the gate details.
 
-After review, DRY, or proof-driven fixes, rerun build, unit coverage, CRAP, and
-affected DRY/proof checks. Revisit simplify or the step 5 reviews when new production
-changes materially alter their conclusions. Do not reuse evidence from older
-source or tests.
+After DRY or proof-driven fixes, rerun build, unit coverage, CRAP, and affected
+DRY/proof checks. Revisit simplify when changes materially alter its conclusions,
+and follow step 6's checkpoint and review-refresh rules. Record these updates
+and their validation in `.ai/reviews/OverallReview.md`. Do not reuse evidence
+invalidated by changes to source or tests.
 
 Once these gates pass, use the committer to commit all remaining in-scope
 source, tests, and versioned task artifacts, including review reports when
 repository policy permits them. Record this checkpoint. Required checks that
 remain failed, unproved, or unsupported prevent an all-passed result.
 
-## 7. Mutation-test committed code
+## 8. Mutation-test committed code
 
 Before **every mutation execution**, require a valid recorded checkpoint and
 an empty `git status --porcelain=v1 --untracked-files=all`. Ignored build caches
@@ -192,7 +229,7 @@ identified residual mutant before validation or commits. Preserve tool-written
 manifests; validate and commit legitimate manifest changes through the committer
 before running mutation on the next file. Never commit mutated program logic.
 
-## 8. Verify the final state and report
+## 9. Verify the final state and report
 
 Verify that normal source is restored and every gate's evidence covers the final
 source and tests. Refresh affected checks when code, tests, manifests, or source
@@ -204,8 +241,9 @@ task working tree and record the final checkpoint hashes. If unrelated work or
 an unavailable check prevents completion, report the exact limitation.
 
 Write a concise summary in `.ai/go/<run-id>/` and report its path,
-all review report paths, commits, build result, changed-code coverage numerator
-and denominator, maximum in-scope CRAP, DRY dispositions, mutation results, and
-Lean proof status/assumptions. List unresolved issues first. Claim completion
-only when all required gates pass or have a justified applicability exclusion;
-an explicit user waiver must be reported as a waiver, not a passed check.
+all review report paths, files updated and why, commits, build result,
+changed-code coverage numerator and denominator, maximum in-scope CRAP, DRY
+dispositions, mutation results, and Lean proof status/assumptions. List unresolved
+issues first. Claim completion only when all required gates pass or have a
+justified applicability exclusion; an explicit user waiver must be reported as a
+waiver, not a passed check.
