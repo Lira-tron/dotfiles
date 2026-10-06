@@ -6,6 +6,8 @@ approvals_reviewer = "user"
 approval_policy = "on-request"
 sandbox_mode = "danger-full-access"
 model_reasoning_effort = "xhigh"
+model_reasoning_summary = "detailed"
+hide_agent_reasoning = false
 model_context_window = 800000
 model_auto_compact_token_limit = 700000
 model = "openai.gpt-6-astra"
@@ -405,6 +407,9 @@ enabled = true
 [plugins."gopls-mcp@gopls-mcp-marketplace"]
 enabled = true
 
+[plugins."gopls-mcp@gopls-mcp-marketplace".mcp_servers.gopls-mcp.tools.go_definition]
+approval_mode = "approve"
+
 [hooks.state]
 
 [hooks.state."/home/limonoct/.codex/hooks.json:stop:0:1"]
@@ -430,8 +435,23 @@ trusted_hash = "sha256:c28b3fbced3257ee83ac785cc99e9dbf37efe560b3d1181aa9cddb286
 [hooks.state."/home/limonoct/.codex/hooks.json:session_start:0:1"]
 trusted_hash = "sha256:9bc3ca47a4ef38ae6208ad97db3f1abdc3ae076398e5a344de87ac866f25e562"
 
-[hooks.state."gopls-mcp@gopls-mcp-marketplace:hooks/codex-hooks.json:session_start:0:0"]
-trusted_hash = "sha256:7b2905439f10f0d7fd5ffea3cfe9b2d9d36d77308da43065922d1e1f34b002c1"
+[hooks.state."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles/home/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:0e41eb88f22c64908f04149bfe94a79e3ca170152683a29949ec2be4a7f4abd7"
+
+[hooks.state."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles/home/.codex/hooks.json:pre_tool_use:0:1"]
+trusted_hash = "sha256:b57c5fde679818f2c503265c55f860179c007f5c7e2605959f14ccca877a9b0c"
+
+[hooks.state."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles/home/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:9406ff996ebd34307b60a3aa3737be091ccb65afc15dc858fc2851a5ad6cb6f3"
+
+[hooks.state."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles/home/.codex/hooks.json:session_start:0:1"]
+trusted_hash = "sha256:9bc3ca47a4ef38ae6208ad97db3f1abdc3ae076398e5a344de87ac866f25e562"
+
+[hooks.state."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles/home/.codex/hooks.json:session_end:0:0"]
+trusted_hash = "sha256:c28b3fbced3257ee83ac785cc99e9dbf37efe560b3d1181aa9cddb286256e2c0"
+
+[hooks.state."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles/home/.codex/hooks.json:stop:0:0"]
+trusted_hash = "sha256:c7a38901faf35b4e304771fa7dd9eec7754130c772f04b9d59ba6951b3076e3b"
 
 [features]
 hooks = true
