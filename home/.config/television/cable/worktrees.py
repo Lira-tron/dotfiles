@@ -99,6 +99,27 @@ def prompt(message):
 
 
 def open_worktree(selected):
+    path = Path(selected["path"]).resolve()
+    snapshot = json.loads(subprocess.check_output(["herdr", "api", "snapshot"]))["result"]["snapshot"]
+    for workspace in snapshot["workspaces"]:
+        worktree = workspace.get("worktree")
+        if worktree and Path(worktree["checkout_path"]).resolve() == path:
+            subprocess.run(["herdr", "workspace", "focus", workspace["workspace_id"]], check=True)
+            return
+
+    # Also reuse ordinary sessions opened inside this checkout.
+    for pane in snapshot["panes"]:
+        cwd = Path(pane.get("foreground_cwd") or pane["cwd"]).resolve()
+        if not cwd.is_relative_to(path):
+            continue
+        root = subprocess.run(
+            ["git", "-C", str(cwd), "rev-parse", "--show-toplevel"],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True,
+        )
+        if root.returncode == 0 and Path(root.stdout.strip()).resolve() == path:
+            subprocess.run(["herdr", "tab", "focus", pane["tab_id"]], check=True)
+            return
+
     subprocess.run(
         ["herdr", "worktree", "open", "--cwd", selected["parent"],
          "--path", selected["path"], "--focus"],
@@ -141,13 +162,18 @@ def delete_worktree(selected):
 
 
 def create_worktree(selected):
-    parent = Path(selected["parent"]).resolve()
-    workspace = brazil_workspace(parent)
+    root = subprocess.check_output(
+        ["brazil-context", "package", "root"], cwd=selected["parent"], stderr=subprocess.PIPE,
+    )
+    parent = Path(os.fsdecode(root).strip()).resolve()
+    root = subprocess.check_output(
+        ["brazil-context", "workspace", "root"], cwd=parent, stderr=subprocess.PIPE,
+    )
+    workspace = Path(os.fsdecode(root).strip()).resolve()
     base = subprocess.check_output(["git", "-C", str(parent), "rev-parse", "HEAD"]).decode().strip()
     branch = subprocess.check_output(["git", "-C", str(parent), "branch", "--show-current"]).decode().strip()
     print(f"Repository: {parent}\nBase: {branch or 'detached HEAD'} @ {base[:12]}", file=sys.stderr)
-    if workspace:
-        print(f"Brazil parent: {workspace}\nAll parent packages use their current committed HEADs.", file=sys.stderr)
+    print(f"Brazil parent: {workspace}\nAll parent packages use their current committed HEADs.", file=sys.stderr)
     print("Uncommitted edits stay in the original checkout.", file=sys.stderr)
     name = prompt("New worktree name (blank cancels): ")
     if not name:
@@ -155,33 +181,16 @@ def create_worktree(selected):
     if "/" in name or "\\" in name or name.startswith("-"):
         raise ValueError("Use a worktree name without slashes or a leading dash.")
     subprocess.run(["git", "check-ref-format", "--branch", name], check=True, stdout=subprocess.DEVNULL)
-    if workspace:
-        for package in (workspace / "src").iterdir():
-            if (package / ".git").exists() and subprocess.run(
-                ["git", "-C", str(package), "show-ref", "--verify", "--quiet", f"refs/heads/{name}"],
-            ).returncode == 0:
-                raise ValueError(f"Branch {name} already exists in {package.name}; reuse it from the picker.")
-        subprocess.run(
-            ["brazil", "worktree", "create", "--workspace", str(workspace),
-             "--name", name, "--inheritAll"], check=True, stdout=sys.stderr,
-        )
-        path = workspace / "worktrees" / name / "src" / parent.name
-    else:
-        path = Path.home() / "workplace" / ".worktrees" / parent.name / name
-        path.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(
-            ["git", "-C", str(parent), "worktree", "add", "-b", name, str(path), base],
-            check=True, stdout=sys.stderr,
-        )
-        upstream = subprocess.run(
-            ["git", "-C", str(parent), "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        )
-        if upstream.returncode == 0:
-            subprocess.run(
-                ["git", "-C", str(path), "branch", "--set-upstream-to", upstream.stdout.decode().strip(), name],
-                check=True, stdout=sys.stderr,
-            )
+    for package in (workspace / "src").iterdir():
+        if (package / ".git").exists() and subprocess.run(
+            ["git", "-C", str(package), "show-ref", "--verify", "--quiet", f"refs/heads/{name}"],
+        ).returncode == 0:
+            raise ValueError(f"Branch {name} already exists in {package.name}; reuse it from the picker.")
+    subprocess.run(
+        ["brazil", "worktree", "create", "--workspace", str(workspace),
+         "--name", name, "--inheritAll"], check=True, stdout=sys.stderr,
+    )
+    path = workspace / "worktrees" / name / "src" / parent.name
     return {"parent": str(parent), "path": str(path)}
 
 
