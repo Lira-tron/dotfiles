@@ -10,7 +10,7 @@ command = [
   '''bash "$HOME/.config/television/cable/herdr-panels.sh" workspaces''',
   '''bash "$HOME/.config/television/cable/herdr-panels.sh" panes''',
   '''fd -t d -d 1 . "$HOME/workplace" --format '[dir] {/}	{}	{/}' ''',
-  '''python3 "$HOME/.config/television/cable/worktrees.py" all''',
+  '''python3 "$HOME/.config/television/cable/worktrees.py" current''',
 ]
 # Preserve the source's agent frequency ranking and All view's type grouping.
 no_sort = true

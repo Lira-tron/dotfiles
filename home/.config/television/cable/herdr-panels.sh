@@ -93,5 +93,5 @@ herdr api snapshot 2>/dev/null |
   '
 
 if [[ $MODE == all ]]; then
-  python3 "$HOME/.config/television/cable/worktrees.py" all
+  python3 "$HOME/.config/television/cable/worktrees.py" current
 fi
