@@ -3,7 +3,6 @@
 
 format = """
 $directory\
-$git_branch\
 ${custom.worktree}\
 $git_status\
 $git_commit\
@@ -65,16 +64,12 @@ tag_symbol = " tag "
 [git_status]
 style = "grey1"
 
-[git_branch]
-format = "[$branch ]($style)"
-style = "grey1"
-
 [custom.worktree]
-description = "Current task worktree"
+description = "Current worktree or Git branch"
 command = 'exec sh "$HOME/.config/starship/worktree.sh"'
 when = true
 shell = ["sh"]
-format = '([wt:$output]($style) )'
+format = '([$output]($style) )'
 style = "aqua"
 
 [aws]
