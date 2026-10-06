@@ -99,6 +99,27 @@ def prompt(message):
 
 
 def open_worktree(selected):
+    path = Path(selected["path"]).resolve()
+    snapshot = json.loads(subprocess.check_output(["herdr", "api", "snapshot"]))["result"]["snapshot"]
+    for workspace in snapshot["workspaces"]:
+        worktree = workspace.get("worktree")
+        if worktree and Path(worktree["checkout_path"]).resolve() == path:
+            subprocess.run(["herdr", "workspace", "focus", workspace["workspace_id"]], check=True)
+            return
+
+    # Also reuse ordinary sessions opened inside this checkout.
+    for pane in snapshot["panes"]:
+        cwd = Path(pane.get("foreground_cwd") or pane["cwd"]).resolve()
+        if not cwd.is_relative_to(path):
+            continue
+        root = subprocess.run(
+            ["git", "-C", str(cwd), "rev-parse", "--show-toplevel"],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True,
+        )
+        if root.returncode == 0 and Path(root.stdout.strip()).resolve() == path:
+            subprocess.run(["herdr", "tab", "focus", pane["tab_id"]], check=True)
+            return
+
     subprocess.run(
         ["herdr", "worktree", "open", "--cwd", selected["parent"],
          "--path", selected["path"], "--focus"],
