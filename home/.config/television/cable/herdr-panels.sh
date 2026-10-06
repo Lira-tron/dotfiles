@@ -23,8 +23,32 @@ if [[ $MODE == all ]]; then
   DIRECTORY_ROWS=$(fd -t d -d 1 . "$HOME/workplace" --format '[dir] {/}	{}	{/}')
 fi
 
-herdr api snapshot 2>/dev/null |
-  jq -r --arg mode "$MODE" --arg directories "$DIRECTORY_ROWS" --slurpfile history "$FRECENCY_FILE" '
+SNAPSHOT=$(herdr api snapshot 2>/dev/null) || exit $?
+AGENT_CONTEXTS='{}'
+if [[ $MODE == agents || $MODE == all ]]; then
+  SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+  # Resolve each directory once, sharing the prompt's worktree detection.
+  AGENT_CONTEXTS=$(
+    printf '%s\n' "$SNAPSHOT" |
+      jq -j '[.result.snapshot.agents[] | .foreground_cwd // .cwd] | unique[] | ., "\u0000"' |
+      while IFS= read -r -d '' agent_cwd; do
+        worktree_name=$(cd -- "$agent_cwd" 2>/dev/null && sh "$SCRIPT_DIR/../../starship/worktree.sh")
+        if [[ $worktree_name == [bw]:* ]]; then
+          context=$worktree_name
+        elif [[ -n $worktree_name ]]; then
+          context="w:$worktree_name"
+        else
+          branch=$(git -C "$agent_cwd" symbolic-ref --quiet --short HEAD 2>/dev/null)
+          context=${branch:+b:$branch}
+        fi
+        jq -cn --arg cwd "$agent_cwd" --arg context "$context" '{key: $cwd, value: $context}'
+      done | jq -s 'from_entries'
+  )
+fi
+
+printf '%s\n' "$SNAPSHOT" |
+  jq -r --arg mode "$MODE" --arg directories "$DIRECTORY_ROWS" \
+    --argjson agent_contexts "$AGENT_CONTEXTS" --slurpfile history "$FRECENCY_FILE" '
     .result.snapshot as $snapshot |
 
     # Count selections by pane ID, independent of changing agent status or labels.
@@ -52,7 +76,17 @@ herdr api snapshot 2>/dev/null |
         | select(.tab_id == $workspace.active_tab_id)
         | .focused_pane_id
       )) as $preview_pane |
-      "[workspace] \($workspace.label)\t\($workspace.workspace_id)\t\($workspace.workspace_id)\t\($preview_pane)";
+      ($workspace.worktree |
+        if .is_linked_worktree then
+          (.checkout_path | rtrimstr("/") |
+            # Brazil checkouts end in worktrees/<name>/src/<package>.
+            (capture("/worktrees/(?<name>[^/]+)/src/[^/]+$").name // split("/")[-1]) |
+            gsub("[\t\r\n]"; " ") | gsub("\u0027"; "’")
+          ) as $name |
+          "[w:\($name)]"
+        else "" end
+      ) as $worktree_tag |
+      "[workspace]\($worktree_tag) \($workspace.label)\t\($workspace.workspace_id)\t\($workspace.workspace_id)\t\($preview_pane)";
 
     def pane_rows:
       [
@@ -74,7 +108,11 @@ herdr api snapshot 2>/dev/null |
       ]
       | sort_by([-($frequency[.agent.pane_id] // 0), .workspace.number, .tab.number, .agent.pane_id])
       | .[]
-      | "[agent] \(.agent.agent_status | status_icon) \(.workspace.label) · \(.tab.label) · \(.agent.pane_id) · \(.agent.agent) · \(.agent.agent_status)\t\(.agent.foreground_cwd // .agent.cwd)\t\(.agent.pane_id)\t\(.tab.tab_id)";
+      | ($agent_contexts[.agent.foreground_cwd // .agent.cwd] |
+          gsub("[\t\r\n]"; " ") | gsub("\u0027"; "’") |
+          if length > 0 then " · \(.)" else " · x" end
+        ) as $context
+      | "[agent] \(.agent.agent_status | status_icon) \(.workspace.label)\($context) · \(.tab.label) · \(.agent.agent) · \(.agent.agent_status)\t\(.agent.foreground_cwd // .agent.cwd)\t\(.agent.pane_id)\t\(.tab.tab_id)";
 
     if $mode == "all" then
       workspace_rows,
@@ -93,5 +131,5 @@ herdr api snapshot 2>/dev/null |
   '
 
 if [[ $MODE == all ]]; then
-  python3 "$HOME/.config/television/cable/worktrees.py" current
+  python3 "$HOME/.config/television/cable/worktrees.py" all
 fi
