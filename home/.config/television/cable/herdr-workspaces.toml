@@ -34,7 +34,8 @@ fi
 [keybindings]
 enter = "actions:connect"
 ctrl-e = "cycle_sources"
-ctrl-d = ["actions:close_workspace", "reload_source"]
+ctrl-d = "actions:delete"
+ctrl-g = "actions:create"
 ctrl-m = "actions:previous_pane"
 
 [actions.connect]
@@ -78,11 +79,24 @@ description = "Return to the pane left by the picker or Ctrl+A n/p"
 command = '''python3 "$HOME/.config/television/cable/herdr-previous-pane.py" previous'''
 mode = "execute"
 
-[actions.close_workspace]
-description = "Close the selected Herdr workspace"
+[actions.delete]
+description = "Delete a selected worktree with confirmation, or close a Herdr workspace"
 command = '''
-if printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
+  python3 "$HOME/.config/television/cable/worktrees.py" delete '{split:\t:1}'
+elif printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
   herdr workspace close '{split:\t:2}'
 fi
 '''
-mode = "fork"
+mode = "execute"
+
+[actions.create]
+description = "Create a named worktree for the selected tree's repository"
+command = '''
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
+  python3 "$HOME/.config/television/cable/herdr-previous-pane.py" connect <<'HERDR_CREATE'
+python3 "$HOME/.config/television/cable/worktrees.py" create '{split:\t:1}'
+HERDR_CREATE
+fi
+'''
+mode = "execute"
