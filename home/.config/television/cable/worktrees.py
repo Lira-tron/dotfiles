@@ -100,25 +100,39 @@ def prompt(message):
 
 def open_worktree(selected):
     path = Path(selected["path"]).resolve()
+    brazil_root = brazil_workspace(path)
+
+    def same_checkout(candidate):
+        if candidate == path:
+            return True
+        if brazil_root:
+            # Sibling packages share a session; nested Brazil worktrees do not.
+            for root in (candidate, *candidate.parents):
+                if (root / "packageInfo").is_file():
+                    return root == brazil_root
+        return False
+
     snapshot = json.loads(subprocess.check_output(["herdr", "api", "snapshot"]))["result"]["snapshot"]
     for workspace in snapshot["workspaces"]:
         worktree = workspace.get("worktree")
-        if worktree and Path(worktree["checkout_path"]).resolve() == path:
+        if worktree and same_checkout(Path(worktree["checkout_path"]).resolve()):
             subprocess.run(["herdr", "workspace", "focus", workspace["workspace_id"]], check=True)
             return
 
     # Also reuse ordinary sessions opened inside this checkout.
     for pane in snapshot["panes"]:
         cwd = Path(pane.get("foreground_cwd") or pane["cwd"]).resolve()
-        if not cwd.is_relative_to(path):
-            continue
-        root = subprocess.run(
-            ["git", "-C", str(cwd), "rev-parse", "--show-toplevel"],
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True,
-        )
-        if root.returncode == 0 and Path(root.stdout.strip()).resolve() == path:
-            subprocess.run(["herdr", "tab", "focus", pane["tab_id"]], check=True)
-            return
+        if not same_checkout(cwd):
+            if not cwd.is_relative_to(path):
+                continue
+            root = subprocess.run(
+                ["git", "-C", str(cwd), "rev-parse", "--show-toplevel"],
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True,
+            )
+            if root.returncode or Path(root.stdout.strip()).resolve() != path:
+                continue
+        subprocess.run(["herdr", "tab", "focus", pane["tab_id"]], check=True)
+        return
 
     subprocess.run(
         ["herdr", "worktree", "open", "--cwd", selected["parent"],
