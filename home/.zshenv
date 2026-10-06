@@ -146,3 +146,9 @@ fi
 if [ -f "$HOME/.cargo/env" ]; then
     . "$HOME/.cargo/env"
 fi
+
+# Use the local Codex build with the shared Starship worktree detector.
+if [ -x "$HOME/.local/lib/codex-status/codex" ] && [ -x "$HOME/.codex/git-context.py" ]; then
+    export CODEX_NATIVE_BINARY="${CODEX_NATIVE_BINARY:-$HOME/.local/lib/codex-status/codex}"
+    export CODEX_GIT_CONTEXT_HELPER="${CODEX_GIT_CONTEXT_HELPER:-$HOME/.codex/git-context.py}"
+fi
