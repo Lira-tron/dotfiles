@@ -1,6 +1,6 @@
 ---
 name: go
-description: Finalize an implementation when the user invokes /go or $go. Build with bbr, enforce new-code unit coverage and CRAP, commit, simplify, run overall code review, assess DRY, verify properties with Lean 4, and run mutation testing only from committed checkpoints. Not a trigger for Go-language questions or ordinary approval.
+description: Finalize an implementation when the user invokes /go or $go. Build with bbr, enforce new-code unit coverage and CRAP, commit, simplify, run Codex /review and overall code review, assess DRY, verify properties with Lean 4, and run mutation testing only from committed checkpoints. Not a trigger for Go-language questions or ordinary approval.
 ---
 
 # Go — finish the implementation
@@ -119,6 +119,16 @@ Invoke `overall-code-review` with the same complete goal scope, current local
 code, and recorded comparison base. Follow that skill's `edrevn` workflow,
 saving the complete raw review to `.ai/reviews/review.md` and the finding
 dispositions to `.ai/reviews/OverallReview.md` inside the reviewed target.
+
+Also run Codex's built-in `/review` as a required, separate review. For automation,
+run `codex review` from the task worktree with custom instructions specifying the
+recorded comparison base, task paths, checkpoint commits, and pending task edits
+(including relevant untracked files). Review the same complete goal scope; an
+uncommitted-only review after a checkpoint is insufficient.
+
+Save its complete output to `.ai/reviews/CodexReview.md` and record each finding's
+source and disposition in `.ai/reviews/OverallReview.md`. Require a fresh,
+completed review; unavailable tooling or unusable output blocks this gate.
 
 If `~/.agents/skills/go/references/local-reviews.md` exists, read it and run its
 applicable reviews in this step. Resolve the path from the user's home directory;
