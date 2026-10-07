@@ -163,7 +163,7 @@ confirm-close-surface = true
 #  information.
 # keybind = global:cmd+s=toggle_quick_terminal
 keybind = cmd+s=toggle_quick_terminal
-keybind = cmd+shift+c=write_screen_file:copy
+keybind = cmd+shift+KeyC=copy_url_to_clipboard
 keybind = cmd+shift+v=new_split:right
 # keybind = cmd+shift+h=new_split:down
 keybind = cmd+shift+m=toggle_split_zoom
