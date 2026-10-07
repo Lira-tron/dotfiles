@@ -1,0 +1,305 @@
+diff --git a/codex-rs/tui/src/branch_summary.rs b/codex-rs/tui/src/branch_summary.rs
+index 6329e4342..0f381739f 100644
+--- a/codex-rs/tui/src/branch_summary.rs
++++ b/codex-rs/tui/src/branch_summary.rs
+@@ -23,7 +23,7 @@ use crate::workspace_command::WorkspaceCommandExecutor;
+ use crate::workspace_command::WorkspaceCommandOutput;
+ 
+ /// Additions and deletions between `HEAD` and a branch comparison base.
+-#[derive(Clone, Debug, Eq, PartialEq)]
++#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
+ pub(crate) struct GitBranchDiffStats {
+     /// Total added lines in committed changes on the current branch.
+     pub(crate) additions: u64,
+@@ -336,7 +336,7 @@ async fn git_ref_exists(
+ /// Branch-based lookup is attempted first because it is cheap and mirrors `gh pr view`. Commit-based
+ /// lookup is used as a fallback so fork workflows can still find a PR opened against the upstream
+ /// repository even when `gh` infers the fork from the current checkout.
+-async fn open_pull_request(
++pub(crate) async fn open_pull_request(
+     runner: &dyn WorkspaceCommandExecutor,
+     cwd: &Path,
+ ) -> Option<StatusLinePullRequest> {
+diff --git a/codex-rs/tui/src/chatwidget/status_surfaces.rs b/codex-rs/tui/src/chatwidget/status_surfaces.rs
+index 616dd6df1..ec10d9c7e 100644
+--- a/codex-rs/tui/src/chatwidget/status_surfaces.rs
++++ b/codex-rs/tui/src/chatwidget/status_surfaces.rs
+@@ -603,8 +603,14 @@ impl ChatWidget {
+         };
+         self.status_line_branch_pending = true;
+         let tx = self.app_event_tx.clone();
++        let helper = std::env::var("CODEX_GIT_CONTEXT_HELPER").ok();
+         tokio::spawn(async move {
+-            let branch = branch_summary::current_branch_name(runner.as_ref(), &cwd).await;
++            let branch = match helper {
++                Some(helper) => {
++                    crate::custom_git_context::label(runner.as_ref(), &cwd, &helper).await
++                }
++                None => branch_summary::current_branch_name(runner.as_ref(), &cwd).await,
++            };
+             tx.send(AppEvent::StatusLineBranchUpdated { cwd, branch });
+         });
+     }
+@@ -619,8 +625,14 @@ impl ChatWidget {
+         };
+         self.status_line_git_summary_pending = true;
+         let tx = self.app_event_tx.clone();
++        let helper = std::env::var("CODEX_GIT_CONTEXT_HELPER").ok();
+         tokio::spawn(async move {
+-            let summary = branch_summary::status_line_git_summary(runner.as_ref(), &cwd).await;
++            let summary = match helper {
++                Some(helper) => {
++                    crate::custom_git_context::summary(runner.as_ref(), &cwd, &helper).await
++                }
++                None => branch_summary::status_line_git_summary(runner.as_ref(), &cwd).await,
++            };
+             tx.send(AppEvent::StatusLineGitSummaryUpdated { cwd, summary });
+         });
+     }
+diff --git a/codex-rs/tui/src/chatwidget/tests/status_and_layout.rs b/codex-rs/tui/src/chatwidget/tests/status_and_layout.rs
+index abe4b6667..960431fd3 100644
+--- a/codex-rs/tui/src/chatwidget/tests/status_and_layout.rs
++++ b/codex-rs/tui/src/chatwidget/tests/status_and_layout.rs
+@@ -260,6 +260,46 @@ async fn status_line_git_summary_items_render_values() {
+     );
+ }
+ 
++#[tokio::test]
++async fn status_line_worktree_context_footer_snapshot() {
++    use ratatui::Terminal;
++    use ratatui::backend::TestBackend;
++
++    let (mut chat, _rx, _ops) = make_chatwidget_manual(/*model_override*/ None).await;
++    chat.show_welcome_banner = false;
++    chat.local_settings.tui.status_line = Some(vec![
++        "context-used".to_owned(),
++        "current-dir".to_owned(),
++        "git-branch".to_owned(),
++        "branch-changes".to_owned(),
++    ]);
++    chat.refresh_status_line();
++    let cwd = chat.config.cwd.as_path().to_path_buf();
++    chat.set_status_line_branch(cwd.clone(), Some("w:workspace-task".to_owned()));
++    chat.set_status_line_git_summary(
++        cwd,
++        StatusLineGitSummary {
++            pull_request: None,
++            branch_change_stats: Some(crate::branch_summary::GitBranchDiffStats {
++                additions: 12,
++                deletions: 3,
++            }),
++        },
++    );
++    chat.refresh_status_line();
++
++    let width = 120;
++    let height = chat.desired_height(width);
++    let mut terminal = Terminal::new(TestBackend::new(width, height)).expect("create terminal");
++    terminal
++        .draw(|f| chat.render(f.area(), f.buffer_mut()))
++        .expect("draw worktree footer");
++    assert_chatwidget_snapshot!(
++        "status_line_worktree_context_footer",
++        normalized_backend_snapshot(terminal.backend())
++    );
++}
++
+ #[tokio::test]
+ async fn raw_output_status_line_value_only_shows_when_enabled() {
+     let (mut chat, _rx, _ops) = make_chatwidget_manual(/*model_override*/ None).await;
+diff --git a/codex-rs/tui/src/lib.rs b/codex-rs/tui/src/lib.rs
+index 2697cbabd..09dfa0690 100644
+--- a/codex-rs/tui/src/lib.rs
++++ b/codex-rs/tui/src/lib.rs
+@@ -125,6 +125,7 @@ mod clock_format;
+ mod collaboration_modes;
+ mod color;
+ mod config_update;
++mod custom_git_context;
+ pub(crate) mod custom_terminal;
+ mod daybreak;
+ mod experimental_features;
+diff --git a/codex-rs/tui/src/custom_git_context.rs b/codex-rs/tui/src/custom_git_context.rs
+new file mode 100644
+index 000000000..a48f2e85e
+--- /dev/null
++++ b/codex-rs/tui/src/custom_git_context.rs
+@@ -0,0 +1,67 @@
++//! Optional user-selected Git footer helper, executed in the active workspace.
++//!
++//! `CODEX_GIT_CONTEXT_HELPER` names an executable supplied by the launcher. It
++//! receives `label` or `changes`; the latter returns JSON additions and deletions.
++//! Keeping the command outside project configuration avoids running arbitrary
++//! repository-selected code when rendering the footer.
++
++use std::path::Path;
++use std::time::Duration;
++
++use crate::branch_summary::GitBranchDiffStats;
++use crate::branch_summary::StatusLineGitSummary;
++use crate::branch_summary::open_pull_request;
++use crate::workspace_command::WorkspaceCommand;
++use crate::workspace_command::WorkspaceCommandExecutor;
++
++pub(crate) async fn label(
++    runner: &dyn WorkspaceCommandExecutor,
++    cwd: &Path,
++    helper: &str,
++) -> Option<String> {
++    let output = run(runner, cwd, helper, "label").await?;
++    let label = output.trim();
++    (!label.is_empty() && !label.contains(['\r', '\n'])).then(|| label.to_owned())
++}
++
++pub(crate) async fn summary(
++    runner: &dyn WorkspaceCommandExecutor,
++    cwd: &Path,
++    helper: &str,
++) -> StatusLineGitSummary {
++    let (pull_request, branch_change_stats) =
++        tokio::join!(open_pull_request(runner, cwd), changes(runner, cwd, helper),);
++    StatusLineGitSummary {
++        pull_request,
++        branch_change_stats,
++    }
++}
++
++async fn changes(
++    runner: &dyn WorkspaceCommandExecutor,
++    cwd: &Path,
++    helper: &str,
++) -> Option<GitBranchDiffStats> {
++    serde_json::from_str(&run(runner, cwd, helper, "changes").await?).ok()
++}
++
++async fn run(
++    runner: &dyn WorkspaceCommandExecutor,
++    cwd: &Path,
++    helper: &str,
++    mode: &str,
++) -> Option<String> {
++    let output = runner
++        .run(
++            WorkspaceCommand::new([helper, mode])
++                .cwd(cwd)
++                .timeout(Duration::from_secs(/*secs*/ 15)),
++        )
++        .await
++        .ok()?;
++    output.success().then_some(output.stdout)
++}
++
++#[cfg(test)]
++#[path = "custom_git_context_tests.rs"]
++mod tests;
+diff --git a/codex-rs/tui/src/custom_git_context_tests.rs b/codex-rs/tui/src/custom_git_context_tests.rs
+new file mode 100644
+index 000000000..283a23859
+--- /dev/null
++++ b/codex-rs/tui/src/custom_git_context_tests.rs
+@@ -0,0 +1,90 @@
++use super::*;
++use crate::workspace_command::WorkspaceCommandError;
++use crate::workspace_command::WorkspaceCommandOutput;
++use pretty_assertions::assert_eq;
++use std::future::Future;
++use std::pin::Pin;
++
++struct Runner {
++    mode: &'static str,
++    exit_code: i32,
++    stdout: &'static str,
++}
++
++impl WorkspaceCommandExecutor for Runner {
++    fn run(
++        &self,
++        command: WorkspaceCommand,
++    ) -> Pin<
++        Box<dyn Future<Output = Result<WorkspaceCommandOutput, WorkspaceCommandError>> + Send + '_>,
++    > {
++        assert_eq!(command.argv, vec!["/helper with spaces", self.mode]);
++        assert_eq!(command.cwd.as_deref(), Some(Path::new("/workspace")));
++        Box::pin(async {
++            Ok(WorkspaceCommandOutput {
++                exit_code: self.exit_code,
++                stdout: self.stdout.to_owned(),
++                stderr: String::new(),
++            })
++        })
++    }
++}
++
++#[tokio::test]
++async fn worktree_label_is_returned_without_shell_interpolation() {
++    let runner = Runner {
++        mode: "label",
++        exit_code: 0,
++        stdout: "w:workspace-task\n",
++    };
++    assert_eq!(
++        label(&runner, Path::new("/workspace"), "/helper with spaces").await,
++        Some("w:workspace-task".to_owned())
++    );
++}
++
++#[tokio::test]
++async fn failed_or_multiline_label_is_omitted() {
++    for (exit_code, stdout) in [(1, "w:partial"), (0, "w:first\nsecond"), (0, "")] {
++        let runner = Runner {
++            mode: "label",
++            exit_code,
++            stdout,
++        };
++        assert_eq!(
++            label(&runner, Path::new("/workspace"), "/helper with spaces").await,
++            None
++        );
++    }
++}
++
++#[tokio::test]
++async fn helper_changes_are_parsed_as_native_diff_counts() {
++    let runner = Runner {
++        mode: "changes",
++        exit_code: 0,
++        stdout: r#"{"additions":12,"deletions":3}"#,
++    };
++    assert_eq!(
++        changes(&runner, Path::new("/workspace"), "/helper with spaces").await,
++        Some(GitBranchDiffStats {
++            additions: 12,
++            deletions: 3,
++        })
++    );
++}
++
++#[tokio::test]
++async fn unavailable_or_invalid_counts_are_omitted() {
++    for stdout in ["null", "not JSON", r#"{"additions":-1,"deletions":3}"#] {
++        let runner = Runner {
++            mode: "changes",
++            exit_code: 0,
++            stdout,
++        };
++        assert_eq!(
++            changes(&runner, Path::new("/workspace"), "/helper with spaces").await,
++            None
++        );
++    }
++}
+diff --git a/codex-rs/tui/src/chatwidget/snapshots/codex_tui__chatwidget__tests__status_line_worktree_context_footer.snap b/codex-rs/tui/src/chatwidget/snapshots/codex_tui__chatwidget__tests__status_line_worktree_context_footer.snap
+new file mode 100644
+index 000000000..ab1c909da
+--- /dev/null
++++ b/codex-rs/tui/src/chatwidget/snapshots/codex_tui__chatwidget__tests__status_line_worktree_context_footer.snap
+@@ -0,0 +1,9 @@
++---
++source: tui/src/chatwidget/tests/status_and_layout.rs
++expression: normalized_backend_snapshot(terminal.backend())
++---
++"                                                                                                                        "
++"                                                                                                                        "
++"› Ask Codex to do anything                                                                                              "
++"                                                                                                                        "
++"  Context 0% used · /tmp/project · w:workspace-task · +12 -3                                                            "
