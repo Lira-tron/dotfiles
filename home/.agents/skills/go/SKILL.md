@@ -1,6 +1,6 @@
 ---
 name: go
-description: Finalize an implementation when the user invokes /go or $go. Build with bbr, enforce new-code unit coverage and CRAP, commit, simplify, run reviewers in parallel, resolve their findings, assess DRY, verify properties with Lean 4, and run mutation testing only from committed checkpoints. Not a trigger for Go-language questions or ordinary approval.
+description: Finalize an implementation when the user invokes /go or $go. Build with bbr, enforce new-code unit coverage and CRAP, commit, simplify, run reviewers including an adversarial reviewer in parallel, resolve their findings, assess DRY, verify properties with Lean 4, and run mutation testing only from committed checkpoints. Not a trigger for Go-language questions or ordinary approval.
 ---
 
 # Go — finish the implementation
@@ -152,6 +152,24 @@ Before launching the parallel stage, read
 `~/.agents/skills/go/references/local-reviews.md` if it exists, resolving the path
 from the user's home directory. Run its applicable review passes alongside 5a and
 5b with the same scope, checkpoint, review-only boundary, and evidence rules.
+
+### 5d. Adversarial review
+
+Run the `adversarial-reviewer` subagent alongside 5a–5c for changes to behavior,
+contracts, tests, runtime configuration, or executable agent instructions.
+Record `not applicable` with a reason when the entire scope is limited to prose,
+formatting, or mechanical edits that preserve semantics.
+
+Use the [shared adversarial review contract](../../agents/adversarial-reviewer.md).
+Launch with a fresh context (`fork_context: false` in Codex). Supply the original
+requirements and acceptance criteria, complete goal inventory, absolute checkout
+paths, fixed bases, and checkpoint SHAs. Keep other review reports, scout
+summaries, and the implementer's correctness rationale out of its context.
+
+The subagent returns its report without writing files. The coordinator saves the
+complete output to `.ai/reviews/AdversarialReview.md`, preserving prior rounds.
+Track this review's verdict and evidence under the same blocking and refresh
+rules as the other reviews; resolve findings in step 6.
 
 ## 6. Resolve findings and record updates
 
