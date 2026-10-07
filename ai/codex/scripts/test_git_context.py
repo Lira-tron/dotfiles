@@ -6,7 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 
-SOURCE = Path(__file__).resolve().parents[1] / "home/.codex/git-context.py"
+SOURCE = Path(__file__).with_name("git-context.py")
 CONTEXT = SimpleNamespace(**runpy.run_path(str(SOURCE)))
 
 
@@ -68,6 +68,13 @@ class GitContextTests(unittest.TestCase):
         git(root, "worktree", "add", "-b", "different-branch", str(linked), "feature")
         self.assertEqual("w:worktree-name", CONTEXT.label(linked))
         self.assertEqual({"additions": 2, "deletions": 0}, CONTEXT.changes(linked))
+
+    def test_detached_checkout_keeps_counts_without_a_branch_label(self):
+        root = self.root / "repo"
+        head = repository(root)
+        git(root, "update-ref", "--no-deref", "HEAD", head)
+        self.assertEqual("", CONTEXT.label(root))
+        self.assertEqual({"additions": 2, "deletions": 0}, CONTEXT.changes(root))
 
     def test_brazil_parent_totals_packages_and_package_view_stays_scoped(self):
         workspace = self.root / "brazil-task"
