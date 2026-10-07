@@ -154,7 +154,7 @@ local function clear_comments()
 end
 
 return {
-  dir = "/workplace/limonoct/nvim-agent-comments",
+  "Lira-tron/nvim-agent-comments",
   enabled = not vim.g.vscode,
   lazy = false,
   init = function()
