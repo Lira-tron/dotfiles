@@ -336,6 +336,9 @@ trust_level = "trusted"
 [projects."/workplace/limonoct/KuiperArtifactManagementService/src/KuiperPipelineAutomations"]
 trust_level = "trusted"
 
+[projects."/workplace/limonoct/KuiperBotsBuildOpsAgent/src/KuiperBotsBuildOpsAgent"]
+trust_level = "trusted"
+
 [marketplaces.aim]
 source_type = "local"
 source = "/local/home/limonoct/.aim/plugins/codex"
@@ -408,6 +411,9 @@ enabled = true
 enabled = true
 
 [plugins."gopls-mcp@gopls-mcp-marketplace".mcp_servers.gopls-mcp.tools.go_definition]
+approval_mode = "approve"
+
+[plugins."gopls-mcp@gopls-mcp-marketplace".mcp_servers.gopls-mcp.tools.go_symbol_references]
 approval_mode = "approve"
 
 [hooks.state]
