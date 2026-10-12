@@ -22,19 +22,26 @@ def checkouts(repo):
     ]
 
 
-def rows(records, under=None):
+def rows(records, under=None, seen_workspaces=None):
+    if seen_workspaces is None:
+        seen_workspaces = set()
     parent = Path(records[0]["worktree"]).resolve()
     for record in records:
         path = Path(record["worktree"]).resolve()
-        if not path.is_dir() or "bare" in record or "prunable" in record:
+        if path == parent or not path.is_dir() or "bare" in record or "prunable" in record:
             continue
         if under is not None and not path.is_relative_to(under):
             continue
-        branch = record.get("branch", "").removeprefix("refs/heads/")
-        branch = branch or f"detached {record.get('HEAD', '')[:7]}"
-        label = f"[tree] {parent.name} · {branch}"
-        if path == parent:
-            label += " (primary)"
+        workspace = path.parent.parent
+        if path.parent.name == "src" and (workspace / "packageInfo").is_file():
+            if workspace in seen_workspaces:
+                continue
+            seen_workspaces.add(workspace)
+            label = f"[tree] {workspace.parent.parent.name} · {workspace.name}"
+        else:
+            branch = record.get("branch", "").removeprefix("refs/heads/")
+            branch = branch or f"detached {record.get('HEAD', '')[:7]}"
+            label = f"[tree] {parent.name} · {branch}"
         # The existing channel tests its display label inside a single-quoted shell argument.
         label = label.replace("\t", " ").replace("\n", " ").replace("'", "’")
         payload = base64.urlsafe_b64encode(
@@ -56,6 +63,7 @@ def repositories(root):
 def workplace_rows(root, restrict_paths=True):
     root = root.resolve()
     seen = set()
+    seen_workspaces = set()
     for repo in repositories(root):
         if repo in seen:
             continue
@@ -65,7 +73,7 @@ def workplace_rows(root, restrict_paths=True):
             print(error.stderr.decode(errors="replace").strip(), file=sys.stderr)
             continue
         seen.update(Path(record["worktree"]).resolve() for record in records)
-        yield from rows(records, under=root if restrict_paths else None)
+        yield from rows(records, under=root if restrict_paths else None, seen_workspaces=seen_workspaces)
 
 
 def current_rows(root):
@@ -141,7 +149,7 @@ def open_worktree(selected):
     )
 
 
-def delete_worktree(selected):
+def delete_worktree(selected, force=False):
     parent, path = (Path(selected[key]).resolve() for key in ("parent", "path"))
     if path == parent:
         raise ValueError("The primary checkout cannot be deleted from this picker.")
@@ -169,8 +177,10 @@ def delete_worktree(selected):
     else:
         command = ["git", "-C", str(parent), "worktree", "remove", str(path)]
         scope = "this checkout and its ignored .ai files; its Git branch is retained"
+    if force:
+        command.append("--force")
     print(f"Delete {target}\nThis removes {scope}. Preserve needed work first.", file=sys.stderr)
-    if prompt(f"Type {target.name} to delete (blank cancels): ") != target.name:
+    if prompt("Type ok to delete (blank cancels): ") != "ok":
         return
     subprocess.run(command, check=True)
 
@@ -226,7 +236,7 @@ def main():
         elif mode == "open":
             open_worktree(selected)
         elif mode == "delete":
-            delete_worktree(selected)
+            delete_worktree(selected, force="--force" in sys.argv[3:])
         elif mode == "create":
             created = create_worktree(selected)
             if created:

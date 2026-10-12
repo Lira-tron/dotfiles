@@ -51,9 +51,10 @@ and branches intact; do not automatically stash, reset, or commit them.
 ## Create the worktree
 
 Name new worktrees and their branches with two short, descriptive words joined
-by a hyphen, such as `fix-index` or `ams-publish`. Use lowercase and the same
-name for a Brazil workspace. Keep review/ticket IDs, usernames, dates, and
-hashes in `.ai/` records rather than in names.
+by a hyphen, then append `-MMDD` using the creation date's zero-padded month
+and day (`date +%m%d`), such as `ams-image-1007` or `fix-index-1007`. Use
+lowercase and the same name for a Brazil workspace. Keep review/ticket IDs,
+usernames, and hashes in `.ai/` records rather than in names.
 
 When the Git root is a Brazil package root, read
 `~/.agents/skills/worktree/references/brazil.md` and use that procedure. A
@@ -72,9 +73,10 @@ intended upstream if creation did not establish it; quality gates must not
 guess a base because the task branch has no upstream.
 
 Check for an existing task path and branch before creating anything. Reuse the
-matching task. If the name belongs to a different task, append the smallest
-available numeric suffix, such as `fix-index-2`, without resetting an existing
-branch. Initialize only required submodules in the new checkout.
+matching task. If the name belongs to a different task, insert the smallest
+available numeric suffix before the date, such as `ams-image-2-1007`, without
+resetting an existing branch. Initialize only required submodules in the new
+checkout.
 
 ## Run and finish the task
 

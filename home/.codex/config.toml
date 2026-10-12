@@ -8,8 +8,8 @@ sandbox_mode = "danger-full-access"
 model_reasoning_effort = "xhigh"
 model_reasoning_summary = "detailed"
 hide_agent_reasoning = false
-model_context_window = 800000
-model_auto_compact_token_limit = 700000
+model_context_window = 1000000
+model_auto_compact_token_limit = 800000
 model = "openai.gpt-6-astra"
 plan_mode_reasoning_effort = "xhigh"
 
@@ -187,6 +187,9 @@ approval_mode = "approve"
 [mcp_servers.kuiper-jira-mcp.tools.get_team_worklogs]
 approval_mode = "approve"
 
+[mcp_servers.kuiper-jira-mcp.tools.add_jira_comment]
+approval_mode = "approve"
+
 [mcp_servers.dsai-mcp]
 command = "dsai-mcp"
 
@@ -242,8 +245,10 @@ metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/metrics
 [model_providers.amazon-bedrock.aws]
 # region = "us-west-2"
 region = "us-west-2"
-# profile = "codex-DO-NOT-DELETE"
-profile = "dev"
+
+[model_providers.amazon-bedrock.aws.credential_export]
+command = "/home/limonoct/.toolbox/bin/codex"
+args = ["amzn", "credential-process", "--aws-profile", "dev"]
 
 
 [projects."/workplace"]
@@ -337,6 +342,9 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/workplace/limonoct/KuiperBotsBuildOpsAgent/src/KuiperBotsBuildOpsAgent"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/MyCli/src/MyCli"]
 trust_level = "trusted"
 
 [marketplaces.aim]

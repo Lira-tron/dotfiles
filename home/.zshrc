@@ -210,43 +210,34 @@ function extract {
 
 function gitPull() {
     local conflicts=()
-    local current_dir=$(pwd)
+    local processed=0
+    local dir folder
 
-    # Check current directory first
-    if [[ -d ".git" ]]; then
-        echo "Processing: ."
-        git pull --rebase 2>&1 | tee /tmp/git_output
-        if [[ ${PIPESTATUS[0]} -ne 0 ]] || grep -q "CONFLICT\|Automatic merge failed\|unmerged files\|fatal:" /tmp/git_output; then
-            conflicts+=(".")
+    # Check this repository, child repositories, and workspace packages.
+    for dir in . */(N) src/*/(N); do
+        [[ -e "$dir/.git" ]] || continue
+        echo "Processing: $dir"
+        (( processed += 1 ))
+
+        if ! git -C "$dir" pull --rebase; then
+            conflicts+=("$dir")
         fi
         echo ""
-    fi
-
-    # Check subdirectories
-    for dir in */; do
-        if [[ -d "$dir/.git" ]]; then
-            echo "Processing: $dir"
-            cd "$dir"
-
-            git pull --rebase 2>&1 | tee /tmp/git_output
-            if [[ ${PIPESTATUS[0]} -ne 0 ]] || grep -q "CONFLICT\|Automatic merge failed\|unmerged files\|fatal:" /tmp/git_output; then
-                conflicts+=("$dir")
-            fi
-
-            cd "$current_dir"
-            echo ""
-        fi
     done
 
     echo "=== SUMMARY ==="
-    if [[ ${#conflicts[@]} -eq 0 ]]; then
-        echo "All repositories updated successfully!"
+    if [[ $processed -eq 0 ]]; then
+        echo "No Git repositories found in this directory, its children, or src/."
+        return 1
+    elif [[ ${#conflicts[@]} -eq 0 ]]; then
+        echo "Repositories updated successfully: $processed"
     else
         echo "Issues found in ${#conflicts[@]} folder(s):"
         for folder in "${conflicts[@]}"; do
             echo "  - $folder"
             echo "    cd $folder"
         done
+        return 1
     fi
 }
 

@@ -13,7 +13,7 @@ tvw() {
         local selection tree_path tree_action tree_token
         selection=$(command tv --source-command "$tree_source" \
             --source-display '{split:\t:0}' --source-output '{split:\t:1}' \
-            --no-remote --keybindings "$tree_keys" --expect 'enter;ctrl-d;ctrl-g') || return
+            --no-remote --keybindings "$tree_keys" --expect 'enter;ctrl-d;ctrl-u;ctrl-g') || return
         [[ -n "$selection" ]] || return 0
         tree_action="${selection%%$'\n'*}"
         tree_token="${selection#*$'\n'}"
@@ -21,6 +21,7 @@ tvw() {
             enter) tree_path=$(python3 "$HOME/.config/television/cable/worktrees.py" path "$tree_token") || return ;;
             ctrl-g) tree_path=$(python3 "$HOME/.config/television/cable/worktrees.py" create "$tree_token") || return ;;
             ctrl-d) python3 "$HOME/.config/television/cable/worktrees.py" delete "$tree_token"; return $? ;;
+            ctrl-u) python3 "$HOME/.config/television/cable/worktrees.py" delete "$tree_token" --force; return $? ;;
         esac
         [[ -n "$tree_path" ]] || return 0
         builtin cd -- "$tree_path"

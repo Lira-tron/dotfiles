@@ -35,6 +35,7 @@ fi
 enter = "actions:connect"
 ctrl-e = "cycle_sources"
 ctrl-d = "actions:delete"
+ctrl-u = "actions:force_delete"
 ctrl-g = "actions:create"
 ctrl-m = "actions:previous_pane"
 
@@ -86,6 +87,15 @@ if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
   python3 "$HOME/.config/television/cable/worktrees.py" delete '{split:\t:1}'
 elif printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
   herdr workspace close '{split:\t:2}'
+fi
+'''
+mode = "execute"
+
+[actions.force_delete]
+description = "Force-delete a selected worktree with confirmation"
+command = '''
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
+  python3 "$HOME/.config/television/cable/worktrees.py" delete '{split:\t:1}' --force
 fi
 '''
 mode = "execute"
