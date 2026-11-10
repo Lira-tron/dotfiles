@@ -4,8 +4,10 @@
 
 ```sh
 uml="$HOME/.agents/tools/uml-viewer/bin/uml-viewer"
+AI_ARTIFACT_ROOT="$(ai-artifacts path --cwd /path/to/project)" || exit 1
+mkdir -p "$AI_ARTIFACT_ROOT/uml"
 "$uml" --install
-"$uml" scan --root /path/to/project --out /tmp/project-uml.json
+"$uml" scan --root /path/to/project --out "$AI_ARTIFACT_ROOT/uml/project.json"
 "$uml" serve --root /path/to/project --port 8765
 ```
 
@@ -41,7 +43,7 @@ and ambiguous inheritance targets remain explicitly unresolved.
 Say: **"Use UML viewer only for my unpushed changes."**
 
 ```sh
-"$uml" scan --root /path/to/project --unpushed --out /tmp/change-uml.json
+"$uml" scan --root /path/to/project --unpushed --out "$AI_ARTIFACT_ROOT/uml/changes.json"
 "$uml" serve --root /path/to/project --unpushed --port 0
 
 # When a new branch has no upstream, choose its intended comparison branch:
@@ -90,46 +92,34 @@ stage, or edit project source.
 
 ## Run and capture real metrics
 
-Use the quality-tool manager to install the desired executable first:
+Run the shared `crapper` or `mutator` skill against explicit task files and
+lines. These tools write EDN under the project's `.metrics/` directory.
 
-```sh
-manager="$HOME/.agents/tools/quality-gates/bin/quality-tool"
-"$manager" ensure crap4go mutate4go
-"$uml" measure --root /path/to/go-module --tool crap4go -- --max-workers 4
-"$uml" measure --root /path/to/go-module --tool mutate4go -- internal/store.go --max-workers 4
+This **local** Go/Java viewer is distinct from the upstream viewer mentioned in
+the unified tools' README files. Its `measure --tool` command still recognizes
+only the legacy Go/Java executable names, and its `import` command requires the
+JSON schema below. Do not invoke `measure --tool crapper` or `--tool mutator`,
+or hand raw EDN to `--snapshot`.
 
-"$manager" ensure crap4java mutate4java
-"$uml" measure --root /path/to/maven-module --tool crap4java -- src/main/java/demo/Store.java
-"$uml" measure --root /path/to/maven-module --tool mutate4java -- src/main/java/demo/Store.java --max-workers 4
-```
+For unified results, scan the same source version and construct an explicit
+JSON snapshot from verified measurements. Match each record to a unique graph
+node using parsed source identity; preserve measured source/input hashes.
+Crapper EDN omits file/line identity and rounds values, so use its source-aware
+API or exact raw coverage counts for ambiguous or boundary values. Mutator
+snapshots carry file/span and per-site evidence; distinguish this execution
+from retained history. If a mapping cannot be established, leave it unknown.
 
-Everything after `--` is passed as literal arguments to the tool, without a shell.
-Custom test commands follow the owning tool's options. For Brazil packages,
-consult their actual build/test workflow; a successful syntax scan does not prove
-that the stock Maven/Go test command is compatible.
-
-`measure` snapshots source identity before execution, streams the real report,
-and stores parsed results outside the project. It never initiates an installation.
-Java CRAP exit 2 and Java mutation exit 3 still import their completed reports,
-then preserve the failing exit. Go mutation survivors produce a failing wrapper
-exit even though the upstream executable exits 0.
-
-Results become stale when source/test inputs or root build descriptors change.
-Mutation manifest footers are excluded from source fingerprints. This tracks
-local inputs, not external environment/toolchain changes.
-Differential no-op runs supply no new results and preserve previous snapshots.
-Scan-only mutation output is not a result report.
-
-CRAP text does not uniquely identify overloaded Java methods or identically
-named functions in packages sharing the same short name. The importer rejects
-ambiguous rows. Obtain an identity-preserving report or import an explicit
-snapshot; never guess which method owns a score.
+Archive raw tool output alongside the imported snapshot. Stale source/test
+hashes remain stale; never attach current hashes to an older measurement.
+A viewer import is visualization, not a new quality-gate verdict. This local
+viewer still scans Go and Java only; Python analysis works through the unified
+tool skills without implying Python graph support.
 
 ## Import an existing result snapshot
 
 ```sh
-"$uml" import --root /path/to/project --kind crap --snapshot /tmp/crap.json
-"$uml" import --root /path/to/project --kind mutation --snapshot /tmp/mutation.json
+"$uml" import --root /path/to/project --kind crap --snapshot "$AI_ARTIFACT_ROOT/uml/crap.json"
+"$uml" import --root /path/to/project --kind mutation --snapshot "$AI_ARTIFACT_ROOT/uml/mutation.json"
 ```
 
 Schema:
@@ -162,7 +152,7 @@ The layout policy is readable/editable through the browser or:
 
 ```sh
 "$uml" policy --root /path/to/project
-"$uml" policy --root /path/to/project --from /tmp/policy.json
+"$uml" policy --root /path/to/project --from "$AI_ARTIFACT_ROOT/uml/policy.json"
 ```
 
 Policy fields: `proposals` is an array of `{id, name, groups, omit}`. `groups`

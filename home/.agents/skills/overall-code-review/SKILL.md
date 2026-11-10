@@ -28,9 +28,11 @@ existing local changes so findings can be reconciled with current code.
 
 ## 2. Run edrevn and read its report
 
-Create `<target directory>/.ai/reviews/` and keep all generated review artifacts
-there, including raw reports, command logs, and preserved reports from earlier
-runs. From the target repository or package, run:
+Resolve the reviewed target's feature directory using
+[the shared artifact rule](../../rules/ai-artifacts.md). Create
+`<AI_ARTIFACT_ROOT>/reviews/` and keep raw reports, command logs, and preserved
+reports there. The `.ai/` paths below refer to that feature through its checkout
+link. From the source repository or package, run:
 
 ```sh
 edrevn "<provide the actual link or explain what to review>"
@@ -40,8 +42,8 @@ Pass the actual scope as one argument, not the placeholder. Include these
 instructions in that same argument:
 
 > Save the complete review to
-> `<absolute target directory>/.ai/reviews/review.md`. Keep all generated review
-> artifacts under `<absolute target directory>/.ai/`. Review only: do not edit
+> `<absolute feature directory>/reviews/review.md`. Keep all generated review
+> artifacts under that feature directory. Review only: do not edit
 > source files, commit, or publish anything.
 
 `edrevn` may be an interactive zsh function rather than an executable. If a
@@ -107,9 +109,9 @@ unavailable checks and partially implemented fixes explicitly.
 
 ## 4. Write the disposition report
 
-Create `<target directory>/.ai/reviews/OverallReview.md` for every run,
-including runs with all findings fixed or no findings. Keep it inside the
-reviewed repository or package, not the user's global `.ai` directory.
+Create `<AI_ARTIFACT_ROOT>/reviews/OverallReview.md` for every run,
+including runs with all findings fixed or no findings. Keep it with the
+reviewed package's selected feature.
 If the file already exists, append a dated run section and preserve earlier
 results.
 

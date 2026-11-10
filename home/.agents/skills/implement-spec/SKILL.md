@@ -8,7 +8,7 @@ Read [workflow artifact locations](../../rules/matt-pocock-artifacts.md) before 
 
 You have been provided a spec. This spec should have tickets associated with it, describing how to implement the spec.
 
-The issue tracker should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.
+Resolve the issue tracker through the shared workflow rule above. Missing repository configuration uses the global local-Markdown default; setup is optional.
 
 The goal is the entire spec implemented on a single **integration branch**, with every ticket resolved the way the issue tracker closes work.
 
@@ -22,7 +22,7 @@ Communication to and from subagents should be sparse. Communicate primarily thro
 
 1. Read the spec and tickets to understand the task graph.
 
-2. (optional) Use an **exploration subagent** to conduct any exploration required by the tickets - relevant codebase files or external documentation. Give the exploration subagent an absolute output directory under the selected integration checkout’s `.ai/research/<topic>/`, and pass that same path to all future subagents. This lets **implementer subagents** focus on implementation rather than exploration.
+2. (optional) Use an **exploration subagent** to conduct any exploration required by the tickets - relevant codebase files or external documentation. Give it an absolute output directory under the selected feature's `<AI_ARTIFACT_ROOT>/research/<topic>/`, and pass that same path to all future subagents. This lets **implementer subagents** focus on implementation rather than exploration.
 
 3. Create the integration branch. If the issue tracker closes work through PRs, or the user asks for one, open a draft PR after the first merge in step 5 (a branch with no commits ahead of main can't open one), marked as closing the spec and tickets.
 

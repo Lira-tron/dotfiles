@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dryer"
+  short_description: "Review duplication across Python, Go, Java, and more"
+  default_prompt: "Use $dryer to find and assess duplicate candidates involving the changed code."

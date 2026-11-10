@@ -29,12 +29,15 @@ Read applicable repository instructions. Resolve the owning Git repository
 explicitly when a workspace contains multiple repositories. Use the repository's
 real build/test commands, including its package build system.
 
-The helpers require Python 3.11+ and Git. Create a separate artifact directory
-outside the repository:
+The helpers require Python 3.11+ and Git. Resolve the selected feature using
+[the shared artifact rule](../../rules/ai-artifacts.md), then create a separate
+run directory under that feature:
 
 ```sh
 skill="$HOME/.agents/skills/lean-verify"
-run="$(mktemp -d "${TMPDIR:-/tmp}/lean-verify.XXXXXXXX")"
+AI_ARTIFACT_ROOT="$(ai-artifacts path --cwd .)" || exit 1
+mkdir -p "$AI_ARTIFACT_ROOT/lean"
+run="$(mktemp -d "$AI_ARTIFACT_ROOT/lean/run.XXXXXXXX")"
 python3 "$skill/scripts/scope.py" --repo . --mode uncommitted --out "$run"
 ```
 

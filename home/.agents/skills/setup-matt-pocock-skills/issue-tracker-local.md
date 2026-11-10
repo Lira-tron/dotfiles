@@ -2,21 +2,27 @@
 
 Issues and specs for this repo live as markdown files under `.ai/specs/`; decision maps and their tickets live under `.ai/wayfinder/`.
 
+Each spec owns its issue records and follow-up. Shared tracker configuration
+defines this convention; it does not combine issues or progress across specs.
+
 ## Conventions
 
 - One feature per directory: `.ai/specs/<feature-slug>/`
 - The spec is `.ai/specs/<feature-slug>/spec.md`
-- Implementation issues are one file per ticket at `.ai/specs/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01`, never a single combined tickets file
-- Triage state is recorded as a `Status:` line near the top of each issue file (see `triage-labels.md` for the role strings)
+- Implementation issues are one file per ticket at `.ai/specs/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` within that feature, never a single combined tickets file
+- Triage state is recorded as a `Status:` line near the top of each spec or issue file (see `triage-labels.md` for the role strings)
 - Comments and conversation history append to the bottom of the file under a `## Comments` heading
 
 ## When a skill says "publish to the issue tracker"
 
-Create a new file under `.ai/specs/<feature-slug>/` (creating the directory if needed).
+Create or update the corresponding local file under `.ai/specs/<feature-slug>/`.
+For `to-spec`, `spec.md` is the published spec. Local publication does not create
+or update external issues, comments, attachments, or labels.
 
 ## When a skill says "fetch the relevant ticket"
 
-Read the file at the referenced path. The user will normally pass the path or the issue number directly.
+Read the file at the referenced path. Resolve an issue number within the selected
+spec's `issues/` folder; the same number may exist in another feature.
 
 ## Wayfinding operations
 

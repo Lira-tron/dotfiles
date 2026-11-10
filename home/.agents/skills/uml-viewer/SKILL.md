@@ -9,12 +9,17 @@ Use `~/.agents/tools/uml-viewer/bin/uml-viewer`. It builds the shared Go tool in
 
 Read [references/cli.md](references/cli.md) for commands, metric provenance, proposals, and the request inbox.
 
+For exported graphs, metric snapshots, and policy files, resolve the selected
+feature using [the shared artifact rule](../../rules/ai-artifacts.md). Keep
+exports under `<AI_ARTIFACT_ROOT>/uml/`; the viewer's runtime cache stays in its
+native location.
+
 - Identify the owning project/module before scanning or running metrics. Graph extraction does not require a project build.
 - Start with `scan --root <project>`, inspect warnings, then `serve --root <project>`. Give the user the printed browser URL. Keep the process running while they use it; do not start duplicate servers for the same project.
 - For "unpushed", "not pushed", or reviewing the current local change, add `--unpushed` to both commands. This includes local commits relative to upstream, staged/unstaged edits, and nonignored untracked Go/Java files, including changed tests. The CLI fetches the baseline's remote before selection. If no upstream exists, use `--base <ref>` only when the intended baseline is known; otherwise ask for it.
 - Review scope is at file level: declarations in changed files plus containing packages/types. Unchanged dependency context is optional, and deletions are identified without a current source body. Reuse a running viewer only if its project, mode, and baseline match; otherwise choose a free port with `--port 0`.
 - `scan` and `serve` read project source. Results, policies, and requests live in the user cache, outside project source.
-- Use the existing `crap4go`, `crap4java`, `mutate4go`, or `mutate4java` skill before running `measure`. The wrapper executes the real quality tool; mutation retains its ordinary source-editing and manifest behavior. Respect project test commands and worker limits.
+- Use `crapper` and `mutator` for quality analysis. This local viewer's `measure` wrapper supports only the legacy executables, not these new tools. Follow the CLI guide to map verified results to its explicit JSON import schema; do not pass unified EDN snapshots directly or claim Python graph support.
 - If metrics are requested for an unpushed review, use its file list to scope the language tools. Do not pass `--unpushed` to `measure`, and do not broaden to unrelated files.
 - Missing/stale metrics are unknown. Do not infer passing results from manifests, zero selected mutants, or successful tool exit alone. CRAP text can omit overload/path identity; ambiguous rows are refused.
 - Proposals describe hypothetical grouping. Editing a proposal does not authorize changing project code.

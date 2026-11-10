@@ -39,6 +39,12 @@ packaging build.
 
 ## Required checks
 
+For Python, Go, Java, TypeScript, Rust, and Clojure, use the shared
+[`crapper`](../../crapper/SKILL.md), [`mutator`](../../mutator/SKILL.md), and
+[`dryer`](../../dryer/SKILL.md) skills. Crapper and Mutator also support
+JavaScript; Dryer currently does not. Verify equivalents for other languages
+and report missing required support as blocked.
+
 These are the applicable requirements; use the final hardening sequence below
 for execution order.
 
@@ -74,7 +80,7 @@ Fix a failing gate before moving to the next one.
 - Applicable Gherkin mutation uses the same result gate; missing prerequisites are blockers.
 - Coverage has no universal numeric threshold here. It must be fresh and sufficient to support CRAP and mutation analysis.
 - DRY results are candidates, not automatic defects. Remove duplication only when the duplicated knowledge or responsibility should have one owner.
-- Go uses `dry4go`; Java uses `dry4java`. Record each in-scope candidate's
+- Use `dryer` for its supported languages. Record each in-scope candidate's
   disposition. Unresolved harmful duplication blocks the DRY gate; incidental
   structural similarity does not. Shared agent rules should likewise have
   one canonical source, referenced by client instructions and workflows.

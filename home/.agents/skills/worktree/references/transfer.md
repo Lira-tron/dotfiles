@@ -14,17 +14,20 @@ until the destination has been verified.
    Brazil procedure and verify each included package's HEAD. Existing local
    task commits may be the intended base; record them and the eventual review
    base separately.
-3. Store the inventory and binary patches under the destination's `.ai/`.
+3. Store the inventory and binary patches in the selected feature's external
+   artifact directory, following the shared artifact rule.
    Capture staged and unstaged patches separately with `git diff --binary
    --full-index --no-ext-diff --no-textconv`, adding `--cached` for the staged
    patch and limiting both to the task paths.
 4. Check and apply the staged patch with `git apply --index`, then check and
    apply the unstaged patch without `--index`. This preserves partial staging.
    Skip empty patches. Do not use `git add` to recreate staging.
-5. Copy the selected untracked files and `.ai/` records as independent files,
+5. Copy the selected untracked source files and legacy physical `.ai/` records as independent files,
    preserving executable modes and symlinks. Check destination collisions.
    Do not copy `.git`, build caches, credentials, or the entire ignored tree.
-   Do not symlink mutable `.ai/` state between worktrees.
+   Separate features use separate artifact targets. When explicitly continuing
+   the same feature, attach its existing directory and coordinate mutable
+   outputs; do not silently combine independent worktrees' state.
 
 ## Verify before cleanup
 

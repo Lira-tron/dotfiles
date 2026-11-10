@@ -1,6 +1,6 @@
 ---
-name: pr
-description: "Use when writing a PR body."
+name: review-description
+description: "Write or revise code review descriptions, including pull request and merge request bodies. Use for description-only requests or when a submission workflow needs a body."
 metadata:
   credits:
     skill: show-me
@@ -11,7 +11,9 @@ metadata:
 
 Read [workflow artifact locations](../../rules/matt-pocock-artifacts.md) before reading or writing local workflow files.
 
-Use this template for writing the PR body:
+Write the description from the actual diff, relevant code, and available validation results. Return the body to the user or calling workflow; the calling workflow owns review creation, updates, and publication.
+
+Use a template supplied by the user or submission workflow. Keep its sections and fit the summary, evidence, and risk assessment into them. Otherwise use this template:
 
 ```markdown
 ## Summary
@@ -33,6 +35,14 @@ Use this template for writing the PR body:
 
 <optional: potential ramifications of merge>
 ```
+
+## References
+
+Use shared URLs or repository-relative paths to files reviewers can access. Summarize the relevant context inline so the description stands on its own.
+
+Never reference local-only paths: machine-specific checkouts, personal knowledge stores such as `~/knowledge/`, or build and coverage logs under `/tmp/`. Link a shared document or summarize the evidence inline instead.
+
+When delegating description writing, pass this skill and any supplied template to the subagent.
 
 ## Sections
 
@@ -161,12 +171,14 @@ You may use one of these, you may use several, it is unlikely you will use all o
 
 Concrete evidence that the change works. Show a before and after.
 
+Report observed results and identify unavailable evidence rather than inventing it.
+
 Screenshots are S-tier - when the environment is set up for it and the change is visual.
 
 Execution-based evidence is A-tier. Test results, console output. Show the exact test that now fails and passes, using pseudocode.
 
 ### Merge Danger
 
-Describe whether it's a one-way or two-way door. You can walk back through two-way doors, but not one-way doors. A PR that is cheap to roll back is lower risk. Changes that involve destructive actions or hard-to-reverse decisions are one-way doors.
+Describe whether it's a one-way or two-way door. You can walk back through two-way doors, but not one-way doors. A change that is cheap to roll back is lower risk. Changes that involve destructive actions or hard-to-reverse decisions are one-way doors.
 
-The blast radius is the potential impact or scope of the changes introduced by this PR. Consider all possibilities. Examples are layout shift, breakages for consumers, mobile responsiveness, etc.
+The blast radius is the potential impact or scope of the change. Consider all possibilities. Examples are layout shift, breakages for consumers, mobile responsiveness, etc.

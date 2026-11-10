@@ -18,6 +18,7 @@ usage() {
 
 list_tools() {
   print -rl -- \
+    crapper dryer mutator \
     crap4go mutate4go dry4go \
     crap4java mutate4java dry4java \
     gherkin-parser gherkin-ir-dry-checker ir-dry-checker gherkin-mutator
@@ -32,7 +33,7 @@ canonical_tool() {
 
 repository_for() {
   case "$1" in
-    crap4go|mutate4go|dry4go|crap4java|mutate4java|dry4java)
+    crapper|dryer|mutator|crap4go|mutate4go|dry4go|crap4java|mutate4java|dry4java)
       print -r -- "$1"
       ;;
     gherkin-parser|gherkin-ir-dry-checker|gherkin-mutator)
@@ -60,6 +61,27 @@ update_source() {
   fi
 
   print -r -- "$source_dir"
+}
+
+install_python_tool() {
+  local tool="$1"
+  local source_dir="$2"
+  local environment_dir="$lib_dir/$tool"
+  local -a packages=("$source_dir")
+  local -a reinstall=(--reinstall-package "$tool")
+
+  # Mutator imports crapper, but does not declare it in its package metadata.
+  if [[ "$tool" == "mutator" ]]; then
+    packages+=("$(update_source crapper)")
+    reinstall+=(--reinstall-package crapper)
+  fi
+
+  mkdir -p "$bin_dir" "$lib_dir"
+  if [[ ! -x "$environment_dir/bin/python" ]]; then
+    uv venv --python 3.12 "$environment_dir" >&2
+  fi
+  uv pip install --python "$environment_dir/bin/python" "${reinstall[@]}" "${packages[@]}" >&2
+  ln -sfn "../lib/$tool/bin/$tool" "$bin_dir/$tool"
 }
 
 install_go_tool() {
@@ -146,6 +168,9 @@ ensure_tool() {
   source_dir="$(update_source "$repository")"
 
   case "$tool" in
+    crapper|dryer|mutator)
+      install_python_tool "$tool" "$source_dir"
+      ;;
     crap4go|mutate4go|dry4go|gherkin-parser|gherkin-ir-dry-checker|gherkin-mutator)
       install_go_tool "$tool" "$repository" "$source_dir"
       ;;

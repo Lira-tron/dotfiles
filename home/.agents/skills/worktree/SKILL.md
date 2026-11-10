@@ -24,10 +24,12 @@ publication, deployment, or deletion beyond the user's task.
    for this task. This rule takes precedence over automatic worktree requirements
    in other skills. Other clients create a sibling worktree for a different
    implementation task.
-4. Record the primary checkout, selected checkout, user's choice, intended
-   integration branch, starting commit, and upstream for each repository in the
-   task's `.ai/`. Pass absolute task paths and the choice to tools and delegated
-   agents; a shell `cd` does not change every tool's working directory.
+4. Once the selected checkout exists, resolve the feature's external directory
+   using [the shared artifact rule](../../rules/ai-artifacts.md). Record the primary
+   checkout, selected checkout, user's choice, intended integration branch,
+   starting commit, and upstream there. Pass both absolute source and artifact
+   paths to tools and delegated agents; a shell `cd` does not change every
+   tool's working directory.
 
 When continuing on the current branch, skip starting-point selection, transfer,
 and creation; continue at **Run and finish the task**.
@@ -72,6 +74,11 @@ Verify the resulting root, branch, HEAD, and remote-tracking upstream. Set the
 intended upstream if creation did not establish it; quality gates must not
 guess a base because the task branch has no upstream.
 
+Initialize each package's `.ai` link to its own external feature directory
+before creating task artifacts. Use the feature slug without the worktree's
+`-MMDD` suffix; the artifact helper applies the original `YY-MM-DD` creation
+date. On resume, preserve the existing target and date.
+
 Check for an existing task path and branch before creating anything. Reuse the
 matching task. If the name belongs to a different task, insert the smallest
 available numeric suffix before the date, such as `ams-image-2-1007`, without
@@ -81,7 +88,7 @@ checkout.
 ## Run and finish the task
 
 Perform task edits, builds, tests, reviews, commits, and CR/PR commands in the
-selected checkout. Keep `.ai/` evidence inside its owning repository. Invoke
+selected checkout. Keep evidence in its owning package/feature directory. Invoke
 the user's quality workflows only when requested; worktree setup does not
 implicitly invoke `/go`. The committer and read-only reviewers use this task's
 paths. Independent concurrent implementations use separate worktrees.
@@ -95,7 +102,8 @@ external resources. Coordinate access to shared development environments.
 
 When using a worktree, keep it available for revisions. Before authorized
 cleanup, fetch, verify where every task commit is retained, and preserve useful
-ignored `.ai/` records. A clean status alone does not establish that removal is
+legacy physical `.ai/` records. Retain external feature directories when
+removing their checkout links. A clean status alone does not establish that removal is
 safe. Use the owning worktree tool without force; do not delete worktrees
 automatically when a subagent or session exits. Report the selected checkout
 path with the result.

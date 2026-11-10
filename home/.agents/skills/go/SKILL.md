@@ -27,11 +27,14 @@ with HEAD. Do not assume `origin/mainline`, guess `HEAD~1`, or substitute an
 older goal base. Ask for an explicit base if the upstream boundary cannot be
 established; never default to the whole repository.
 
-Create a run directory at `<owning repository or package>/.ai/go/<run-id>/`.
-Keep **every workflow-generated artifact under that target's `.ai/`**: scope
+Resolve the target's feature directory using
+[the shared artifact rule](../../rules/ai-artifacts.md). Create
+`<AI_ARTIFACT_ROOT>/go/<run-id>/` there.
+Keep **every workflow-generated artifact under that feature directory**: scope
 snapshots, patches, helper scripts, build/test logs, coverage, CRAP/DRY results,
 Lean projects and checker evidence, mutation results and recovered backups,
-and the final summary. Use `.ai/reviews/` for all review reports, logs, and finding
+and the final summary. The `.ai/` paths below resolve through the selected
+feature link. Use `.ai/reviews/` for all review reports, logs, and finding
 dispositions in steps 5 and 6, including the record of changes made after review.
 Pass absolute output paths and this requirement to every delegated skill,
 agent, and tool, overriding their default temporary or external evidence
@@ -44,8 +47,9 @@ locally through the path returned by `git rev-parse --git-path info/exclude`;
 preserve existing entries because that file is shared across worktrees. Honor
 repository policy for versioned reports.
 
-Record the base revision, original goal, target paths, staged/unstaged changes,
-relevant untracked files, and renamed/deleted paths in the run directory.
+Record the base revision, starting HEAD, original goal, target paths,
+staged/unstaged changes, relevant untracked files, and renamed/deleted paths in
+the run directory.
 **Keep the comparison base fixed across commits** and update the in-scope
 line/function inventory as fixes change the code. A clean working tree after
 a checkpoint does not mean the implementation disappeared.
@@ -134,11 +138,19 @@ Preserve earlier reports there before rerunning. The coordinator alone writes
 the combined `.ai/reviews/OverallReview.md` in step 6. Track each review separately;
 unavailable tooling, failed execution, or unusable output blocks that review.
 
-### 5a. Codex /review
+### 5a. Standards and spec review
 
-Run Codex's built-in `/review`. For automation, use `codex review` from the task
-worktree with custom instructions specifying the shared scope and checkpoint.
-Save the complete output to `.ai/reviews/CodexReview.md`.
+Invoke [code-review](../code-review/SKILL.md) in review-only mode from an
+orchestration session that can launch its two native subagents. Supply each
+package's recorded comparison base explicitly and verify that HEAD matches its
+review checkpoint. Pass the complete goal inventory, repository standards, and
+originating issue/spec or saved original requirements and acceptance criteria.
+
+Launch its Standards and Spec subagents in parallel with each other and the
+remaining review passes before waiting for results. Preserve their independent
+contexts and separate findings and verdicts. Save both reports to
+`.ai/reviews/StandardsSpecReview.md`, retaining the axis labels when consolidating
+findings in step 6. Record any skipped axis and its reason.
 
 ### 5b. Overall code review
 
@@ -195,7 +207,7 @@ by later edits cannot count as a passing review.
 
 ## 7. Check DRY, verify Lean properties, and checkpoint
 
-Run `dry4go` for Go or `dry4java` for Java and investigate candidates involving
+Run `dryer` for supported languages, including Python, Go, and Java and investigate candidates involving
 the captured changed functions, comparing with relevant existing source and
 tests. Consolidate duplicated knowledge or responsibilities where justified.
 Record why incidental similarity remains separate. Do not gate or refactor
@@ -242,16 +254,20 @@ affected gates and `bbr`, then commit **before the next mutation execution**.
 Recheck the affected mutation sites even when only tests changed; an unchanged
 source manifest must not turn that rerun into a zero-site pass.
 
-After each invocation, inspect the diff against its checkpoint. Restore any
-identified residual mutant before validation or commits. Preserve tool-written
-manifests; validate and commit legitimate manifest changes through the committer
-before running mutation on the next file. Never commit mutated program logic.
+After each invocation, complete the shared
+[mutation artifact restoration](../quality-gates/references/change-scope.md#mutation-artifacts-and-restoration).
+Archive generated manifests under the run directory and verify exact source
+restoration against the checkpoint before continuing. Reuse that checkpoint for
+the next file when source and tests are unchanged; only validated source/test
+fixes need another commit. Never commit mutated program logic or mutation metadata.
 
 ## 9. Verify the final state and report
 
 Verify that normal source is restored and every gate's evidence covers the final
-source and tests. Refresh affected checks when code, tests, manifests, or source
-hashes changed; do not invent a pass from a clean Git status. Run final `bbr`
+source and tests. Check source snapshots and commits since the recorded starting
+HEAD: no run-generated manifest comments or mutation-metadata-only commits may
+remain. A clean Git status alone cannot establish this. Refresh affected checks
+when code, tests, or source hashes changed. Run final `bbr`
 when changes since the last passing build require it.
 
 Use the committer for any remaining validated task changes. Finish with a clean

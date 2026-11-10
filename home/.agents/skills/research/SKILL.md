@@ -11,4 +11,4 @@ Its job:
 
 1. Investigate the question against **primary sources** (official docs, source code, specs, first-party APIs), not a secondary write-up of them. Follow every claim back to the source that owns it.
 2. Write the findings to a single Markdown file, citing each claim's source.
-3. Save it under `.ai/research/<topic>/` in the target project and report the absolute path. Use the output path supplied by a calling workflow when it already points into that project’s `.ai/`.
+3. Save it under `<AI_ARTIFACT_ROOT>/research/<topic>/` in the selected feature and report the absolute path. Use the absolute feature-scoped output path supplied by the calling workflow.

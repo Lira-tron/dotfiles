@@ -4,6 +4,9 @@ Start with project setup. Requirements clarification and research may alternate
 in any order, including research before requirements approval. The user may
 return from design to either activity when new information changes the problem.
 Requirements and research approval remain prerequisites for design.
+When continuing a session, retain its approved scope, artifacts, answers, and
+research authorization. Resume the next unresolved decision rather than repeat
+completed setup or interview rounds.
 
 ## Phase 1: Establish the project
 
@@ -11,8 +14,8 @@ For a new planning session:
 
 1. Resolve the rough idea from direct text, a local file, or a URL.
 2. Derive a concise kebab-case feature name.
-3. Resolve `project_dir`, defaulting to
-   `.ai/specs/{feature_name}/` under the workspace.
+3. Resolve the feature directory using the shared artifact rule. Default
+   `project_dir` to `<AI_ARTIFACT_ROOT>/specs/{feature_name}/`.
 4. Check whether the directory exists and contains files. Never overwrite a
    non-empty directory; ask the user for another path.
 5. Propose this initial structure:
@@ -47,23 +50,70 @@ the findings into the requirements.
 
 ## Phase 3: Clarify and approve requirements
 
-Ask focused questions that materially affect scope, behavior, architecture, or
-acceptance. Cover applicable concerns such as:
+Read [grilling](../../grilling/SKILL.md) and use its dependency-ordered interview
+mechanics within this phase. Research and question rounds alternate as needed;
+the user does not need to run a separate grilling workflow first. If they
+already used `grill-with-docs`, read and reuse its accepted decisions and
+research rather than restart the interview.
 
-- users, use cases, and user experience;
-- inputs, outputs, state changes, and integrations;
-- edge cases and failure behavior;
-- compatibility, migration, and rollout constraints;
-- security, privacy, performance, scalability, and observability;
-- success criteria, exclusions, and unresolved decisions.
+### Prepare a question round
 
-Ask a small coherent set at a time. Suggest concrete options and tradeoffs when
-the user is unsure. Never invent answers.
+Read the supplied docs, relevant code, existing research, and recorded answers.
+Identify material decisions about scope, lifecycle behavior, failure/recovery,
+concurrency, compatibility, security, rollout, and acceptance. Keep each
+decision's ID, prerequisites, evidence, and status in `requirements.md`.
 
-Append each question and answer to `requirements.md` as the conversation
-progresses. Do not pre-populate answers or defer recording until the end.
+Separate facts to investigate from choices the user owns. Use Phase 4 for
+missing factual prerequisites within the approved research scope. Ask
+independent, evidence-ready questions while that research runs; keep dependent
+questions pending. Do not ask the user to discover facts available in code or
+docs, or present a guessed answer as a recommendation.
 
-When the user says clarification is complete, rewrite `requirements.md` into:
+Present a small coherent round of decisions whose prerequisites are settled.
+For each question include:
+
+- the decision and a concrete scenario showing why it matters;
+- a concise finding with source links, distinguishing evidence from assumptions;
+- viable answer options and their meaningful tradeoffs;
+- a recommended answer with its rationale and any remaining uncertainty.
+
+Use this shape in chat or the available question tool:
+
+```text
+Q<N> — <decision>
+Scenario/evidence: <concrete case and cited finding>
+A. <option and tradeoff>
+B. <option and tradeoff>
+Recommendation: A, because <reason grounded in evidence and the user's goals>.
+Do you agree with A, or prefer another answer?
+```
+
+A recommendation is not the user's answer. Record the actual response, its
+scope, and newly opened questions immediately in `requirements.md`, preserving
+the full Q&A. A bare "yes" accepts the clearly presented recommendation; clarify
+which questions it covers when a multi-question response is ambiguous.
+Recompute the remaining decisions after each answer or research finding.
+
+### Keep the docs current
+
+Read [domain-modeling](../../domain-modeling/SKILL.md) when the interview
+resolves domain terminology or a consequential architectural tradeoff. Follow
+its artifact routing and lazy glossary/ADR rules. Requirements and Q&A remain
+in this planning directory; link shared domain records rather than duplicate
+them or create an ADR for every answer. Surface conflicts between the user's
+intended behavior, existing docs, and code before treating a decision as settled.
+
+### Check requirements completeness
+
+Before requesting approval, check that every known material decision has an
+explicit answer or an explicitly accepted deferral with its impact recorded,
+and that factual gaps affecting those choices have been researched or clearly
+bounded. A draft requirements table or one answered scope question is not
+evidence that the interview is complete. Keep asking or researching while
+material behavior choices remain unanswered.
+
+When this check passes and the user confirms clarification is complete,
+rewrite `requirements.md` into:
 
 1. `Context & Problem Statement`
 2. `Functional Requirements` with stable `FR-N` identifiers
@@ -86,6 +136,11 @@ sufficient, keep the phase brief, document why additional investigation is not
 needed, and still create `research/summary.md`. Before researching, propose a
 short research plan listing the questions, sources, and likely code areas.
 Incorporate the user's changes and wait for approval.
+Reuse research already requested or approved in the session; do not ask again
+for each read or interview round within that scope. Propose an extension when
+new questions materially expand it. Research may unblock a question before
+requirements approval, and an answer may reveal another fact to investigate.
+Record unresolved facts separately from unanswered user decisions.
 
 ### Codebase research
 
@@ -145,7 +200,7 @@ Summarize:
 - requirements and their approval status;
 - strongest research findings and source limitations;
 - decisions made;
-- assumptions and open questions.
+- assumptions, unanswered decision IDs, and unresolved factual prerequisites.
 
 Ask the user to choose:
 
@@ -188,6 +243,34 @@ Map the design back to all approved requirement identifiers. Include diagrams
 where they make relationships or sequences easier to understand. Keep the
 document understandable without requiring the reader to open the research
 files.
+
+### Diagram deliverables
+
+Apply these requirements whenever creating or updating a diagram in any
+planning artifact:
+
+1. Retain the editable Mermaid or PlantUML source in the document.
+2. Always render a PNG from that source and save it under `diagrams/` beside
+   the document, within the selected feature's artifact directory. An SVG
+   export may accompany the PNG for scaling.
+3. Embed the PNG in the same section, immediately before the source block,
+   using a relative Markdown image path and descriptive alt text.
+4. Regenerate the image whenever the source changes. Verify that the image
+   exists, its document link resolves, and its labels and relationships match
+   the source. Open the rendered image to check legibility and clipping before
+   presenting the document for review.
+
+Use available diagram tools or MCPs for the operations they support. If a tool
+only returns a viewer URL, include that as an additional link and use a local
+or approved renderer to produce the PNG. Preserve the document's confidentiality
+when choosing a renderer. Rendering documentation assets does not authorize
+application builds, tests, or implementation.
+
+If rendering fails, try an available supported renderer and report any remaining
+failure explicitly. Keep the diagram deliverable pending until the image is
+embedded and checked.
+
+### Design review
 
 Present the design, collect feedback, and revise until explicitly approved.
 If review reveals a requirement or research gap, return to the appropriate
@@ -316,7 +399,12 @@ Create or overwrite `{project_dir}/SESSION.md` after every phase gate:
 - {decision and concise rationale}
 
 ## Assumptions and Open Questions
-- {item or "None"}
+{Unanswered decision IDs and their prerequisites; unresolved research facts;
+or "None". Link to the authoritative Q&A in requirements.md.}
+
+## Research Scope
+{Approved questions and sources, findings incorporated into the interview,
+and any proposed scope extension awaiting approval.}
 
 ## Resume Instructions
 {The exact next action and gate.}

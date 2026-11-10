@@ -8,7 +8,7 @@ The tracked manager is:
 ~/.agents/tools/quality-gates/bin/quality-tool
 ```
 
-It clones or updates official `github.com/unclebob` sources and builds executables into:
+It clones or updates official `github.com/unclebob` sources and installs executables into:
 
 ```text
 ${XDG_DATA_HOME:-$HOME/.local/share}/agent-tools/quality-gates/bin
@@ -27,10 +27,21 @@ Examples:
 ```sh
 manager="$HOME/.agents/tools/quality-gates/bin/quality-tool"
 "$manager" list
-"$manager" ensure crap4go mutate4go dry4go
+"$manager" ensure crapper dryer mutator
 "$manager" ensure gherkin-parser gherkin-ir-dry-checker gherkin-mutator
-"$manager" path mutate4go
+"$manager" path mutator
 ```
+
+Crapper, Dryer, and Mutator use separate Python 3.12 environments under the
+manager's data `lib/` directory, created with `uv`; Python 3.11+ is the upstream
+requirement. `ensure mutator` also installs Crapper in Mutator's environment
+because its upstream package metadata omits that import dependency. Target
+project test dependencies remain in the project's own environment. Parser
+grammars may download on first use; an offline parser failure is a blocker.
+
+The six old Go/Java executable names remain available only for existing legacy
+integrations. Their skill entrypoints redirect to the maintained unified skills;
+old command flags are not aliases for the new tools.
 
 Run `<executable> --help` after installation and before relying on unfamiliar flags.
 
@@ -38,48 +49,51 @@ All CRAP, DRY, and mutation examples below require
 [the captured change scope](change-scope.md). Substitute its selected
 paths and actual current line numbers; `12,18` is only an example. Empty target
 sets skip the gate. The tools' broad defaults do not define this policy.
+For mutation, follow
+[mutation artifact restoration](change-scope.md#mutation-artifacts-and-restoration)
+after every invocation.
 
-## Go
+## Shared CRAP, DRY, and mutation tools
 
-Load the `crap4go`, `mutate4go`, or `dry4go` skill for complete current arguments and exit semantics.
-
-Install:
-
-```sh
-"$manager" ensure crap4go mutate4go dry4go
-```
-
-Typical commands:
+Use [`crapper`](../../crapper/SKILL.md), [`dryer`](../../dryer/SKILL.md), and
+[`mutator`](../../mutator/SKILL.md) for supported languages, including Python,
+Go, and Java. The [gate policy](quality-gates.md#required-checks) owns the
+language-support boundary. Read each CLI guide for language-specific inputs.
 
 ```sh
-crap4go --max-workers 4 --test-command 'go test ./...' path/to/file.go
-mutate4go path/to/file.go --scan
-mutate4go path/to/file.go --lines 12,18 --max-workers 4 --verbose
-dry4go --format json path/to/file.go path/to/comparison.go
+"$manager" ensure crapper dryer mutator
+crapper="$("$manager" path crapper)"
+dryer="$("$manager" path dryer)"
+mutator="$("$manager" path mutator)"
 ```
 
-Use the project's real focused test command with `--test-command` when `go test ./...` is not the correct coverage or mutation boundary. Explicit `--lines` selects Git changes; do not substitute manifest-based defaults, `--since-last-run`, or `--mutate-all`.
-
-## Java
-
-Load the `crap4java`, `mutate4java`, or `dry4java` skill for complete current arguments and exit semantics.
-
-Install:
+From the actual project root, after passing tests and generating verified fresh
+coverage with its native runner:
 
 ```sh
-"$manager" ensure crap4java mutate4java dry4java
+"$mutator" --scan --lines 12,18 src/example.py
+"$mutator" --use-existing-coverage --lines 12,18 --mutate-all \
+  --max-workers 4 --verbose \
+  --test-command '/absolute/project/.venv/bin/python -m pytest tests/test_example.py' \
+  src/example.py
+"$crapper" --use-existing-coverage --threshold 10 src/example.py
+"$dryer" --edn src/example.py src/comparison.py
 ```
 
-Typical commands:
+Replace paths, lines, and test commands from the captured scope and owning
+configuration. Execute sequentially and stop to resolve a failed gate. Mutator
+requires both the line filter and `--mutate-all` for fresh scoped execution.
 
-```sh
-crap4java path/to/File.java
-mutate4java path/to/File.java --scan
-mutate4java path/to/File.java --lines 12,18 --max-workers 4 --verbose
-dry4java --format edn path/to/File.java path/to/Comparison.java
-```
+Python uses coverage.py LCOV; see [the Python coverage example](../../crapper/references/cli.md#coverage-inputs).
+Go uses a coverprofile; Java uses JaCoCo XML. Project-native commands can feed
+these formats without forcing a Maven approximation onto a Brazil/Gradle package.
+Use an absolute Python interpreter and relative test paths in worker commands.
 
-Run from the owning Java or Maven module. In a Brazil workspace, first identify the owning package and its focused test command; do not run a workspace-root Maven approximation. Preserve manifests written by the selected-line run; never initialize them with an unscoped mutation command or hand editing.
+Crapper and Dryer overwrite `.metrics/crap.edn` and `.metrics/dry.edn`.
+Mutator writes `.metrics/mutate/*.edn` and temporary workers under `target/`.
+Keep the real project as `--root`; archive native output into the external
+feature directory after execution using the shared tool-output rules. Neither
+`AI_ARTIFACT_ROOT` nor a shell `cd` redirects fixed output paths.
 
 ## Gherkin/APS
 

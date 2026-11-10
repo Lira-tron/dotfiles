@@ -1,18 +1,11 @@
 ---
 name: mutate4go
-description: Install, run, and interpret mutate4go differential mutation testing for individual Go source files. Use for mutation scans, manifests, survivor hardening, coverage filtering, or mutate4go CLI questions.
+description: Compatibility entrypoint for mutate4go requests. Use the shared mutator skill for Go and other supported languages, including Python.
 ---
 
-# mutate4go
+# mutate4go → mutator
 
-Read [references/cli.md](references/cli.md) before running the tool.
-
-Use [the shared change scope](../quality-gates/references/change-scope.md),
-including unpushed commits and pending task edits.
-Pass explicit `--lines` for current added/modified production lines; manifest
-defaults and `--since-last-run` do not select unpushed Git changes. Empty
-source/line scope is a skip. Inspect recovery backups before even `--scan`.
-
-Use the shared quality-tool manager and run from the owning Go module. Verify the baseline first, scan each selected file, then mutate one file at a time with no more than four workers. Preserve embedded manifests and verify restoration against the exact pre-run source.
-
-Important: current `mutate4go` exits successfully even when mutants survive. The gate passes only when the report says `Survived: 0` and no operational error occurred.
+Read and follow [the mutator skill](../mutator/SKILL.md) and its CLI reference.
+The active tool is `mutator`; install and resolve that name through `quality-tool`.
+Use its current flags, coverage inputs, output format, and exit semantics.
+Legacy `mutate4go` arguments are not a compatible command alias.

@@ -36,42 +36,27 @@ and state-transition behavior rather than tests that merely execute code.
 
 ## CRAP: per-function maximum, not an average
 
-Use `crap4go` or `crap4java` via the shared manager:
+Use the [Crapper skill](../../crapper/SKILL.md) for supported languages,
+including Python, Go, and Java. Install through the shared manager and pass
+explicit existing source paths from the captured inventory. Keep that selection
+after checkpoints; `--changed` omits unpushed commits.
 
-```sh
-manager="$HOME/.agents/tools/quality-gates/bin/quality-tool"
-"$manager" ensure crap4go
-"$manager" path crap4go
-```
+Apply [the shared CRAP limit and conditional exception](../../quality-gates/references/quality-gates.md)
+to affected functions only. `--threshold 10` compares full-precision scores
+across every function in the selected files; retain its actual exit separately
+from the scoped verdict. The text table rounds to one decimal and EDN to four.
+Use the source-aware, unrounded API or raw coverage counts described in Crapper's
+CLI guide when filtering individual functions or deciding a boundary value.
 
-Select the language-appropriate tool and explicit current source paths from
-the captured change inventory. After checkpoints, keep those explicit
-paths instead of rediscovering an empty `--changed` set. Filter generated code
-and unaffected functions from the gate.
-
-CRAP combines cyclomatic complexity and coverage:
-`CC^2 * (1 - coverage)^3 + CC`. Apply
-[the shared limit and conditional exception](../../quality-gates/references/quality-gates.md).
-Upstream `crap4go` describes 30+ as high risk; that is not this workflow's
-acceptance threshold. The installed `crap4java` enforces the same ceiling of 10:
-retain its actual exit status and distinguish it from the scoped policy
-verdict. Do not label a tool failure as a successful run.
-
-Evaluate unrounded scores: `crap4go` can exit successfully with scores above
-the limit and prints rounded scores and coverage. For example, CC=10 and 95%
-coverage give CRAP=10.0125, which can display as 10.0 but fails the ceiling of 10.
-Use verified unrounded output, or deterministically recompute from exact
-complexity and raw function coverage counts. Do not infer a pass from rounded
-display values. Missing coverage, `N/A`, zero selected functions despite
-executable changes, or a failed coverage command cannot yield a passing gate.
-
-The Java tool invokes Maven and has no custom test-command option. Do not run it
-as an approximation for a Brazil/Gradle package. Use a verified project-native
-equivalent with the same metric and source scope, or report the incompatibility.
+Generate coverage through the owning project's runner first. Python requires
+coverage.py LCOV; Go uses a coverprofile and Java uses JaCoCo XML. Verify success,
+freshness, and source mapping before `--use-existing-coverage`. Missing coverage,
+`N/A`, empty results despite executable changes, or a failed coverage command
+cannot yield a pass, even if Crapper exits successfully.
 
 ## DRY: decisions about duplicated responsibilities
 
-Load `dry4go` or `dry4java` and scan relevant package source and tests, including
+Load `dryer` and scan relevant package source and tests, including
 existing code needed for comparison. Skip generated output and dependency caches.
 Only pairs with at least one affected function/declaration from the captured
 change inventory belong to the gate. Exclude unrelated pairs from its
@@ -120,56 +105,35 @@ with a concrete explanation.
 
 ## Mutation: clean checkpoints and nonempty evidence
 
-Load `mutate4go` or `mutate4java`. Read its CLI reference and preserve its embedded
-manifests. Use the real focused test command and fresh coverage. The Java custom
-test-command path may not generate coverage; supply verified compatible coverage
-or explicitly account for the tool's lack of coverage filtering.
+Load [Mutator](../../mutator/SKILL.md) and its CLI reference, and follow
+[the shared recovery policy](../../quality-gates/references/change-scope.md#mutation-artifacts-and-restoration).
+Use the actual project test command and fresh compatible coverage. Verify that
+the same command can run against worker copies; for Python use the project
+interpreter's absolute path and relative source/test paths.
 
-Before any invocation, inspect the tool's active recovery paths. In the installed
-Go tool, `<source-file>.mutate4go.bak` is restored over the source before even
-`--scan` executes, and restoration does not itself retire the backup. Compare
-any backup and current source with the recorded checkpoint before allowing the
-tool to run. After verified recovery, archive the backup in
-`.ai/go/<run-id>/recovery/` and ensure its active path is absent so a later
-invocation cannot overwrite a newer fix. Inspect the Java tool's recovery
-behavior when applicable; do not invent a matching filename. If recovery or
-ownership is uncertain, stop.
+Before every invocation, record the clean checkpoint and source/test hashes,
+then inspect `target/mutator-backup/`. Resolve and archive legacy backups before
+a non-scan run can overwrite current source. Mutator now writes EDN snapshots
+under `.metrics/mutate/` and runs copied sources under `target/mutation-workers/`.
+It does not add source comments.
 
-Scan the selected source and record the intended sites before execution.
-Always use explicit `--lines` for current added/modified source lines in the
-captured change scope. The default manifest comparison and
-`--since-last-run` do not select unpushed Git changes; do not use either as a
-scope selector or combine them with `--lines`. Never omit the selector when
-the line set is empty. Test-only or deletion-only changes do not authorize
-mutation of unchanged source.
+Scan one selected file with explicit `--lines`. Execute using
+`--lines L1,L2,... --mutate-all --max-workers 4` so Git lines remain the boundary
+and historical kills cannot suppress a rerun after tests change. The scan does
+not accept `--max-workers` or `--mutate-all`. Empty production line scope skips
+mutation; never widen it to obtain a nonempty result.
 
-Update line mappings after scoped fixes. Rerun prior survivors and affected
-sites in the captured inventory when tests change; a stored manifest must not
-skip them. Do not use `--update-manifest` to pretend mutation testing occurred.
+Require current per-site execution evidence, zero survivors, and no operational
+errors. Exit 0 also covers nothing-to-run cases. Review uncovered sites and
+worker prerequisites: compilation errors, missing dependencies, and timeouts
+can all be counted as kills by the tool. Reproduce suspect failures; an
+infrastructure error is not test-strength evidence.
 
-- Go requires `Survived: 0` and no operational error; exit 0 alone is insufficient.
-- Java requires exit 0 plus evidence that the intended sites actually ran.
-- Review every skipped/uncovered site. Add tests for relevant executable gaps;
-  skipped sites are not killed mutants. A zero-site run is `not applicable` only
-  when the scoped behavior has no supported mutation sites and that is verified.
-- Investigate timeouts: do not treat an infrastructure stall as evidence that a
-  mutant was killed by the tests.
-
-Before each execution, record the clean checkpoint and source/test hashes.
-Afterward, compare the resulting source with that checkpoint, including failure
-and interruption paths. Expected embedded manifest updates are different from
-residual mutated logic. Preserve manifests and archive tool backups in
-`.ai/go/<run-id>/recovery/`, outside their active recovery paths, after verified
-recovery. Undo only positively identified residual mutations; do not use blanket
-resets or overwrite concurrent user edits. If ownership or restoration is
-uncertain, stop mutation and report the checkpoint, affected files, and recovery
-evidence.
-
-After restoration, verify the normal tests/build before the committer commits
-legitimate manifests or fixes. Every next execution must again start clean.
-Changes to tests invalidate affected mutation results even when production
-source is unchanged. Keep logs and the executed-site inventory so a retry cannot
-hide an earlier survivor behind an unchanged-source shortcut.
+Archive raw EDN, logs, and recovery evidence in the external run directory.
+Verify source, tests, and index match the checkpoint and workers/backups are
+clear before applying fixes. Follow native-output retention rules, then verify
+normal tests/build before authorized checkpoint commits. Refresh coverage and
+rerun selected sites after test changes without changing the upstream base.
 
 ## Sources and local policy
 
@@ -178,7 +142,8 @@ above were checked against the installed per-tool skills and their CLI reference
 The upstream metric descriptions are maintained in:
 
 ```text
-https://github.com/unclebob/crap4go
-https://github.com/unclebob/crap4java
+https://github.com/unclebob/crapper
+https://github.com/unclebob/dryer
+https://github.com/unclebob/mutator
 https://lean-lang.org/doc/reference/latest/ValidatingProofs/
 ```

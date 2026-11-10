@@ -1,6 +1,6 @@
 ---
 name: planner
-description: Use when the user asks to create a plan, create a spec, make a plan, write or draft a plan or specification, or plan a feature, even without naming the skill, or explicitly invokes $planner. Runs an interactive, research-driven planning workflow that turns rough ideas into approved requirements, research, design, and incremental implementation plans under .ai/specs.
+description: Use when the user asks to create a plan, create a spec, make a plan, write or draft a plan or specification, or plan a feature, even without naming the skill, or explicitly invokes $planner. Runs an interactive, research-driven planning workflow that turns rough ideas into approved requirements, research, design, and incremental implementation plans in the selected feature's artifact directory.
 ---
 
 # Planner
@@ -8,7 +8,12 @@ description: Use when the user asks to create a plan, create a spec, make a plan
 Turn a rough idea into durable, implementation-ready planning artifacts. Keep
 the user in control at every phase boundary.
 
+Build requirements through evidence-backed question rounds: research facts,
+present options and recommended answers, and document the user's decisions.
+The interview and research form one loop within this workflow.
+
 Before starting or resuming planning, read
+[the shared artifact rule](../../rules/ai-artifacts.md), then read
 [references/workflow.md](references/workflow.md) completely and follow it.
 
 ## Non-negotiable boundaries
@@ -27,7 +32,9 @@ Before starting or resuming planning, read
   findings.
 - Do not overwrite a non-empty planning directory. Ask for a different path.
 - Include Mermaid or PlantUML diagrams when architecture, data flow, sequence,
-  or component relationships are materially clearer visually.
+  or component relationships are materially clearer visually. Follow the
+  [diagram deliverables](references/workflow.md#diagram-deliverables) for every
+  diagram created or updated.
 
 ## Starting or resuming
 
@@ -35,12 +42,13 @@ For a new session, gather in one prompt:
 
 - `rough_idea` (required): direct text, a local file, or a URL.
 - `project_dir` (optional): default to
-  `.ai/specs/{feature_name}/` under the current workspace, where
+  `<AI_ARTIFACT_ROOT>/specs/{feature_name}/`, where
   `{feature_name}` is a concise kebab-case name derived from the idea.
 
 If `SESSION.md` already exists in the selected directory, read it and the
-listed artifacts, summarize the current state, and ask whether to resume from
-the recorded phase. Do not restart or overwrite approved work.
+listed artifacts, summarize the current state, and honor the user's direction
+to continue. Ask which phase to resume only when that direction is ambiguous.
+Do not restart or overwrite approved work.
 
 ## Completion
 

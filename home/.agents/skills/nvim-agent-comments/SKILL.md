@@ -9,6 +9,10 @@ Read and update source-anchored conversation threads in `.ai/comments/nvim-agent
 
 ## Start here
 
+For the default `.ai` store, follow [the shared artifact rule](../../rules/ai-artifacts.md)
+to resolve the selected feature. Keep comment anchors relative to the source
+repository, even when the store resolves into the external artifact directory.
+
 When a pasted reference supplies a comment-store path, read that exact file and resolve source paths from its repository root. Otherwise, find the nearest Git repository or worktree root for the commented source file and read `.ai/comments/nvim-agent-comments.json` there. Read the path directly: `.ai/` may be globally ignored by Git and omitted from ordinary file searches.
 
 When discovering the default store, if the new store is absent, check the legacy `.nvim-agent-comments.json` at the same root. If both files exist, use the new store and leave the legacy file untouched; do not merge them automatically. If neither exists, the project has no saved agent comments.

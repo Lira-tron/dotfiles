@@ -1,4 +1,4 @@
 interface:
-  display_name: "dry4go"
-  short_description: "Find structural duplication in Go"
-  default_prompt: "Use $dry4go to inspect the changed Go code for meaningful duplication."
+  display_name: "dry4go (use dryer)"
+  short_description: "Use dryer for the maintained quality workflow"
+  default_prompt: "Use $dry4go to follow the shared dryer workflow for this change."

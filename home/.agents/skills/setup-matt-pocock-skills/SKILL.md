@@ -1,6 +1,6 @@
 ---
 name: setup-matt-pocock-skills
-description: "Configure this repo for the engineering skills: set up its issue tracker, triage label vocabulary, and domain doc layout. Run once before first use of the other engineering skills."
+description: "Optionally customize repository overrides for the engineering skills' global local-tracker, triage-role, and domain-doc defaults."
 disable-model-invocation: true
 ---
 
@@ -8,13 +8,18 @@ Read [workflow artifact locations](../../rules/matt-pocock-artifacts.md) before 
 
 # Setup Matt Pocock's Skills
 
-Scaffold the per-repo configuration that the engineering skills assume:
+The shared workflow rule already supplies usable global defaults. Missing
+`.ai/config/` files do not require setup. When no repository customization is
+requested, explain the resolved defaults and proceed without scaffolding files
+or asking the user to reconfirm them.
 
-- **Issue tracker**: where issues live (GitHub by default; local markdown is also supported out of the box)
+For requested customizations, scaffold the repository overrides:
+
+- **Issue tracker**: where issues live (local Markdown by default; external trackers are explicit choices)
 - **Triage labels**: the strings used for the five canonical triage roles
 - **Domain docs**: where `GLOSSARY.md` and ADRs live, and the consumer rules for reading them
 
-This is a prompt-driven skill, not a deterministic script. Explore, present what you found, confirm with the user, then write.
+This is a prompt-driven skill, not a deterministic script. For requested overrides, explore, present what you found, confirm the changes, then write.
 
 ## Process
 
@@ -33,7 +38,7 @@ Look at the current repo to understand its starting state. Read whatever exists;
 
 ### 2. Present findings and ask
 
-Summarise what's present and what's missing. Then take the sections in order. One section, one answer, then the next.
+Summarise the resolved defaults and requested differences. Ask only about unresolved customization choices, one section at a time.
 
 Lead each section with the recommended answer so the user can accept it in a word. Give a one-line explainer only when the choice genuinely branches; skip the section entirely when exploration already settled it (Section B when `triage` isn't installed, Section C when there's no monorepo).
 
@@ -41,7 +46,7 @@ Lead each section with the recommended answer so the user can accept it in a wor
 
 > Explainer: The "issue tracker" is where issues live for this repo. Skills like `to-tickets`, `triage`, and `to-spec` read from and write to it. They need to know whether to call `gh issue create`, write a markdown file under `.ai/specs/`, or follow some other workflow you describe. Pick the place you actually track work for this repo.
 
-Default posture: these skills were designed for GitHub. If a `git remote` points at GitHub, propose that. If a `git remote` points at GitLab (`gitlab.com` or a self-hosted host), propose GitLab. Otherwise (or if the user prefers), offer:
+Default posture: local Markdown, with one spec and its own issues folder per feature. A Git remote or source issue link does not change that default. If the user wants a repository override, offer:
 
 - **GitHub**: issues live in the repo's GitHub Issues (uses the `gh` CLI)
 - **GitLab**: issues live in the repo's GitLab Issues (uses the [`glab`](https://gitlab.com/gitlab-org/cli) CLI)
@@ -50,9 +55,9 @@ Default posture: these skills were designed for GitHub. If a `git remote` points
 
 Record the choice in `.ai/config/issue-tracker.md`. The GitHub and GitLab templates carry a "PRs as a request surface" flag, defaulted **off**. Leave it off and don't raise it: a user who wants external PRs in the triage queue can flip the flag in the file later.
 
-**Section B: Triage label vocabulary.** Skip this section entirely if the `triage` skill isn't installed (exploration told you), since an uninstalled skill needs no labels.
+**Section B: Triage label vocabulary.** Use the shared default mapping unless customization is requested. Skip this section if no label override is needed or the `triage` skill isn't installed.
 
-If it is installed, ask exactly one question:
+If a repository label override is requested and `triage` is installed, ask exactly one question:
 
 > Do you want to keep the default triage labels? (recommended: **yes**)
 
@@ -117,4 +122,4 @@ For "other" issue trackers, write `.ai/config/issue-tracker.md` from scratch usi
 
 ### 5. Done
 
-Tell the user the setup is complete and which engineering skills will now read from these files. Mention they can edit `.ai/config/*.md` directly later; re-running this skill is only necessary if they want to switch issue trackers or restart from scratch.
+Tell the user which requested overrides were written. Other settings continue to use the shared defaults. Repository overrides can be edited later; ordinary use of the engineering skills requires no setup.

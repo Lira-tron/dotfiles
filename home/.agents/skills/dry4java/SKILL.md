@@ -1,16 +1,11 @@
 ---
 name: dry4java
-description: Install, run, and interpret dry4java structural duplicate detection for Java declarations. Use for Java DRY analysis, duplicate-candidate review, threshold tuning, or dry4java CLI questions.
+description: Compatibility entrypoint for dry4java requests. Use the shared dryer skill for Java and other supported languages, including Python.
 ---
 
-# dry4java
+# dry4java → dryer
 
-Read [references/cli.md](references/cli.md) before running the tool.
-
-Use [the shared change scope](../quality-gates/references/change-scope.md),
-including unpushed commits and pending task edits.
-Run on selected files, with existing code as comparison context where useful.
-Only pairs involving an affected declaration belong to the gate; an empty scope
-is a skip, not a request to scan the whole project.
-
-Treat results as review candidates. Confirm duplicated knowledge or responsibility before refactoring; normalized structural similarity can match code that should remain separate.
+Read and follow [the dryer skill](../dryer/SKILL.md) and its CLI reference.
+The active tool is `dryer`; install and resolve that name through `quality-tool`.
+Use its current flags, coverage inputs, output format, and exit semantics.
+Legacy `dry4java` arguments are not a compatible command alias.

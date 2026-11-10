@@ -18,17 +18,17 @@ command = "builder-mcp"
 args = ["--include-tools", "*", "--exclude-tools", "SkillsTool,WorkspaceSearch,Delegate,ToolReactivationTool"]
 enabled_tools = ["ApolloReadActions", "GetPipelineDetails", "GetPipelineHealth", "GetPipelinesRelevantToUser", "GetSasCampaigns", "GetSasRisks", "GetSoftwareRecommendation", "InternalCodeSearch", "InternalSearch", "MechanicDescribeTool", "MechanicDiscoverTools", "OncallReadActions", "QuipEditor", "ReadInternalWebsites", "ReadRemoteTestRun", "SearchAcronymCentral", "SearchSoftwareRecommendations", "TaskeiGetRoomResources", "TaskeiGetRooms", "TaskeiGetTask", "TaskeiListTasks", "TicketingReadActions", "TicketingWriteActions", "WorkspaceGitDetails"]
 
-[mcp_servers.builder-mcp.tools.QuipEditor]
-approval_mode = "prompt"
-
-[mcp_servers.builder-mcp.tools.TicketingWriteActions]
-approval_mode = "prompt"
-
 [mcp_servers.builder-mcp.env]
 TOOL_PERSONALIZATION_ENABLED = "false"
 TOOL_PERSONALIZATION_MIN_EXECUTIONS = "0"
 TOOL_PERSONALIZATION_ROLLOUT_PERCENTAGE = "100"
 TOOL_PERSONALIZATION_TRAINING_DAYS = "0"
+
+[mcp_servers.builder-mcp.tools.QuipEditor]
+approval_mode = "prompt"
+
+[mcp_servers.builder-mcp.tools.TicketingWriteActions]
+approval_mode = "prompt"
 
 [mcp_servers.aws-knowledge-mcp-server]
 url = "https://knowledge-mcp.global.api.aws"
@@ -36,33 +36,14 @@ enabled_tools = ["aws___get_regional_availability", "aws___list_regions", "aws__
 
 [mcp_servers.slack-enterprise-mcp]
 command = "slack-enterprise-mcp"
-startup_timeout_sec = 30
+startup_timeout_sec = 30.0
 default_tools_approval_mode = "writes"
 
 [mcp_servers.pipelines-mcp]
 command = "pipelines-mcp"
-startup_timeout_sec = 30
+startup_timeout_sec = 30.0
 default_tools_approval_mode = "approve"
-enabled_tools = [
-    "pipelines-get-structure",
-    "pipelines-get-overview",
-    "pipelines-get-events",
-    "pipelines-get-revisions",
-    "pipelines-get-inflight",
-    "pipelines-get-deployment",
-    "pipelines-list",
-    "pipelines-search",
-    "pipelines-get-latest-approved-revision",
-    "pipelines-get-latest-revision-of-target",
-    "pipelines-get-previous-revision",
-    "pipelines-get-revisions-for-targets-in-stage",
-    "pipelines-get-revision-for-target-event",
-    "pipelines-get-target-event",
-    "pipelines-get-workflow-revisions",
-    "pipelines-get-commit-metadata",
-    "pipelines-diff-target-revisions",
-    "pipelines-where-is-my-commit",
-]
+enabled_tools = ["pipelines-get-structure", "pipelines-get-overview", "pipelines-get-events", "pipelines-get-revisions", "pipelines-get-inflight", "pipelines-get-deployment", "pipelines-list", "pipelines-search", "pipelines-get-latest-approved-revision", "pipelines-get-latest-revision-of-target", "pipelines-get-previous-revision", "pipelines-get-revisions-for-targets-in-stage", "pipelines-get-revision-for-target-event", "pipelines-get-target-event", "pipelines-get-workflow-revisions", "pipelines-get-commit-metadata", "pipelines-diff-target-revisions", "pipelines-where-is-my-commit"]
 
 [mcp_servers.diagram-tools-mcp]
 command = "diagram-tools-mcp"
@@ -163,6 +144,15 @@ command = "kuiper-jira-mcp"
 [mcp_servers.kuiper-jira-mcp.env]
 JIRA_BASE_URL = "https://jira.kbobjects.com"
 
+[mcp_servers.kuiper-jira-mcp.tools.add_jira_comment]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-jira-mcp.tools.assign_jira_issue]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-jira-mcp.tools.create_jira_issue]
+approval_mode = "approve"
+
 [mcp_servers.kuiper-jira-mcp.tools.get_jira_issue]
 approval_mode = "approve"
 
@@ -187,7 +177,13 @@ approval_mode = "approve"
 [mcp_servers.kuiper-jira-mcp.tools.get_team_worklogs]
 approval_mode = "approve"
 
-[mcp_servers.kuiper-jira-mcp.tools.add_jira_comment]
+[mcp_servers.kuiper-jira-mcp.tools.link_jira_issues]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-jira-mcp.tools.refresh_jira_auth]
+approval_mode = "approve"
+
+[mcp_servers.kuiper-jira-mcp.tools.update_jira_issue]
 approval_mode = "approve"
 
 [mcp_servers.dsai-mcp]
@@ -196,10 +192,10 @@ command = "dsai-mcp"
 [mcp_servers.pippin-mcp]
 command = "pippin-mcp-server"
 
-[mcp_servers.pippin-mcp.tools.pippin_upload_artifact_image]
+[mcp_servers.pippin-mcp.tools.pippin_update_artifact]
 approval_mode = "approve"
 
-[mcp_servers.pippin-mcp.tools.pippin_update_artifact]
+[mcp_servers.pippin-mcp.tools.pippin_upload_artifact_image]
 approval_mode = "approve"
 
 [mcp_servers.omnia-mcp]
@@ -212,6 +208,12 @@ command = "mcp-spec-studio-server"
 approval_mode = "approve"
 
 [mcp_servers.spec-studio-mcp.tools.get-spec-content]
+approval_mode = "approve"
+
+[mcp_servers.arcc-mcp]
+command = "arcc-mcp"
+
+[mcp_servers.arcc-mcp.tools.search_arcc]
 approval_mode = "approve"
 
 [shell_environment_policy]
@@ -239,14 +241,21 @@ screen_reader_detection_done = true
 log_user_prompt = false
 trace_exporter = "none"
 environment = "stable"
-exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/logs", protocol = "binary" } }
-metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/metrics", protocol = "binary" } }
+exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/logs", protocol = "binary", headers = { x-amzn-credential-source = "byoa", x-amzn-credential-source-since = "2026-11-10T21:01:43.677589164Z" } } }
+metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/metrics", protocol = "binary", headers = { x-amzn-credential-source = "byoa", x-amzn-credential-source-since = "2026-11-10T21:01:43.677589164Z" } } }
 
 [model_providers.amazon-bedrock.aws]
 # region = "us-west-2"
 region = "us-west-2"
 
 [model_providers.amazon-bedrock.aws.credential_export]
+command = "/home/limonoct/.toolbox/bin/codex"
+args = ["amzn", "credential-process", "--aws-profile", "dev"]
+
+[model_providers.amazon-bedrock-runtime.aws]
+region = "us-east-1"
+
+[model_providers.amazon-bedrock-runtime.aws.credential_export]
 command = "/home/limonoct/.toolbox/bin/codex"
 args = ["amzn", "credential-process", "--aws-profile", "dev"]
 
@@ -347,6 +356,15 @@ trust_level = "trusted"
 [projects."/workplace/limonoct/MyCli/src/MyCli"]
 trust_level = "trusted"
 
+[projects."/workplace/limonoct/KuiperPipeline/src/KuiperPipelineConstructs"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/auto/KuiperArtifactManagementService/src/KuiperArtifactManagementService"]
+trust_level = "trusted"
+
+[projects."/workplace/limonoct/auto/KuiperArtifactManagementService/src/KuiperArtifactManagementServiceCDK"]
+trust_level = "trusted"
+
 [marketplaces.aim]
 source_type = "local"
 source = "/local/home/limonoct/.aim/plugins/codex"
@@ -424,6 +442,21 @@ approval_mode = "approve"
 [plugins."gopls-mcp@gopls-mcp-marketplace".mcp_servers.gopls-mcp.tools.go_symbol_references]
 approval_mode = "approve"
 
+[plugins."gopls-mcp@gopls-mcp-marketplace".mcp_servers.gopls-mcp.tools.go_get_call_hierarchy]
+approval_mode = "approve"
+
+[plugins."gopls-mcp@gopls-mcp-marketplace".mcp_servers.gopls-mcp.tools.go_get_dependency_graph]
+approval_mode = "approve"
+
+[plugins."gopls-mcp@gopls-mcp-marketplace".mcp_servers.gopls-mcp.tools.go_implementation]
+approval_mode = "approve"
+
+[plugins."LeoDefaultsAISettings-leo-builderwide-default-plugin@aim"]
+enabled = true
+
+[plugins."LeoDefaultsAISettings-leo-builderwide-default-plugin@aim".mcp_servers.arcc-mcp.tools.search_arcc]
+approval_mode = "approve"
+
 [hooks.state]
 
 [hooks.state."/home/limonoct/.codex/hooks.json:stop:0:1"]
@@ -466,6 +499,9 @@ trusted_hash = "sha256:c28b3fbced3257ee83ac785cc99e9dbf37efe560b3d1181aa9cddb286
 
 [hooks.state."/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles/home/.codex/hooks.json:stop:0:0"]
 trusted_hash = "sha256:c7a38901faf35b4e304771fa7dd9eec7754130c772f04b9d59ba6951b3076e3b"
+
+[hooks.state."gopls-mcp@gopls-mcp-marketplace:hooks/codex-hooks.json:session_start:0:0"]
+trusted_hash = "sha256:a357111f3c5e03bdcb371ea6fcb8ced08de12adb807b3cbf39a5fe8198cba75b"
 
 [features]
 hooks = true
