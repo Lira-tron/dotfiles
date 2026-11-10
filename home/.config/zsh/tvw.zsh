@@ -3,6 +3,7 @@ tvw() {
     local tree_source='python3 "$HOME/.config/television/cable/worktrees.py" current'
     local tree_keys='tab="select_next_entry";backtab="select_prev_entry"'
     if [[ "${HERDR_ENV:-}" == 1 ]]; then
+        tree_keys+=';ctrl-g="actions:create_current"'
         # Distinguish Enter from the channel's Ctrl+M previous-pane shortcut.
         printf '\033[?1049h\033[>1u'
         command tv herdr-workspaces --source-command "$tree_source" --no-remote --keybindings "$tree_keys"
@@ -19,7 +20,7 @@ tvw() {
         tree_token="${selection#*$'\n'}"
         case "$tree_action" in
             enter) tree_path=$(python3 "$HOME/.config/television/cable/worktrees.py" path "$tree_token") || return ;;
-            ctrl-g) tree_path=$(python3 "$HOME/.config/television/cable/worktrees.py" create "$tree_token") || return ;;
+            ctrl-g) tree_path=$(python3 "$HOME/.config/television/cable/worktrees.py" create-current) || return ;;
             ctrl-d) python3 "$HOME/.config/television/cable/worktrees.py" delete "$tree_token"; return $? ;;
             ctrl-u) python3 "$HOME/.config/television/cable/worktrees.py" delete "$tree_token" --force; return $? ;;
         esac

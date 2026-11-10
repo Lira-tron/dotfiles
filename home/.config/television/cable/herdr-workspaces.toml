@@ -86,7 +86,7 @@ command = '''
 if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
   python3 "$HOME/.config/television/cable/worktrees.py" delete '{split:\t:1}'
 elif printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
-  herdr workspace close '{split:\t:2}'
+  python3 "$HOME/.config/television/cable/worktrees.py" close-workspace '{split:\t:2}'
 fi
 '''
 mode = "execute"
@@ -108,5 +108,14 @@ if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
 python3 "$HOME/.config/television/cable/worktrees.py" create '{split:\t:1}'
 HERDR_CREATE
 fi
+'''
+mode = "execute"
+
+[actions.create_current]
+description = "Create a named worktree for the current folder's Brazil workspace"
+command = '''
+python3 "$HOME/.config/television/cable/herdr-previous-pane.py" connect <<'HERDR_CREATE'
+python3 "$HOME/.config/television/cable/worktrees.py" create-current
+HERDR_CREATE
 '''
 mode = "execute"

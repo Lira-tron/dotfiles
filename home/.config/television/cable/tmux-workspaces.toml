@@ -5,11 +5,12 @@ requirements = ["tmux", "fd", "eza"]
 
 [source]
 command = [
-  "{ tmux list-sessions -F '#{session_last_attached}\t[session] #{session_name}\t#{session_name}' 2>/dev/null | sort -rn | cut -f2-; bash $HOME/.config/television/cable/tmux-panels.sh; fd -t d -d 1 . $HOME/workplace --format '[dir] {/}\t{}\t{/}'; bash $HOME/.config/television/cable/tmux-knowledge.sh sessions | head -1; bash $HOME/.config/television/cable/tmux-knowledge.sh projects; bash $HOME/.config/television/cable/tmux-knowledge.sh designs; bash $HOME/.config/television/cable/tmux-knowledge.sh specs; bash $HOME/.config/television/cable/tmux-knowledge.sh memory; bash $HOME/.config/television/cable/tmux-knowledge.sh memories; bash $HOME/.config/television/cable/tmux-knowledge.sh ops; bash $HOME/.config/television/cable/tmux-knowledge.sh others; }",
+  "{ tmux list-sessions -F '#{session_last_attached}\t[session] #{session_name}\t#{session_name}' 2>/dev/null | sort -rn | cut -f2-; bash $HOME/.config/television/cable/tmux-panels.sh; fd -t d -d 1 . $HOME/workplace --format '[dir] {/}\t{}\t{/}'; bash $HOME/.config/television/cable/tmux-knowledge.sh sessions | head -1; bash $HOME/.config/television/cable/tmux-knowledge.sh ai; bash $HOME/.config/television/cable/tmux-knowledge.sh projects; bash $HOME/.config/television/cable/tmux-knowledge.sh designs; bash $HOME/.config/television/cable/tmux-knowledge.sh specs; bash $HOME/.config/television/cable/tmux-knowledge.sh memory; bash $HOME/.config/television/cable/tmux-knowledge.sh memories; bash $HOME/.config/television/cable/tmux-knowledge.sh ops; bash $HOME/.config/television/cable/tmux-knowledge.sh others; }",
   "tmux list-sessions -F '#{session_last_attached}\t[session] #{session_name}\t#{session_name}' 2>/dev/null | sort -rn | cut -f2-",
   "bash $HOME/.config/television/cable/tmux-panels.sh",
   "fd -t d -d 1 . $HOME/workplace --format '[dir] {/}\t{}\t{/}'",
   "bash $HOME/.config/television/cable/tmux-knowledge.sh sessions",
+  "bash $HOME/.config/television/cable/tmux-knowledge.sh ai",
   "bash $HOME/.config/television/cable/tmux-knowledge.sh projects",
   "bash $HOME/.config/television/cable/tmux-knowledge.sh designs",
   "bash $HOME/.config/television/cable/tmux-knowledge.sh specs",

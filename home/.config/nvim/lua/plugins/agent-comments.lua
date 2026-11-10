@@ -6,10 +6,15 @@ local function copy_text(text)
   return vim.fn.OSCYank(text) == 1
 end
 
+local function absolute_path(path)
+  return vim.fs.normalize(vim.fs.abspath(path))
+end
+
 local function copy_open_threads()
   local thread_path = require("nvim-agent-comments.thread").target(0)
   local root = require("nvim-agent-comments.root")
-  local project, err = root.find(thread_path or vim.api.nvim_buf_get_name(0))
+  local target = thread_path and absolute_path(thread_path) or vim.api.nvim_buf_get_name(0)
+  local project, err = root.find(target)
   if not project then
     return vim.notify(err, vim.log.levels.ERROR)
   end
@@ -37,8 +42,13 @@ local function copy_open_threads()
   if #references == 0 then
     return vim.notify("No open threads to copy")
   end
-  local text = ("Read Neovim comment threads %s in `%s`. ")
-    :format(table.concat(references, ", "), path)
+  local text = ("Read Neovim comment threads %s in `%s`. "
+    .. "Resolve source paths from `%s`. ")
+    :format(
+      table.concat(references, ", "),
+      absolute_path(path),
+      absolute_path(project)
+    )
     .. "Read each thread's full conversation and address my latest unanswered "
     .. "message in each. Skip DONE threads."
   if not copy_text(text) then
@@ -51,7 +61,8 @@ local function copy_current_comment()
   local bufnr = vim.api.nvim_get_current_buf()
   local thread_path, thread_id = require("nvim-agent-comments.thread").target(bufnr)
   local root = require("nvim-agent-comments.root")
-  local project, err = root.find(thread_path or vim.api.nvim_buf_get_name(bufnr))
+  local target = thread_path and absolute_path(thread_path) or vim.api.nvim_buf_get_name(bufnr)
+  local project, err = root.find(target)
   if not project then
     return vim.notify(err, vim.log.levels.ERROR)
   end
@@ -93,8 +104,9 @@ local function copy_current_comment()
         and ("thread #%d"):format(comment.thread_number)
       or ("with ID `%s`"):format(comment.id)
     local text = ("Read Neovim comment %s in `%s`. "
+      .. "Resolve source paths from `%s`. "
       .. "Read the full conversation and address my latest unanswered message.")
-      :format(reference, path)
+      :format(reference, absolute_path(path), absolute_path(project))
     if not copy_text(text) then
       return vim.notify("Could not copy thread reference", vim.log.levels.ERROR)
     end

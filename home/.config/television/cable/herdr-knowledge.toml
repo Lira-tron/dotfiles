@@ -5,8 +5,9 @@ requirements = ["herdr", "fd", "eza", "bash"]
 
 [source]
 command = [
-  '''{ bash "$HOME/.config/television/cable/tmux-knowledge.sh" sessions | head -1; bash "$HOME/.config/television/cable/tmux-knowledge.sh" projects; bash "$HOME/.config/television/cable/tmux-knowledge.sh" designs; bash "$HOME/.config/television/cable/tmux-knowledge.sh" specs; bash "$HOME/.config/television/cable/tmux-knowledge.sh" memory; bash "$HOME/.config/television/cable/tmux-knowledge.sh" memories; bash "$HOME/.config/television/cable/tmux-knowledge.sh" ops; bash "$HOME/.config/television/cable/tmux-knowledge.sh" others; }''',
+  '''{ bash "$HOME/.config/television/cable/tmux-knowledge.sh" sessions | head -1; bash "$HOME/.config/television/cable/tmux-knowledge.sh" ai; bash "$HOME/.config/television/cable/tmux-knowledge.sh" projects; bash "$HOME/.config/television/cable/tmux-knowledge.sh" designs; bash "$HOME/.config/television/cable/tmux-knowledge.sh" specs; bash "$HOME/.config/television/cable/tmux-knowledge.sh" memory; bash "$HOME/.config/television/cable/tmux-knowledge.sh" memories; bash "$HOME/.config/television/cable/tmux-knowledge.sh" ops; bash "$HOME/.config/television/cable/tmux-knowledge.sh" others; }''',
   '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" sessions''',
+  '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" ai''',
   '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" projects''',
   '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" designs''',
   '''bash "$HOME/.config/television/cable/tmux-knowledge.sh" specs''',
