@@ -1,0 +1,1 @@
+../../.agents/rules/ai-artifacts.md
