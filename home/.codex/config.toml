@@ -241,8 +241,8 @@ screen_reader_detection_done = true
 log_user_prompt = false
 trace_exporter = "none"
 environment = "stable"
-exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/logs", protocol = "binary", headers = { x-amzn-credential-source = "byoa", x-amzn-credential-source-since = "2026-11-10T21:01:43.677589164Z" } } }
-metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/metrics", protocol = "binary", headers = { x-amzn-credential-source = "byoa", x-amzn-credential-source-since = "2026-11-10T21:01:43.677589164Z" } } }
+exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/logs", protocol = "binary", headers = { x-amzn-credential-source = "builder-account", x-amzn-credential-source-since = "2026-11-10T22:18:11.78323965Z" } } }
+metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/metrics", protocol = "binary", headers = { x-amzn-credential-source = "builder-account", x-amzn-credential-source-since = "2026-11-10T22:18:11.78323965Z" } } }
 
 [model_providers.amazon-bedrock.aws]
 # region = "us-west-2"
@@ -250,14 +250,14 @@ region = "us-west-2"
 
 [model_providers.amazon-bedrock.aws.credential_export]
 command = "/home/limonoct/.toolbox/bin/codex"
-args = ["amzn", "credential-process", "--aws-profile", "dev"]
+args = ["amzn", "credential-process"]
 
 [model_providers.amazon-bedrock-runtime.aws]
 region = "us-east-1"
 
 [model_providers.amazon-bedrock-runtime.aws.credential_export]
 command = "/home/limonoct/.toolbox/bin/codex"
-args = ["amzn", "credential-process", "--aws-profile", "dev"]
+args = ["amzn", "credential-process"]
 
 
 [projects."/workplace"]
