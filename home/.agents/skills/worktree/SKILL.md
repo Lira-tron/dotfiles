@@ -90,7 +90,7 @@ checkout.
 Perform task edits, builds, tests, reviews, commits, and CR/PR commands in the
 selected checkout. Keep evidence in its owning package/feature directory. Invoke
 the user's quality workflows only when requested; worktree setup does not
-implicitly invoke `/go`. The committer and read-only reviewers use this task's
+implicitly invoke `/go` or `/code-finalizer`. The committer and read-only reviewers use this task's
 paths. Independent concurrent implementations use separate worktrees.
 
 Resolve Git metadata paths with `git rev-parse --git-path <path>` rather than

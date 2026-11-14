@@ -50,7 +50,7 @@ CRAP and DRY, including functions affected by deletions. A deleted function
 has no current CRAP score or mutation sites. Pure renames and metadata-only
 changes do not manufacture executable changes.
 
-For `/go`, use this same comparison for coverage, reviews, CRAP, DRY, Lean,
+For `code-finalizer`, use this same comparison for coverage, reviews, CRAP, DRY, Lean,
 and mutation. Capture it before checkpoint commits and preserve the base for
 the run, refreshing line mappings and hashes after scoped fixes. Local commits
 remain in scope; a clean working tree does not mean there is no unpushed work.
@@ -97,9 +97,10 @@ Before every invocation, including `--scan`, capture exact source bytes, test
 hashes, the staged diff, Git status, and existing metric/recovery state. Keep
 snapshots, logs, raw EDN, and recovery evidence in the owning feature's external
 directory, resolved by [the artifact rule](../../../rules/ai-artifacts.md);
-`/go` uses `<AI_ARTIFACT_ROOT>/go/<run-id>/`. Follow `/go`'s committed-checkpoint
-requirement only when running that workflow. Standalone runs preserve all
-pre-existing staged and unstaged edits.
+`code-finalizer` uses `<AI_ARTIFACT_ROOT>/finalization/<run-id>/`. Apply its
+[committed-checkpoint requirement](finalization.md#mutation-checkpoints) only
+when running that workflow. Standalone runs preserve all pre-existing staged
+and unstaged edits.
 
 After every invocation, including failure or interruption:
 

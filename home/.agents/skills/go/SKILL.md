@@ -1,283 +1,186 @@
 ---
 name: go
-description: Finalize an implementation when the user invokes /go or $go. Build with bbr, enforce new-code unit coverage and CRAP, commit, simplify, run reviewers including an adversarial reviewer in parallel, resolve their findings, assess DRY, verify properties with Lean 4, and run mutation testing only from committed checkpoints. Not a trigger for Go-language questions or ordinary approval.
+description: >
+  Develop the requested change using First Make it Work, Then Make it Right,
+  and Follow Practice. Use when the user invokes /go or $go, or asks for these
+  engineering principles. Go-language questions and ordinary approval are not
+  invocations.
 ---
 
-# Go — finish the implementation
+# Go — develop the change
 
-If the request is "implement X /go", implement X first, then execute this
-workflow. Read the gates early enough to design testable, simple code. Run the
-workflow only when requested; an ordinary "go ahead" is not an invocation.
+Implement the requested feature or fix, validating each meaningful increment.
+Use focused tests and quality tools where they answer a concrete concern.
+The separate [code-finalizer](../code-finalizer/SKILL.md) runs at the end only
+when explicitly requested, including through an explicitly requested workflow.
+Invoking `go`, editing a file, or creating a commit does not start finalization
+or its review suite. Selected end-of-development `simplify` uses its own
+cleanup reviewers.
 
-Invocation authorizes scoped local fixes and checkpoint commits through the
-`commit` skill's named committer. Honor an explicit no-commit or review-only
-restriction: report the affected gates as blocked and do not run mutation on
-uncommitted code. Do not push, amend, rewrite history, or create a CR.
-Read `~/.agents/skills/worktree/SKILL.md` and reuse this task's worktree; transfer
-existing work through that procedure if necessary. This skill changes the local
-implementation; it does not deploy it.
+For the requested code change:
 
-## Establish scope and evidence
+* First Make it Work.
+* Then Make it Right.
+* Follow Practice.
 
-Read the repository instructions and identify every owning package. Use
-[the shared change scope](../quality-gates/references/change-scope.md):
-unpushed commits plus staged, unstaged, and relevant untracked task edits.
-Fetch first, verify the actual tracked upstream, and record its merge base
-with HEAD. Do not assume `origin/mainline`, guess `HEAD~1`, or substitute an
-older goal base. Ask for an explicit base if the upstream boundary cannot be
-established; never default to the whole repository.
+Follow repository instructions and the user's scope and authorization.
+Preserve unrelated work. Select the checkout with [worktree](../worktree/SKILL.md)
+before editing, reusing choices already made for this task.
 
-Resolve the target's feature directory using
-[the shared artifact rule](../../rules/ai-artifacts.md). Create
-`<AI_ARTIFACT_ROOT>/go/<run-id>/` there.
-Keep **every workflow-generated artifact under that feature directory**: scope
-snapshots, patches, helper scripts, build/test logs, coverage, CRAP/DRY results,
-Lean projects and checker evidence, mutation results and recovered backups,
-and the final summary. The `.ai/` paths below resolve through the selected
-feature link. Use `.ai/reviews/` for all review reports, logs, and finding
-dispositions in steps 5 and 6, including the record of changes made after review.
-Pass absolute output paths and this requirement to every delegated skill,
-agent, and tool, overriding their default temporary or external evidence
-locations. If a tool requires a fixed output path, relocate completed artifacts
-into the run directory after the tool and any required recovery finish.
+# First Make it Work
 
-Verify that transient run artifacts are ignored by Git so writing evidence
-does not dirty a mutation checkpoint. If needed, exclude only this run directory
-locally through the path returned by `git rev-parse --git-path info/exclude`;
-preserve existing entries because that file is shared across worktrees. Honor
-repository policy for versioned reports.
+## Laziness Protocol
 
-Record the base revision, starting HEAD, original goal, target paths,
-staged/unstaged changes, relevant untracked files, and renamed/deleted paths in
-the run directory.
-**Keep the comparison base fixed across commits** and update the in-scope
-line/function inventory as fixes change the code. A clean working tree after
-a checkpoint does not mean the implementation disappeared.
+* Keep each decision in a single place.
+* Choose the smallest edit that delivers the requested behavior.
 
-Preserve unrelated work. Never commit or stash someone else's changes just to
-make the mutation precondition pass. Track each gate as `passed`, `failed`,
-`blocked`, or `not applicable`, with commands and evidence tied to the source
-and test versions examined. Missing evidence is not a pass.
+## Foundational Thinking
 
-Read [the gate details](references/gates.md) before choosing coverage, CRAP, DRY,
-Lean, or mutation commands. Use the installed language skills and project test
-configuration. Do not run the entire `quality-gates` workflow as a nested step:
-its mutation order does not supply this workflow's required commit checkpoints.
+* Shape the data before implementing the logic.
+* Resolve prerequisites that make later work simpler.
+* Give concurrent writers independent state wherever possible.
 
-All gates use this captured local-change scope. Keep the comparison base across
-checkpoint commits and refresh the inventory for scoped fixes. Local committed
-work remains eligible until it is upstream; an empty working-tree diff alone
-does not make a gate `not applicable`. If the applicable local-change scope is
-empty, report the gate as `not applicable`.
+## TDD
 
-## 1. Build with bbr
+* Add a test for the next missing behavior before implementing it.
+* Confirm that the failure demonstrates that missing behavior.
+* Implement only what is needed to pass.
+* When a meaningful test is impractical, explain the validation limit instead
+  of adding a test that proves nothing.
 
-From each changed Brazil package, resolve and run the user's `bbr` command.
-It is currently a zsh alias for `eda br`; interactive zsh loads that alias:
+## Redesign From First Principles
 
-```sh
-zsh -ic 'setopt pipefail; bbr'
-```
+* Consider the design with the new requirement included from the beginning.
+* Implement the necessary design change incrementally, within the task's scope.
 
-Capture the complete log and actual exit code. Fix build or unit-test failures,
-then rerun until green. A compile-only command cannot stand in for the owning
-package's release checks. If `bbr` is unavailable, investigate its configuration
-and report the blocker rather than silently claiming another command was `bbr`.
-Outside Brazil, use the project's real build-and-test command and name the
-substitution.
+## Attack the Premise
 
-## 2. Enforce unit coverage and CRAP
+* After two fixes based on the same assumption fail the same check, state that
+  assumption and inspect how state and responsibility are assigned.
+* Correct the assignment or assumption causing the imbalance before another attempt.
 
-Generate fresh unit-test coverage. Require **at least 90% coverage of the new
-and modified executable code**, measured against the fixed goal scope, not the
-whole-package average. Add meaningful tests for uncovered behavior; never hide
-executable lines or weaken assertions to increase the score.
+## Subtract Before You Add
 
-Apply [the shared CRAP policy](../quality-gates/references/quality-gates.md)
-only to affected functions in the captured change scope: normally
-**CRAP <= 10**, with its documented single-question conditional exception.
-Preserve stricter project limits and report stricter tool failures separately.
-Improve tests or simplify the actual responsibility when this gate fails.
-Rerun the affected checks and `bbr` after edits before committing.
+* Simplify the affected code before adding more machinery.
 
-## 3. Commit the validated implementation
+## Outcome-Oriented Execution
 
-Invoke `commit`, delegating grouping, staging, and commits to the named
-committer. Provide the goal's exact scope and build/coverage/CRAP evidence.
-The coordinator never runs `git add` or `git commit`. Record the returned hashes
-and inspect Git status. If the implementation is already committed, record the
-existing checkpoint instead of creating an empty commit.
+* Define an observable finish condition.
+* Temporary local breakage must be planned, reversible, and resolved before completion.
 
-## 4. Run simplify
+## Build the Lever
 
-Run the `simplify` skill on the **whole goal change from the recorded base**,
-including the checkpoint commits. Do not supply only the now-empty uncommitted
-diff. In Codex, keep orchestration in a session that can launch simplify's
-native reviewers; in Claude Code, invoke its `/simplify` capability.
+* For repetitive or difficult work, build a small tool when it simplifies the task.
+* Validate one case manually, then check the tool against that result.
 
-Apply useful improvements within scope. If code or tests change, rerun build,
-unit coverage, and CRAP, then use the named committer to checkpoint the changes
-before review. Simplify itself does not commit. Record the checkpoint SHA for
-each owning package while retaining its original comparison base.
+## Architecture
 
-## 5. Run reviewers in parallel
+### Model the Domain
 
-Prepare all applicable reviews below before launching them. Give each reviewer
-the same complete goal inventory, fixed comparison bases, and recorded checkpoint
-SHAs. All task source and tests must be committed. An uncommitted-only review
-after a checkpoint does not cover this scope.
+* Encode valid states in the domain structure.
+* Keep the project's glossary aligned with its terminology.
+* Leave clear, local code alone.
 
-Launch the review passes concurrently through separate jobs or agents, starting
-all of them before waiting for results. Request review only: reviewers must not
-edit source or tests, commit, or start their own fix loops. Keep the reviewed
-files unchanged until every reviewer finishes. If the snapshot changes meanwhile,
-invalidate affected results and repeat those reviews on a validated checkpoint.
+### Boundary Discipline
 
-Give each reviewer its own absolute output paths under the target's `.ai/reviews/`.
-Preserve earlier reports there before rerunning. The coordinator alone writes
-the combined `.ai/reviews/OverallReview.md` in step 6. Track each review separately;
-unavailable tooling, failed execution, or unusable output blocks that review.
+* Validate external inputs at their boundary.
+* Work with validated values internally.
+* Express business rules as pure functions.
 
-### 5a. Standards and spec review
+### Type System Discipline
 
-Invoke [code-review](../code-review/SKILL.md) in review-only mode from an
-orchestration session that can launch its two native subagents. Supply each
-package's recorded comparison base explicitly and verify that HEAD matches its
-review checkpoint. Pass the complete goal inventory, repository standards, and
-originating issue/spec or saved original requirements and acceptance criteria.
+* Represent constraints in types so invalid values cannot be constructed.
+* Convert external data into domain values once, at entry.
+* Fix type errors rather than suppressing them.
 
-Launch its Standards and Spec subagents in parallel with each other and the
-remaining review passes before waiting for results. Preserve their independent
-contexts and separate findings and verdicts. Save both reports to
-`.ai/reviews/StandardsSpecReview.md`, retaining the axis labels when consolidating
-findings in step 6. Record any skipped axis and its reason.
+### Make Operations Idempotent
 
-### 5b. Overall code review
+* Repeated execution, including recovery after interruption, should reach the
+  intended state without duplicate effects.
 
-Invoke `overall-code-review` in review-only mode and follow its `edrevn` workflow.
-Save the complete raw review to `.ai/reviews/review.md`. For this invocation,
-return the findings and defer fixes and the combined disposition report to step 6.
+### Separate Before Serializing Shared State
 
-### 5c. Local reviews
+* Separate actors' mutable data unless sharing is necessary.
+* For genuinely shared mutable state, assign one writer and enforce that ownership.
 
-Before launching the parallel stage, read
-`~/.agents/skills/go/references/local-reviews.md` if it exists, resolving the path
-from the user's home directory. Run its applicable review passes alongside 5a and
-5b with the same scope, checkpoint, review-only boundary, and evidence rules.
+# Then Make it Right
 
-### 5d. Adversarial review
+## Fix Root Causes
 
-Run the `adversarial-reviewer` subagent alongside 5a–5c for changes to behavior,
-contracts, tests, runtime configuration, or executable agent instructions.
-Record `not applicable` with a reason when the entire scope is limited to prose,
-formatting, or mechanical edits that preserve semantics.
+* Reproduce the failure and trace its cause.
+* Correct the responsible behavior.
+* Distinguish hiding a symptom from fixing its cause.
 
-Use the [shared adversarial review contract](../../agents/adversarial-reviewer.md).
-Launch with a fresh context (`fork_context: false` in Codex). Supply the original
-requirements and acceptance criteria, complete goal inventory, absolute checkout
-paths, fixed bases, and checkpoint SHAs. Keep other review reports, scout
-summaries, and the implementer's correctness rationale out of its context.
+## Sequence Work into Verifiable Units
 
-The subagent returns its report without writing files. The coordinator saves the
-complete output to `.ai/reviews/AdversarialReview.md`, preserving prior rounds.
-Track this review's verdict and evidence under the same blocking and refresh
-rules as the other reviews; resolve findings in step 6.
+* Complete and check one small increment before starting the next.
 
-## 6. Resolve findings and record updates
+## Test Behavior, Not Implementation
 
-Wait for all review passes to finish, then consolidate their findings. Deduplicate
-overlaps while retaining every source, severity, and reviewer outcome. Assess all
-action items, especially blockers, majors, and architectural feedback. The
-coordinator applies warranted fixes; reviewers never edit concurrently.
+* Exercise the interface as its caller does and assert the observable result.
+* A test that accepts missing or empty behavior needs stronger assertions.
 
-Write `.ai/reviews/OverallReview.md` using the `overall-code-review` disposition
-format. For each finding, record what was updated, the affected files and code
-locations, the validation result, and the resulting checkpoint when fixed. For
-anything left unchanged, record why. Include each review's scope, checkpoint,
-report path, and status, including failures or reviews with no findings.
-Preserve earlier rounds so the report records both the feedback and subsequent
-changes. A confirmed, in-scope, unresolved blocker or major prevents completion;
-a documented false positive is not an unresolved defect.
+For the tools below, follow the [shared policy](../quality-gates/references/quality-gates.md)
+and [change-scope rules](../quality-gates/references/change-scope.md) for selection,
+limits, affected code, and mutation recovery. Honor required project checks;
+otherwise use individual tools when the change warrants them. A development
+increment does not require the entire `quality-gates` workflow.
 
-After fixes, rerun build, unit coverage, and CRAP, then use the named committer
-to checkpoint the changes. Refresh affected reviews against that checkpoint
-without changing the comparison bases; follow any stricter resubmission rules
-from local integrations. Repeat assessment for new findings. Evidence invalidated
-by later edits cannot count as a passing review.
+## CRAP
 
-## 7. Check DRY, verify Lean properties, and checkpoint
+* When selected, use `crapper` for supported languages, including Python, Go, and Java.
+* Improve tests or simplify responsibilities to meet the shared per-function limit.
+* Assess single-question conditionals under the documented exception.
 
-Run `dryer` for supported languages, including Python, Go, and Java and investigate candidates involving
-the captured changed functions, comparing with relevant existing source and
-tests. Consolidate duplicated knowledge or responsibilities where justified.
-Record why incidental similarity remains separate. Do not gate or refactor
-unchanged-versus-unchanged pairs. For agent instructions, prefer references to
-shared rules over copying the same policy into multiple workflows.
+## DRY
 
-Use `lean-verify` to establish and check meaningful properties of the goal's
-current code. Supply the persisted goal scope explicitly; a default
-`uncommitted` run after a commit can return `no_changes` and is not verification.
-Follow the scope and checker procedure in the gate details.
+* When selected, use `dryer` for supported languages, including Python, Go, and Java.
+* Review matches and consolidate duplicated knowledge or responsibilities.
 
-After DRY or proof-driven fixes, rerun build, unit coverage, CRAP, and affected
-DRY/proof checks. Revisit simplify when changes materially alter its conclusions,
-and follow step 6's checkpoint and review-refresh rules. Record these updates
-and their validation in `.ai/reviews/OverallReview.md`. Do not reuse evidence
-invalidated by changes to source or tests.
+## Mutation
 
-Once these gates pass, use the committer to commit all remaining in-scope
-source, tests, and versioned task artifacts, including review reports when
-repository policy permits them. Record this checkpoint. Required checks that
-remain failed, unproved, or unsupported prevent an all-passed result.
+* When selected, use `mutator` for supported languages, including Python, Go, and Java.
+* Test uncovered behavior and strengthen assertions against surviving mutants.
+* Resolve execution errors; an unrun check is not a pass.
+* Remove code made obsolete by this task.
 
-## 8. Mutation-test committed code
+## Refactoring
 
-Before **every mutation execution**, require a valid recorded checkpoint and
-an empty `git status --porcelain=v1 --untracked-files=all`. Ignored build caches
-and ignored `.ai/` evidence do not need commits. Unrelated dirty work blocks
-mutation; do not include it in a commit without authorization.
+* Establish the current observable behavior.
+* Restructure the code.
+* Verify that the same behavior still holds.
 
-Before any tool invocation, including a scan, resolve and retire active recovery
-backups as described in the gate details. A clean Git status alone cannot detect
-an ignored backup that the tool could restore over newer code.
+## Final Development Cleanup
 
-Run the appropriate mutation tool one source file at a time, using explicit
-`--lines` from the captured change scope, fresh coverage, and the owning
-package's real tests. Manifest-based defaults do not establish Git scope.
-Keep build, coverage, CRAP, DRY, Lean, and mutation checks sequential. Use at most four
-mutation workers where supported. Follow the gate details for result parsing,
-manifest handling, and restoration checks.
+* Once the requested implementation is complete, use
+  [simplify](../simplify/SKILL.md) when the accumulated change has a concrete
+  cleanup concern. Small or already-clear changes can skip this pass.
+* Supply the complete task scope, apply useful improvements, and validate
+  affected behavior. Record the examined source and findings so `code-finalizer`
+  can reuse them. Edits and commits do not each trigger another simplify pass.
 
-Require zero survivors and zero unresolved execution errors. If a run exposes
-missing assertions or a source bug, restore the normal code, fix it, rerun the
-affected gates and `bbr`, then commit **before the next mutation execution**.
-Recheck the affected mutation sites even when only tests changed; an unchanged
-source manifest must not turn that rerun into a zero-site pass.
+# Practice
 
-After each invocation, complete the shared
-[mutation artifact restoration](../quality-gates/references/change-scope.md#mutation-artifacts-and-restoration).
-Archive generated manifests under the run directory and verify exact source
-restoration against the checkpoint before continuing. Reuse that checkpoint for
-the next file when source and tests are unchanged; only validated source/test
-fixes need another commit. Never commit mutated program logic or mutation metadata.
+## Keep a Log
 
-## 9. Verify the final state and report
+* Record actions and reasons in the feature directory resolved by
+  [the artifact rule](../../rules/ai-artifacts.md).
+* Summarize the work and validation results on completion.
 
-Verify that normal source is restored and every gate's evidence covers the final
-source and tests. Check source snapshots and commits since the recorded starting
-HEAD: no run-generated manifest comments or mutation-metadata-only commits may
-remain. A clean Git status alone cannot establish this. Refresh affected checks
-when code, tests, or source hashes changed. Run final `bbr`
-when changes since the last passing build require it.
+## Guard the Context Window
 
-Use the committer for any remaining validated task changes. Finish with a clean
-task working tree and record the final checkpoint hashes. If unrelated work or
-an unavailable check prevents completion, report the exact limitation.
+* Retain essential decisions and evidence in the main thread.
+* Delegate bulky independent work when useful and authorized; bring back a summary.
 
-Write a concise summary in `.ai/go/<run-id>/` and report its path,
-all review report paths, files updated and why, commits, build result,
-changed-code coverage numerator and denominator, maximum in-scope CRAP, DRY
-dispositions, mutation results, and Lean proof status/assumptions. List unresolved
-issues first. Claim completion only when all required gates pass or have a
-justified applicability exclusion; an explicit user waiver must be reported as a
-waiver, not a passed check.
+## Worktree Cleanup
+
+* Follow [worktree](../worktree/SKILL.md) for authorized cleanup after verifying
+  that the work is retained and no active task needs the checkout.
+* Preserve uncommitted work pending the user's decision.
+
+## Commit
+
+* When authorized, delegate cohesive commits through [commit](../commit/SKILL.md)
+  after the build and applicable checks pass.
+* Each commit should explain its purpose, change, and validation.
+* Never run `git push`.
