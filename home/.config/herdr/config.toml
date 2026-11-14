@@ -323,7 +323,7 @@ tab_bar_position = "bottom"
 # The title renders on the Herdr server, so {hostname} names the host the panes
 # run on even when attaching from a remote client.
 # Set to "" to leave the outer terminal title alone.
-# window_title = "{hostname}: {workspace}"
+window_title = "{terminal_title}"
 
 # Agent panel ordering: "spaces" (grouped by space) or "priority" (attention queue).
 # "workspaces" is accepted as an alias for "spaces".

@@ -139,16 +139,19 @@ alias sizeorder="du -ah . | grep -v "/$" | sort -rh"
 # Disable auto-setting terminal title.
 DISABLE_AUTO_TITLE="true"
 function precmd () {
-  echo -ne "\033]0;$(print -rD $PWD)\007"
+  local title="$(print -rD -- "$PWD")"
+  printf '\033]0;%s\007' "${title//[[:cntrl:]]/}"
 }
 precmd
 
 function preexec () {
+  local title
   if [[ $1 =~ ^ssh ]]; then
-    print -Pn "\e]0; 🚨🚨🚨$(print -rD $PWD) $1 🚨🚨🚨\a"
+    title=" 🚨🚨🚨$(print -rD -- "$PWD") $1 🚨🚨🚨"
   else
-    print -Pn "\e]0;🚀 $(print -rD $PWD) $1  🚀\a"
+    title="🚀 $(print -rD -- "$PWD") $1  🚀"
   fi
+  printf '\033]0;%s\007' "${title//[[:cntrl:]]/}"
 }
 
 
@@ -271,7 +274,7 @@ function setJava () {
 }
 
 # alias ed='claude --dangerously-skip-permissions --aws-profile dev'
-alias ed='codex --aws-profile dev'
+alias ed='env -u DISPLAY -u WAYLAND_DISPLAY codex --aws-profile dev'
 alias edd='claude agents --dangerously-skip-permissions --aws-profile dev'
 alias edr='claude -r --dangerously-skip-permissions --aws-profile dev'
 alias edrev='claude --agent reviewer --dangerously-skip-permissions --aws-profile dev'

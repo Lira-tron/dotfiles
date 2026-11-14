@@ -17,6 +17,7 @@ plan_mode_reasoning_effort = "xhigh"
 command = "builder-mcp"
 args = ["--include-tools", "*", "--exclude-tools", "SkillsTool,WorkspaceSearch,Delegate,ToolReactivationTool"]
 enabled_tools = ["ApolloReadActions", "GetPipelineDetails", "GetPipelineHealth", "GetPipelinesRelevantToUser", "GetSasCampaigns", "GetSasRisks", "GetSoftwareRecommendation", "InternalCodeSearch", "InternalSearch", "MechanicDescribeTool", "MechanicDiscoverTools", "OncallReadActions", "QuipEditor", "ReadInternalWebsites", "ReadRemoteTestRun", "SearchAcronymCentral", "SearchSoftwareRecommendations", "TaskeiGetRoomResources", "TaskeiGetRooms", "TaskeiGetTask", "TaskeiListTasks", "TicketingReadActions", "TicketingWriteActions", "WorkspaceGitDetails"]
+env_vars = ["SSH_AUTH_SOCK"]
 
 [mcp_servers.builder-mcp.env]
 TOOL_PERSONALIZATION_ENABLED = "false"
@@ -61,6 +62,9 @@ approval_mode = "approve"
 [mcp_servers.sage-plus-service-mcp]
 command = "sage-plus-service-mcp"
 enabled_tools = ["AskQuestion", "GetAnswer", "GetDocumentStatus", "SearchRelevantContentAsync"]
+
+[mcp_servers.sage-plus-service-mcp.tools.SearchRelevantContentAsync]
+approval_mode = "approve"
 
 [mcp_servers.tickety-mcp]
 command = "tickety-mcp"
@@ -241,8 +245,8 @@ screen_reader_detection_done = true
 log_user_prompt = false
 trace_exporter = "none"
 environment = "stable"
-exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/logs", protocol = "binary", headers = { x-amzn-credential-source = "builder-account", x-amzn-credential-source-since = "2026-11-10T22:18:11.78323965Z" } } }
-metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/metrics", protocol = "binary", headers = { x-amzn-credential-source = "builder-account", x-amzn-credential-source-since = "2026-11-10T22:18:11.78323965Z" } } }
+exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/logs", protocol = "binary", headers = { x-amzn-credential-source = "byoa", x-amzn-credential-source-since = "2026-11-14T04:50:05.821205546Z" } } }
+metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/metrics", protocol = "binary", headers = { x-amzn-credential-source = "byoa", x-amzn-credential-source-since = "2026-11-14T04:50:05.821205546Z" } } }
 
 [model_providers.amazon-bedrock.aws]
 # region = "us-west-2"
@@ -250,14 +254,14 @@ region = "us-west-2"
 
 [model_providers.amazon-bedrock.aws.credential_export]
 command = "/home/limonoct/.toolbox/bin/codex"
-args = ["amzn", "credential-process"]
+args = ["amzn", "credential-process", "--aws-profile", "dev"]
 
 [model_providers.amazon-bedrock-runtime.aws]
 region = "us-east-1"
 
 [model_providers.amazon-bedrock-runtime.aws.credential_export]
 command = "/home/limonoct/.toolbox/bin/codex"
-args = ["amzn", "credential-process"]
+args = ["amzn", "credential-process", "--aws-profile", "dev"]
 
 
 [projects."/workplace"]
