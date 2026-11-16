@@ -245,8 +245,8 @@ screen_reader_detection_done = true
 log_user_prompt = false
 trace_exporter = "none"
 environment = "stable"
-exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/logs", protocol = "binary", headers = { x-amzn-credential-source = "byoa", x-amzn-credential-source-since = "2026-11-14T04:50:05.821205546Z" } } }
-metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/metrics", protocol = "binary", headers = { x-amzn-credential-source = "byoa", x-amzn-credential-source-since = "2026-11-14T04:50:05.821205546Z" } } }
+exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/logs", protocol = "binary", headers = { x-amzn-credential-source = "byoa", x-amzn-credential-source-since = "2026-11-16T18:24:41.257023708Z" } } }
+metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/metrics", protocol = "binary", headers = { x-amzn-credential-source = "byoa", x-amzn-credential-source-since = "2026-11-16T18:24:41.257023708Z" } } }
 
 [model_providers.amazon-bedrock.aws]
 # region = "us-west-2"
