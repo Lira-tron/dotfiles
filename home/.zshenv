@@ -147,8 +147,10 @@ if [ -f "$HOME/.cargo/env" ]; then
     . "$HOME/.cargo/env"
 fi
 
-# Use the local Codex build with the shared Starship worktree detector.
-if [ -x "$HOME/.local/lib/codex-status/codex" ] && [ -x "$HOME/.codex/git-context.py" ]; then
-    export CODEX_NATIVE_BINARY="${CODEX_NATIVE_BINARY:-$HOME/.local/lib/codex-status/codex}"
-    export CODEX_GIT_CONTEXT_HELPER="${CODEX_GIT_CONTEXT_HELPER:-$HOME/.codex/git-context.py}"
+# Clear the retired Codex footer overrides inherited from existing terminal sessions.
+if [ "${CODEX_NATIVE_BINARY:-}" = "$HOME/.local/lib/codex-status/codex" ]; then
+    unset CODEX_NATIVE_BINARY
+fi
+if [ "${CODEX_GIT_CONTEXT_HELPER:-}" = "$HOME/.codex/git-context.py" ]; then
+    unset CODEX_GIT_CONTEXT_HELPER
 fi
