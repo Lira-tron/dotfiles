@@ -202,6 +202,9 @@ approval_mode = "approve"
 [mcp_servers.pippin-mcp.tools.pippin_upload_artifact_image]
 approval_mode = "approve"
 
+[mcp_servers.pippin-mcp.tools.pippin_create_artifact]
+approval_mode = "approve"
+
 [mcp_servers.omnia-mcp]
 command = "omnia-mcp"
 
