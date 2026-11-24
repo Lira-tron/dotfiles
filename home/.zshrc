@@ -257,7 +257,11 @@ function setJava () {
 }
 
 # alias ed='claude --dangerously-skip-permissions --aws-profile dev'
-alias ed='env -u DISPLAY -u WAYLAND_DISPLAY codex --aws-profile dev'
+if [[ $HOST == dev-dsk* ]]; then
+  alias ed='env -u DISPLAY -u WAYLAND_DISPLAY codex --aws-profile dev'
+else
+  alias ed='codex --aws-profile dev'
+fi
 alias edd='claude agents --dangerously-skip-permissions --aws-profile dev'
 alias edr='claude -r --dangerously-skip-permissions --aws-profile dev'
 alias edrev='claude --agent reviewer --dangerously-skip-permissions --aws-profile dev'
