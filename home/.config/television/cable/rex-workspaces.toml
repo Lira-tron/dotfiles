@@ -31,16 +31,16 @@ command = '''python3 "$HOME/.config/television/cable/rex-worktrees.py" connect '
 mode = "execute"
 
 [actions.delete]
-description = "Delete the worktree and close its session, or close the session"
+description = "Delete the worktree and close its session, or close the session after confirming"
 command = '''python3 "$HOME/.config/television/cable/rex-worktrees.py" delete '{split:\t:1}' '''
 mode = "execute"
 
 [actions.force_delete]
-description = "Force-delete the worktree and close its session"
+description = "Force-delete the worktree and close its session, or close the session without confirming"
 command = '''python3 "$HOME/.config/television/cable/rex-worktrees.py" delete '{split:\t:1}' --force'''
 mode = "execute"
 
 [actions.create]
-description = "Create a named worktree for the selected tree's repository, or the current folder's"
+description = "Create a named session here when a session is selected, otherwise a named worktree"
 command = '''python3 "$HOME/.config/television/cable/rex-worktrees.py" create '{split:\t:1}' '''
 mode = "execute"

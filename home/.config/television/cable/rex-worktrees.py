@@ -24,8 +24,12 @@ def rex_json(*args):
     return json.loads(subprocess.check_output(["rex", *args, "--json"], stderr=subprocess.PIPE))
 
 
-def sessions():
-    return rex_json("ls")["sessions"]
+def on(server):
+    return ["-S", server] if server else []
+
+
+def sessions(server=None):
+    return rex_json(*on(server), "ls")["sessions"]
 
 
 def session_rows():
@@ -43,22 +47,38 @@ def session_name(path):
     return path.name
 
 
-def labelled(label):
-    return [session["session_id"] for session in sessions() if session["label"] == label]
+def labelled(label, server=None):
+    return [session["session_id"] for session in sessions(server) if session["label"] == label]
 
 
-def select(session_id):
+def select(session_id, server=None):
     subprocess.run(
-        ["rex", "do", "session.select", f"session_id={session_id}"],
+        ["rex", *on(server), "do", "session.select", f"session_id={session_id}"],
         check=True, stdout=subprocess.DEVNULL,
     )
 
 
-def open_session(path):
-    label = session_name(path)
-    found = labelled(label)
-    session_id = found[0] if found else rex_json("new", label, "-c", str(path))["session_id"]
-    select(session_id)
+def open_session(path, label=None, server=None):
+    label = label or session_name(path)
+    found = labelled(label, server)
+    # A local directory doesn't exist on a remote host, so a remote session starts in its home.
+    cwd = [] if server else ["-c", str(path)]
+    session_id = found[0] if found else rex_json(*on(server), "new", label, *cwd)["session_id"]
+    select(session_id, server)
+
+
+def pick_server():
+    remote = [host["host"]["label"] for host in rex_json("hosts")["hosts"]]
+    if not remote:
+        return None
+    choice = worktrees.prompt(f"Create it on remote ({', '.join(remote)})? [Y/n]: ").lower()
+    if choice in ("n", "no"):
+        return None
+    if choice in ("", "y", "yes") and len(remote) == 1:
+        return remote[0]
+    if choice in remote:
+        return choice
+    raise ValueError(f"Answer y or n, or name one of the Rex hosts: {', '.join(remote)}")
 
 
 def kind(value):
@@ -109,10 +129,12 @@ def kill_sessions(session_ids):
 
 def delete(value, force):
     if kind(value) == "session":
-        label = next(s["label"] for s in sessions() if s["session_id"] == value)
-        print(f"Close Rex session {label}. Its programs will end; files are kept.", file=sys.stderr)
-        if worktrees.prompt("Type ok to close it (blank cancels): ") == "ok":
-            kill_sessions([value])
+        if not force:
+            label = next(s["label"] for s in sessions() if s["session_id"] == value)
+            print(f"Close Rex session {label}. Its programs will end; files are kept.", file=sys.stderr)
+            if worktrees.prompt("Type ok to close it (blank cancels): ") != "ok":
+                return
+        kill_sessions([value])
     elif kind(value) == "tree":
         selected = tree(value)
         found = labelled(session_name(selected["path"]))
@@ -124,6 +146,12 @@ def delete(value, force):
 
 
 def create(value):
+    if kind(value) == "session":
+        server = pick_server()
+        name = worktrees.prompt("New Rex session name (blank cancels): ")
+        if name:
+            open_session(Path.cwd(), name, server)
+        return
     if kind(value) == "tree":
         selected = tree(value)
     else:
