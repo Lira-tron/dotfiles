@@ -372,6 +372,9 @@ trust_level = "trusted"
 [projects."/workplace/limonoct/auto/KuiperArtifactManagementService/src/KuiperArtifactManagementServiceCDK"]
 trust_level = "trusted"
 
+[projects."/workplace/limonoct/KuiperArtifactManagementService/src/KuiperArtifactManagementServiceGoSDK"]
+trust_level = "trusted"
+
 [marketplaces.aim]
 source_type = "local"
 source = "/local/home/limonoct/.aim/plugins/codex"
