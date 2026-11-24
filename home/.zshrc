@@ -136,23 +136,6 @@ alias tm='t new-session -As'
 
 alias sizeorder="du -ah . | grep -v "/$" | sort -rh"
 
-# Disable auto-setting terminal title.
-DISABLE_AUTO_TITLE="true"
-function precmd () {
-  local title="$(print -rD -- "$PWD")"
-  printf '\033]0;%s\007' "${title//[[:cntrl:]]/}"
-}
-precmd
-
-function preexec () {
-  local title
-  if [[ $1 =~ ^ssh ]]; then
-    title=" 🚨🚨🚨$(print -rD -- "$PWD") $1 🚨🚨🚨"
-  else
-    title="🚀 $(print -rD -- "$PWD") $1  🚀"
-  fi
-  printf '\033]0;%s\007' "${title//[[:cntrl:]]/}"
-}
 
 
 # using ripgrep combined with preview
