@@ -53,7 +53,6 @@ rex.bind("resize/up", "pane.resize", { direction = "up" })
 rex.bind("resize/right", "pane.resize", { direction = "right" })
 
 -- Ghostty (~/.config/ghostty/config)
-rex.bind("ctrl+alt+shift+c", "pane.copy")
 rex.bind("shift+cmd+v", "pane.split", { direction = "right" })
 rex.bind("shift+cmd+m", "pane.zoom")
 rex.bind("alt+m", "pane.zoom")
