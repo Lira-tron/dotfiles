@@ -8,7 +8,7 @@ $git_status\
 $git_commit\
 $git_state\
 $aws\
-$hostname\
+${custom.dev_hostname}\
 $time\
 $cmd_duration\
 $line_break\
@@ -52,11 +52,12 @@ success_symbol = "[❯](purple)"
 error_symbol = "[❯](red)"
 vimcmd_symbol = "[❮](green)"
 
-[hostname]
-ssh_only = true
-format = "[$hostname](bold fg:purple) "
-trim_at = "."
-disabled = false
+[custom.dev_hostname]
+command = "hostname -s | sed -n '/^dev-dsk/p' | cut -d- -f1-3"
+when = true
+shell = ["sh"]
+format = '([$output]($style) )'
+style = "bold fg:purple"
 
 [git_commit]
 tag_symbol = " tag "
