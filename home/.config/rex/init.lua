@@ -65,4 +65,25 @@ rex.bind("shift+cmd+j", "pane.focus", { direction = "down" })
 rex.bind("shift+cmd+k", "pane.focus", { direction = "up" })
 rex.bind("shift+cmd+l", "pane.focus", { direction = "right" })
 
+rex.action({
+  name = "session_close_confirm",
+  title = "Close Session (Confirm)…",
+  description = "Ask before closing the current session",
+  run = function(ctx)
+    local view = rex.session.view({ session_id = ctx.session_id })
+    local label = view and view.label or "this session"
+    local choice = rex.ui.pick({
+      title = "Close " .. label .. "? Its programs will end.",
+      items = {
+        { id = "close", title = "Close session", icon = "document" },
+        { id = "cancel", title = "Cancel" },
+      },
+    })
+    if choice == "close" then
+      rex.client.queue("session.close")
+    end
+  end,
+})
+rex.bind("shift+cmd+x", "session_close_confirm")
+
 require("workspaces")
