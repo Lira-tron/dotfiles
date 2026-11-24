@@ -1,17 +1,17 @@
-model_provider = "amazon-bedrock"
+model_provider = "amazon-bedrock-runtime"
 forced_login_method = "api"
 check_for_update_on_startup = false
 chatgpt_base_url = "http://127.0.0.1:9"
 approvals_reviewer = "user"
 approval_policy = "on-request"
 sandbox_mode = "danger-full-access"
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "high"
 model_reasoning_summary = "detailed"
 hide_agent_reasoning = false
 model_context_window = 1000000
 model_auto_compact_token_limit = 800000
-model = "openai.gpt-6-astra"
-plan_mode_reasoning_effort = "xhigh"
+model = "global.openai.gpt-6-astra"
+plan_mode_reasoning_effort = "high"
 
 [mcp_servers.builder-mcp]
 command = "builder-mcp"
