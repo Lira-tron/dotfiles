@@ -13,20 +13,30 @@
             "type": "command"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/sh -c 'rex __internal session-start --agent codex --feature-session-naming=false 2>/dev/null || true'",
+            "timeout": 5,
+            "statusMessage": "Loading Rex terminal context"
+          }
+        ]
       }
     ],
     "PreToolUse": [
       {
         "matcher": "^Bash$",
         "hooks": [
-      {
-        "command": "python3 \"$HOME/.agents/hooks/block_destructive_commands.py\"",
-        "type": "command"
-      },
-      {
-        "command": "\"$HOME/.agents/hooks/conventional-commit-check.sh\"",
-        "type": "command"
-      }
+          {
+            "command": "python3 \"$HOME/.agents/hooks/block_destructive_commands.py\"",
+            "type": "command"
+          },
+          {
+            "command": "\"$HOME/.agents/hooks/conventional-commit-check.sh\"",
+            "type": "command"
+          }
         ]
       }
     ],
