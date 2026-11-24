@@ -58,3 +58,5 @@ rex.bind("shift+cmd+m", "pane.zoom")
 rex.bind("shift+cmd+n", "pane.focus_next")
 rex.bind("shift+cmd+e", "pane.focus_previous")
 rex.bind("alt+m", "pane.zoom")
+
+require("workspaces")
