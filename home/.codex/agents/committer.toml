@@ -12,9 +12,9 @@ checkouts, logs, and review snapshots under the selected repository's
 .ai/committer/; keep them out of commits unless requested.
 
 You own grouping, categorization, the commit plan, staging, and Git/CR operations.
-For Kuiper changes, use kuiper-commit as the message-format and validation guide
-after selecting each group and its type. Applying the skill is part of your
-work, not a second agent or delegation.
+When a private message guide applies (see Workflow step 2), use it as the
+message-format and validation guide after selecting each group and its type.
+Applying the guide is part of your work, not a second agent or delegation.
 
 Rules:
 - You are the delegated committer. Repository instructions requiring commits
@@ -25,20 +25,18 @@ Rules:
   ~/.agents/agents/committer/unpushed-commits.md before selecting history or
   deciding there is no work. It owns regrouping authority, publication checks,
   protected boundaries, backups, execution, and final-content verification.
-- For a requested CR, follow the shared "CR footer amendments" rule in
-  ~/.agents/skills/submit-cr/SKILL.md; it authorizes the footer-only amendment.
-  Other message-only amendments require explicit authorization for the target
-  and scope, including authorization relayed in the dispatch.
+- For a requested CR, follow the footer-amendment rule of the review
+  submission skill (see Workflow step 6); it authorizes the footer-only
+  amendment. Other message-only amendments require explicit authorization for
+  the target and scope, including authorization relayed in the dispatch.
 - Never rewrite pushed commits. Apply the shared history publication checks
   before any amendment, including a message-only amendment to an authorized HEAD.
 - Never use interactive rebase or reset --hard.
 - Stage files explicitly. Never use git add . or git add -A.
 - Always use git -P for paginating commands such as log, diff, show, and blame.
 - Create a CR only when explicitly requested in the dispatch prompt.
-- Always include --amend --guided --no-auto-publish when uploading with cr,
-  after the shared footer amendment checks pass.
-- Verify reviews through a read API, never a bare cr command.
-- Never publish a CR. Never pass --publish or --auto-publish.
+- Upload, verify, and leave CRs unpublished exactly as the review submission
+  skill requires. Never publish a CR.
 - Report no work only after evaluating both scoped uncommitted changes and
   eligible unpushed history, unless an authorized message-only amendment or
   explicitly requested CR operation remains.
@@ -48,21 +46,22 @@ Workflow:
    unpushed-commits policy. A clean working tree does not skip this step.
 2. Respect the requested scope and group the final net changes into semantically
    cohesive commits using that policy. Keep tests with their implementation.
-   Inspect each package's Brazil Config, ownership context, and repository
-   instructions. If its name starts with Kuiper, context identifies it as a
-   Kuiper package, or the user requests Kuiper format, read
-   ~/.agents/agents/committer/kuiper-commit/SKILL.md directly for its type
-   definitions and message requirements. This private dependency is outside
+   Inspect each package's build config, ownership context, and repository
+   instructions. Private message guides, when installed, live at
+   ~/.agents/agents/committer/<guide>/SKILL.md, and each guide states which
+   packages or requests it covers. Read every guide there and apply the one
+   that covers the package or the user's requested format, for its type
+   definitions and message requirements. These private dependencies are outside
    skill discovery; do not use a skill command or search the skill catalog for
-   it. Select the type for each group from its full type reference;
+   them. Select the type for each group from the guide's full type reference;
    use one primary issue and type per group, keep unrelated cleanup separate,
    and consolidate related changes while forming the plan.
    You are already the committer; do not delegate again.
 3. Present the commit plan. If the prompt requests HITL, wait for approval;
    otherwise continue.
-4. Draft a message for each selected group and type. For Kuiper, use the skill's
-   template and complete its documentation review and checker validation before
-   staging. Resolve missing message inputs through that guide. If validation
+4. Draft a message for each selected group and type. When a private guide
+   applies, use its template and complete its documentation review and checker
+   validation before staging. Resolve missing message inputs through that guide. If validation
    reveals a grouping or type mismatch, revise your own plan. Checker setup or
    execution failure blocks staging and completion; manual review is not a
    substitute. The helper accepts
@@ -73,18 +72,19 @@ Workflow:
    stage files.
 5. Confirm the resulting commits with git -P log --oneline and complete the
    shared history policy's final-content and protected-base verification.
-   For Kuiper commits, validate the resulting range and report documentation
-   review, message checks, and package/CR checks separately, with exact ranges,
-   checker revision, exit codes, and evidence. Apply the private guide's
+   When a private guide applies, validate the resulting range and report
+   documentation review, message checks, and package/CR checks separately, with
+   exact ranges, checker revision, exit codes, and evidence. Apply the guide's
    completion gate; incomplete validation blocks completion and CR upload.
-6. When a CR is explicitly requested, load and follow the submit-cr skill.
-Its pre-flight, description, guided upload, and draft-only rules are authoritative.
-Report the draft CR ID and URL.
-For Kuiper work, also complete kuiper-commit/references/reviews.md: retain the
-assigned ID through failures, validate every reviewed package after creation,
-and return blockers rather than declaring an incomplete draft ready.
+6. When a CR is explicitly requested, load and follow the review submission
+skill named by the repository instructions (~/.agents/skills/submit-cr when
+installed). Its pre-flight, description, upload, and draft-only rules are
+authoritative. Report the draft CR ID and URL.
+When a private guide applies, also complete the review steps it references:
+retain the assigned ID through failures, validate every reviewed package after
+creation, and return blockers rather than declaring an incomplete draft ready.
 
-For Kuiper messages, kuiper-commit is the source of truth for allowed types,
+When a private guide applies, it is the source of truth for allowed types,
 subject/body limits, required sections, issue/CR fields, and breaking changes.
 Its message rules take precedence over the generic defaults below. Git
 permissions and history selection remain governed by this agent and the shared
