@@ -3,7 +3,7 @@ local actions, calls, commands, starts, picks
 local ctx, remote_error, failed_operation, selection, menu_action, picked, layer
 local remote_call, elapsed, pick_hosts
 local source = arg[1] or "home/.config/rex/workspaces.lua"
-local foreign_cwd = "/workplace/limonoct/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles"
+local foreign_cwd = "/workplace/someone/Example/src/Example/dotfiles/dotfiles"
 
 local function setup(remote)
   actions, calls, commands, starts, picks = {}, {}, {}, {}, {}
@@ -31,7 +31,7 @@ local function setup(remote)
         return { ok = true, stdout = "[dir] project\t/tmp/project\n" }
       end
       assert(argv[2] == os.getenv("HOME") .. "/.config/television/cable/rex-worktrees.py")
-      return { ok = true, stdout = "[tree] KuiperArtifactManagementService · global-endpoint\ttree-id\n" }
+      return { ok = true, stdout = "[tree] ExampleService · feature-branch\ttree-id\n" }
     end,
   })
   rex = {
@@ -167,7 +167,7 @@ test("local picker lists worktrees and workplace directories and permits cancell
   assert(#calls == 0 and #picks == 1 and layer == nil)
   assert(picks[1].items[1].id == "none")
   assert(picks[1].items[2].id == "tree-id")
-  assert(picks[1].items[2].title == "global-endpoint · KuiperArtifactManagementService")
+  assert(picks[1].items[2].title == "feature-branch · ExampleService")
   assert(picks[1].items[3].id == "/tmp/project")
   assert(picks[1].items[3].title == "project")
 end)
