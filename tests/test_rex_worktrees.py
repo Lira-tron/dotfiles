@@ -69,6 +69,7 @@ class RexSessionActionTests(unittest.TestCase):
 
 class RexOpenSessionTests(unittest.TestCase):
     def setUp(self):
+        self.enterContext(patch.object(rex_worktrees.sys, "platform", "darwin"))
         self.select = self.enterContext(patch.object(rex_worktrees, "select"))
         self.rex_json = self.enterContext(
             patch.object(rex_worktrees, "rex_json", return_value={"session_id": SESSION})
@@ -99,8 +100,8 @@ class RexOpenSessionTests(unittest.TestCase):
         # When
         rex_worktrees.open_session(Path("/tmp"), "review", "lyhost")
         # Then
-        labelled.assert_called_once_with("review", "lyhost")
-        self.rex_json.assert_called_once_with("-S", "lyhost", "new", "review")
+        labelled.assert_called_once_with("🥊-review", "lyhost")
+        self.rex_json.assert_called_once_with("-S", "lyhost", "new", "🥊-review")
         self.select.assert_called_once_with(SESSION, "lyhost")
 
     def test_open_session_defaults_label_to_directory_name(self):
@@ -110,6 +111,24 @@ class RexOpenSessionTests(unittest.TestCase):
         rex_worktrees.open_session(Path("/tmp"))
         # Then
         labelled.assert_called_once_with(rex_worktrees.session_name(Path("/tmp")), None)
+
+
+class RexSessionLabelTests(unittest.TestCase):
+    def test_local_label_on_mac_has_no_prefix(self):
+        with patch.object(rex_worktrees.sys, "platform", "darwin"):
+            self.assertEqual(rex_worktrees.session_label("review", None), "review")
+
+    def test_label_on_remote_server_gets_prefix(self):
+        with patch.object(rex_worktrees.sys, "platform", "darwin"):
+            self.assertEqual(rex_worktrees.session_label("review", "lyhost"), "🥊-review")
+
+    def test_label_on_linux_host_gets_prefix(self):
+        with patch.object(rex_worktrees.sys, "platform", "linux"):
+            self.assertEqual(rex_worktrees.session_label("review", None), "🥊-review")
+
+    def test_prefixed_label_is_not_prefixed_twice(self):
+        with patch.object(rex_worktrees.sys, "platform", "linux"):
+            self.assertEqual(rex_worktrees.session_label("🥊-review", "lyhost"), "🥊-review")
 
 
 class RexPickServerTests(unittest.TestCase):

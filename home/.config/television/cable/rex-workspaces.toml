@@ -41,6 +41,6 @@ command = '''python3 "$HOME/.config/television/cable/rex-worktrees.py" delete '{
 mode = "execute"
 
 [actions.create]
-description = "Create a named session here when a session is selected, otherwise a named worktree"
+description = "Create a named session, on the remote host unless you answer no, when a session is selected; otherwise a named worktree"
 command = '''python3 "$HOME/.config/television/cable/rex-worktrees.py" create '{split:\t:1}' '''
 mode = "execute"

@@ -14,6 +14,7 @@ sys.dont_write_bytecode = True
 
 WORKTREES = Path(__file__).resolve().parent / "worktrees.py"
 NONE = "none"
+REMOTE_PREFIX = "🥊-"
 
 _spec = importlib.util.spec_from_file_location("worktrees", WORKTREES)
 worktrees = importlib.util.module_from_spec(_spec)
@@ -58,8 +59,14 @@ def select(session_id, server=None):
     )
 
 
+def session_label(label, server):
+    # Run on a Linux host, the picker's own Rex server is that remote host too.
+    remote = server or sys.platform != "darwin"
+    return REMOTE_PREFIX + label if remote and not label.startswith(REMOTE_PREFIX) else label
+
+
 def open_session(path, label=None, server=None):
-    label = label or session_name(path)
+    label = session_label(label or session_name(path), server)
     found = labelled(label, server)
     # A local directory doesn't exist on a remote host, so a remote session starts in its home.
     cwd = [] if server else ["-c", str(path)]
