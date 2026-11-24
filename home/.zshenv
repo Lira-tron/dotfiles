@@ -23,6 +23,7 @@ export XDG_CACHE_HOME="$HOME/.cache"
 export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 export KNOWLEDGE_DIR="${KNOWLEDGE_DIR:-$HOME/knowledge}"
 export NOTES_DIR="${NOTES_DIR:-$KNOWLEDGE_DIR/notes}"
+export DOTFILES_PROFILE="${DOTFILES_PROFILE:-personal}"
 
 if [ -f "/usr/local/bin/brew" ]; then
     eval $(/usr/local/bin/brew shellenv)
@@ -147,4 +148,8 @@ fi
 
 if [ -f "$HOME/.zshenv.local" ]; then
     source "$HOME/.zshenv.local"
+fi
+
+if [ -f "$HOME/.cargo/env" ]; then
+    . "$HOME/.cargo/env"
 fi

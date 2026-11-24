@@ -1,0 +1,4 @@
+interface:
+  display_name: "mutate4go (use mutator)"
+  short_description: "Use mutator for the maintained quality workflow"
+  default_prompt: "Use $mutate4go to follow the shared mutator workflow for this change."

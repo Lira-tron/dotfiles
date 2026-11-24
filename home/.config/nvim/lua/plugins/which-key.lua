@@ -5,6 +5,8 @@ return {
     spec = {
       {
         mode = { "n", "v" },
+        { "<leader>a", group = "Agent comments" },
+        { "<leader>A", group = "Amazon Q" },
         { "<leader>st", group = "TODOs/tasks" },
         { "gn", group = "Go next" },
         { "gp", group = "Go prev" },

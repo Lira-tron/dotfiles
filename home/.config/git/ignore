@@ -1,7 +1,12 @@
+*.bemol/
 *.DS_Store
 *.iml
 *.ipr
 *.idea/
+*.ai/
+*.codex/
+*.claude/
+*.kiro/
 /build
 /coverage
 /tmp.DS_Store
@@ -30,4 +35,5 @@ lazy-lock.json
 /annotation-generated-src/
 /annotation-generated-tst/
 
-
+.ai/
+.ai

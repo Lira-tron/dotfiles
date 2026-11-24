@@ -1,0 +1,4 @@
+interface:
+  display_name: "Crapper"
+  short_description: "Measure CRAP across Python, Go, Java, and more"
+  default_prompt: "Use $crapper to measure affected functions with fresh project coverage and apply the shared CRAP policy."

@@ -1,0 +1,31 @@
+# Generic Codex settings. Copy to ~/.codex/config.toml on a machine without a
+# private dotfiles layer, then add that machine's model provider and MCP servers.
+approvals_reviewer = "user"
+approval_policy = "on-request"
+sandbox_mode = "danger-full-access"
+check_for_update_on_startup = false
+model_reasoning_effort = "high"
+model_reasoning_summary = "detailed"
+hide_agent_reasoning = false
+plan_mode_reasoning_effort = "high"
+
+[mcp_servers.aws-knowledge-mcp-server]
+url = "https://knowledge-mcp.global.api.aws"
+enabled_tools = ["aws___get_regional_availability", "aws___list_regions", "aws___read_documentation", "aws___retrieve_skill", "aws___search_documentation"]
+
+[shell_environment_policy]
+inherit = "all"
+
+[feedback]
+enabled = false
+
+[tui]
+vim_mode_default = true
+status_line = [
+    "model-with-reasoning",
+    "context-used",
+    "current-dir",
+    "git-branch",
+    "branch-changes",
+]
+status_line_use_colors = true

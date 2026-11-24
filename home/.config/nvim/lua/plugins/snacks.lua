@@ -68,6 +68,21 @@ return {
     { "<leader>gp", false },
     { "<leader>gP", false },
 
+    {
+      "<leader>gd",
+      function()
+        require("config.diff-scope").git_diff(true)
+      end,
+      desc = "Git Diff (scope, files)",
+    },
+    {
+      "<leader>gD",
+      function()
+        require("config.diff-scope").git_diff(false)
+      end,
+      desc = "Git Diff (scope, hunks)",
+    },
+
     -- Open git log in vertical view
     {
       "<leader>gl",
@@ -81,6 +96,14 @@ return {
         })
       end,
       desc = "[G]it [L]og vertical view",
+    },
+
+    {
+      "<leader>sN",
+      function()
+        Snacks.picker.grep({ title = "Grep Notes", cwd = vim.fn.expand("~/knowledge/notes") })
+      end,
+      desc = "Search Notes",
     },
 
     -- -- Iterate through incomplete tasks in Snacks_picker

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gherkin Parser"
+  short_description: "Parse Gherkin features into APS JSON"
+  default_prompt: "Use $gherkin-parser to validate this feature file and generate its APS JSON IR."

@@ -1,3 +1,5 @@
+appearance = "dark"
+
 [[comment_types]]
 id = "issue"
 label = "Issue"

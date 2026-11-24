@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mutator"
+  short_description: "Mutation testing for Python, Go, Java, and more"
+  default_prompt: "Use $mutator to rerun mutations on changed lines with the project's tests and resolve survivors."

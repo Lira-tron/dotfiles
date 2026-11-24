@@ -5,8 +5,24 @@
 vim.keymap.set({ "n", "v" }, "gn", "<nop>")
 vim.keymap.set({ "n", "v" }, "gN", "<nop>")
 
-vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "C-d keep cursor in middle" })
-vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "C-u keep cursor in middle" })
+for _, direction in ipairs({ "d", "u" }) do
+  local key = "<C-" .. direction .. ">"
+  vim.keymap.set("n", key, function()
+    local before = vim.api.nvim_win_get_cursor(0)
+    local count = vim.v.count > 0 and tostring(vim.v.count) or ""
+    vim.cmd.normal({ args = { count .. vim.keycode(key) }, bang = true })
+
+    -- Virtual rows count toward the source line immediately below them.
+    local row = before[1] - (direction == "u" and 1 or 0)
+    if vim.deep_equal(before, vim.api.nvim_win_get_cursor(0))
+      and row < vim.api.nvim_buf_line_count(0)
+      and vim.api.nvim_win_text_height(0, { start_row = row, end_row = row }).fill > 0
+    then
+      vim.cmd.normal({ args = { direction == "d" and "j" or "k" }, bang = true })
+    end
+    vim.cmd.normal({ args = { "zz" }, bang = true })
+  end, { desc = "C-" .. direction .. " keep cursor in middle" })
+end
 vim.keymap.set("n", "n", "nzzzv", { desc = "search keep cursor in middle" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "search keep cursor in middle" })
 
@@ -1141,4 +1157,24 @@ if vim.g.vscode then
   vim.keymap.set({ "n", "v"}, "<leader>rs", "<Cmd>call VSCodeNotify('editor.action.refactor')<CR>")
   vim.keymap.set({ "n", "v"}, "<leader>cr", "<Cmd>call VSCodeNotify('editor.action.refactor')<CR>")
 
+  -- AI
+  -- Q
+  vim.keymap.set({ "n", "v" }, "<leader>anc", "<Cmd>call VSCodeNotify('aws.amazonq.inline.invokeChat')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>anq", "<Cmd>call VSCodeNotify('aws.amazonq.AmazonQChatView.focus')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>anf", "<Cmd>call VSCodeNotify('aws.amazonq.fixCode')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ano", "<Cmd>call VSCodeNotify('aws.amazonq.optimizeCode')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ane", "<Cmd>call VSCodeNotify('aws.amazonq.explainCode')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>and", "<Cmd>call VSCodeNotify('aws.amazonq.generateUnitTests')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>anr", "<Cmd>call VSCodeNotify('aws.amazonq.refactorCode')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ans", "<Cmd>call VSCodeNotify('aws.amazonq.sendToPrompt')<CR>")
+
+  -- Cline
+  vim.keymap.set({ "n", "v" }, "<leader>aQ", "<Cmd>call VSCodeNotify('amzn-cline.SidebarProvider.focus')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>aq", "<Cmd>call VSCodeNotify('amzn-cline.focusChatInput')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>at", "<Cmd>call VSCodeNotify('amzn-cline.addTerminalOutputToChat')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ae", "<Cmd>call VSCodeNotify('amzn-cline.explainCode')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ad", "<Cmd>call VSCodeNotify('amzn-cline.dev.createTestTasks')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ag", "<Cmd>call VSCodeNotify('amzn-cline.generateGitCommitMessage')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>ar", "<Cmd>call VSCodeNotify('amzn-cline.improveCode')<CR>")
+  vim.keymap.set({ "n", "v" }, "<leader>as", "<Cmd>call VSCodeNotify('amzn-cline.addToChat')<CR>")
 end

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Overall code review"
+  short_description: "Run edrevn, resolve findings, and record decisions"
+policy:
+  allow_implicit_invocation: true

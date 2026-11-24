@@ -6358,6 +6358,7 @@ amazia
 Amazilia
 amazing
 amazingly
+Amazon
 Amazona
 Amazonian
 Amazonism
@@ -11515,6 +11516,7 @@ Apolistan
 Apollinarian
 Apollinarianism
 Apolline
+Apollo
 Apollonia
 Apollonian
 Apollonic
@@ -15251,6 +15253,7 @@ atmostea
 atmosteal
 atmosteon
 Atnah
+atocha
 atocia
 atokal
 atoke
@@ -25937,6 +25940,7 @@ brazer
 brazera
 brazier
 braziery
+brazil
 brazilein
 brazilette
 Brazilian
@@ -40991,6 +40995,7 @@ conductorship
 conductory
 conductress
 conductus
+conduit
 conduplicate
 conduplicated
 conduplication
@@ -46185,6 +46190,7 @@ crutching
 crutchlike
 cruth
 crutter
+crux
 cruzeiro
 cry
 cryable
@@ -116134,6 +116140,7 @@ midvein
 midverse
 midward
 midwatch
+midway
 midweek
 midweekly
 Midwest
@@ -129858,6 +129865,7 @@ odeon
 odeum
 odic
 odically
+Odin
 Odinian
 Odinic
 Odinism
@@ -162221,6 +162229,7 @@ quinuclidine
 quinyl
 quinze
 quinzieme
+quip
 quipful
 quipo
 quipper
@@ -180161,6 +180170,7 @@ sheng
 Shenshai
 Sheol
 sheolic
+shepherd
 shepherdage
 shepherddom
 shepherdess
@@ -204532,6 +204542,7 @@ toodleloodle
 took
 tooken
 tool
+toolbox
 toolbuilder
 toolbuilding
 tooler
@@ -228732,6 +228743,7 @@ vigesimal
 vigesimation
 vigia
 vigil
+vigilance
 vigilancy
 vigilant
 vigilante

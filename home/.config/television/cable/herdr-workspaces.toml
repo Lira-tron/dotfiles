@@ -1,0 +1,121 @@
+[metadata]
+name = "herdr-workspaces"
+description = "Browse Herdr workspaces, agents, panes, directories, and Git worktrees"
+requirements = ["herdr", "jq", "fd", "eza", "bash", "python3"]
+
+[source]
+command = [
+  '''bash "$HOME/.config/television/cable/herdr-panels.sh" agents''',
+  '''bash "$HOME/.config/television/cable/herdr-panels.sh" all''',
+  '''bash "$HOME/.config/television/cable/herdr-panels.sh" workspaces''',
+  '''bash "$HOME/.config/television/cable/herdr-panels.sh" panes''',
+  '''fd -t d -d 1 . "$HOME/workplace" --format '[dir] {/}	{}	{/}' ''',
+  '''python3 "$HOME/.config/television/cable/worktrees.py" current''',
+]
+# Preserve the source's agent frequency ranking and All view's type grouping.
+no_sort = true
+frecency = true
+display = "{split:\t:0}"
+output = "{split:\t:1}"
+
+[preview]
+command = '''
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
+  python3 "$HOME/.config/television/cable/worktrees.py" preview '{split:\t:1}'
+elif printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
+  herdr pane read '{split:\t:3}' --source recent --lines 200 --ansi
+elif printf '%s\n' '{split:\t:0}' | grep -qE '^\[(pane|agent)\]'; then
+  herdr pane read '{split:\t:2}' --source recent --lines 200 --ansi
+else
+  eza -la --color=always '{split:\t:1}'
+fi
+'''
+
+[keybindings]
+enter = "actions:connect"
+ctrl-e = "cycle_sources"
+ctrl-d = "actions:delete"
+ctrl-u = "actions:force_delete"
+ctrl-g = "actions:create"
+ctrl-m = "actions:previous_pane"
+
+[actions.connect]
+description = "Focus a workspace, pane, or agent, or create a workspace from a directory"
+command = '''
+python3 "$HOME/.config/television/cable/herdr-previous-pane.py" connect <<'HERDR_CONNECT'
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
+  python3 "$HOME/.config/television/cable/worktrees.py" open '{split:\t:1}'
+elif printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
+  herdr workspace focus '{split:\t:2}'
+elif printf '%s\n' '{split:\t:0}' | grep -q '^\[pane\]'; then
+  herdr pane zoom '{split:\t:2}' --on && herdr tab focus '{split:\t:3}'
+elif printf '%s\n' '{split:\t:0}' | grep -q '^\[agent\]'; then
+  herdr agent focus '{split:\t:2}' && herdr tab focus '{split:\t:3}'
+elif printf '%s\n' '{split:\t:0}' | grep -q '^\[dir\]'; then
+  directory_label='{split:\t:2}'
+  workspace_id=$(
+    herdr api snapshot |
+      jq -r --arg label "$directory_label" '
+        first(
+          .result.snapshot.workspaces[]
+          | select(.label == $label)
+          | .workspace_id
+        ) // empty
+      '
+  )
+  if [ -n "$workspace_id" ]; then
+    herdr workspace focus "$workspace_id"
+  else
+    herdr workspace create --cwd '{split:\t:1}' --label '{split:\t:2}' --focus
+  fi
+else
+  herdr workspace create --cwd '{split:\t:1}' --label '{split:\t:2}' --focus
+fi
+HERDR_CONNECT
+'''
+mode = "execute"
+
+[actions.previous_pane]
+description = "Return to the pane left by the picker or Ctrl+A n/p"
+command = '''python3 "$HOME/.config/television/cable/herdr-previous-pane.py" previous'''
+mode = "execute"
+
+[actions.delete]
+description = "Delete a selected worktree with confirmation, or close a Herdr workspace"
+command = '''
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
+  python3 "$HOME/.config/television/cable/worktrees.py" delete '{split:\t:1}'
+elif printf '%s\n' '{split:\t:0}' | grep -q '^\[workspace\]'; then
+  python3 "$HOME/.config/television/cable/worktrees.py" close-workspace '{split:\t:2}'
+fi
+'''
+mode = "execute"
+
+[actions.force_delete]
+description = "Force-delete a selected worktree with confirmation"
+command = '''
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
+  python3 "$HOME/.config/television/cable/worktrees.py" delete '{split:\t:1}' --force
+fi
+'''
+mode = "execute"
+
+[actions.create]
+description = "Create a named worktree for the selected tree's repository"
+command = '''
+if printf '%s\n' '{split:\t:0}' | grep -q '^\[tree\]'; then
+  python3 "$HOME/.config/television/cable/herdr-previous-pane.py" connect <<'HERDR_CREATE'
+python3 "$HOME/.config/television/cable/worktrees.py" create '{split:\t:1}'
+HERDR_CREATE
+fi
+'''
+mode = "execute"
+
+[actions.create_current]
+description = "Create a named worktree for the current folder's Brazil workspace"
+command = '''
+python3 "$HOME/.config/television/cable/herdr-previous-pane.py" connect <<'HERDR_CREATE'
+python3 "$HOME/.config/television/cable/worktrees.py" create-current
+HERDR_CREATE
+'''
+mode = "execute"

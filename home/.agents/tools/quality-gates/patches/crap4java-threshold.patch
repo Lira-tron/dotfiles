@@ -1,0 +1,120 @@
+diff --git a/README.md b/README.md
+index 90d5e35..fe37c34 100644
+--- a/README.md
++++ b/README.md
+@@ -67,7 +67,7 @@ java -jar target/crap4java-0.1.0-SNAPSHOT.jar module-a module-b
+ 
+ - `0` success, threshold respected
+ - `1` invalid CLI usage
+-- `2` CRAP threshold exceeded (`> 8.0`)
++- `2` CRAP threshold exceeded (`> 10.0`)
+ 
+ ## Notes
+ 
+diff --git a/spec.md b/spec.md
+index 2234226..8e7e025 100644
+--- a/spec.md
++++ b/spec.md
+@@ -220,13 +220,13 @@ Methods with `N/A` CRAP shall appear after methods with numeric CRAP.
+ 
+ ## 12. Threshold
+ 
+-The CRAP threshold shall be `8.0`.
++The CRAP threshold shall be `10.0`.
+ 
+ The tool shall determine the maximum numeric CRAP value in the result set.
+ 
+-If the maximum numeric CRAP value is greater than `8.0`:
++If the maximum numeric CRAP value is greater than `10.0`:
+ 
+-- the tool shall print `CRAP threshold exceeded: <max> > 8.0` to stderr
++- the tool shall print `CRAP threshold exceeded: <max> > 10.0` to stderr
+ - the tool shall exit with threshold-failure status
+ 
+ If no numeric CRAP values exist:
+diff --git a/src/crap4java/CliApplication.java b/src/crap4java/CliApplication.java
+index c8f5ab7..de0adee 100644
+--- a/src/crap4java/CliApplication.java
++++ b/src/crap4java/CliApplication.java
+@@ -44,7 +44,7 @@ final class CliApplication {
+ 
+         double max = Main.maxCrap(metrics);
+         if (thresholdExceeded(max)) {
+-            err.printf("CRAP threshold exceeded: %.1f > 8.0%n", max);
++            err.printf("CRAP threshold exceeded: %.1f > 10.0%n", max);
+             return 2;
+         }
+         return 0;
+@@ -65,7 +65,7 @@ final class CliApplication {
+     }
+ 
+     static boolean thresholdExceeded(double max) {
+-        return Double.compare(max, 8.0) > 0;
++        return Double.compare(max, 10.0) > 0;
+     }
+ 
+     private ParseOutcome parseArguments(String[] args) {
+diff --git a/test/crap4java/CliApplicationTest.java b/test/crap4java/CliApplicationTest.java
+index 37e8865..e40b52c 100644
+--- a/test/crap4java/CliApplicationTest.java
++++ b/test/crap4java/CliApplicationTest.java
+@@ -2,6 +2,8 @@ package crap4java;
+ 
+ import org.junit.jupiter.api.Test;
+ import org.junit.jupiter.api.io.TempDir;
++import org.junit.jupiter.params.ParameterizedTest;
++import org.junit.jupiter.params.provider.CsvSource;
+ 
+ import java.io.ByteArrayOutputStream;
+ import java.io.PrintStream;
+@@ -135,9 +137,47 @@ class CliApplicationTest {
+     }
+ 
+     @Test
+-    void thresholdExceededUsesStrictlyGreaterThanEight() {
+-        assertFalse(CliApplication.thresholdExceeded(8.0));
+-        assertTrue(CliApplication.thresholdExceeded(8.1));
++    void thresholdExceededUsesStrictlyGreaterThanTen() {
++        assertFalse(CliApplication.thresholdExceeded(9.0));
++        assertFalse(CliApplication.thresholdExceeded(10.0));
++        assertTrue(CliApplication.thresholdExceeded(Math.nextUp(10.0)));
++        assertTrue(CliApplication.thresholdExceeded(11.0));
++    }
++
++    @ParameterizedTest
++    @CsvSource({"9, 0", "10, 0", "11, 2"})
++    void exitCodeAndMessageUseTenAsTheLimit(int complexity, int expectedExit) throws Exception {
++        Path source = tempDir.resolve("src/Sample.java");
++        Files.createDirectories(source.getParent());
++        Files.writeString(source, "class Sample { int alpha(boolean flag) {\n"
++                + "if (flag) { return 1; }\n".repeat(complexity - 1)
++                + "return 0; } }\n");
++        ByteArrayOutputStream out = new ByteArrayOutputStream();
++        ByteArrayOutputStream err = new ByteArrayOutputStream();
++        CoverageRunner coverageRunner = new CoverageRunner((command, directory) -> {
++            Path jacocoXml = directory.resolve("target/site/jacoco/jacoco.xml");
++            Files.createDirectories(jacocoXml.getParent());
++            Files.writeString(jacocoXml, """
++                    <report name="threshold">
++                      <package name="">
++                        <class name="Sample" sourcefilename="Sample.java">
++                          <method name="alpha" desc="(Z)I" line="1">
++                            <counter type="INSTRUCTION" missed="0" covered="100"/>
++                          </method>
++                        </class>
++                      </package>
++                    </report>
++                    """);
++            return 0;
++        });
++
++        int exit = new CliApplication(tempDir, new PrintStream(out), new PrintStream(err), coverageRunner)
++                .execute(new String[]{"src/Sample.java"});
++
++        assertEquals(expectedExit, exit);
++        assertTrue(out.toString().contains("alpha"));
++        assertEquals(expectedExit == 0 ? "" : "CRAP threshold exceeded: 11.0 > 10.0%n".formatted(),
++                err.toString());
+     }
+ 
+     @Test

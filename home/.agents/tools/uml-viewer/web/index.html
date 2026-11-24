@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UML viewer</title>
+<style>
+:root{color-scheme:dark;--bg:#101419;--panel:#181e26;--border:#303a47;--text:#e5e9ef;--muted:#94a2b4;--accent:#77c6bc;--bad:#ec8d8d;--warn:#e4c080}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px system-ui,sans-serif}button,input,select,textarea{font:inherit;color:inherit;background:#202935;border:1px solid var(--border);border-radius:6px;padding:8px 11px}button{cursor:pointer}button:hover{border-color:var(--accent)}button:disabled{opacity:.4;cursor:default}input,select{min-width:0}header{height:74px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--border);gap:20px}h1{font-size:18px;margin:0}h2{font-size:15px;margin:0 0 14px}.sub{color:var(--muted);font-size:12px;margin-top:4px}.brand{display:flex;align-items:center}.brand>div{margin-left:12px}.mark{border:1px solid var(--accent);color:var(--accent);padding:9px;font:bold 18px monospace;border-radius:8px}.tools{display:flex;align-items:center}.tools>*+*{margin-left:8px}main{display:grid;grid-template-columns:230px minmax(350px,1fr) 320px;height:calc(100vh - 74px)}aside{padding:20px;border-right:1px solid var(--border);overflow:auto}.right{border-left:1px solid var(--border);border-right:none}.section{margin-bottom:26px}.label{text-transform:uppercase;letter-spacing:1.3px;font-size:10px;color:var(--muted);margin-bottom:10px}.view{display:block;width:100%;text-align:left;margin-bottom:6px}.active{background:#223c3d;border-color:var(--accent)}.hint{font-size:12px;line-height:1.6;color:var(--muted)}.badge{font:11px monospace;border:1px solid var(--border);border-radius:4px;padding:2px 5px}.canvasWrap{position:relative;overflow:auto;background-image:radial-gradient(#303741 1px,transparent 1px);background-size:20px 20px}.canvasBar{position:sticky;top:0;left:0;z-index:3;padding:14px 20px;background:#101419ef;display:flex;justify-content:space-between;border-bottom:1px solid var(--border)}#diagram{position:relative;min-width:640px;transform-origin:0 0}#edges{position:absolute;inset:0;pointer-events:none;overflow:visible}.edge{stroke:#596b7e;stroke-width:1.5;fill:none;pointer-events:stroke}.edge:hover{stroke:var(--accent);stroke-width:3}.edge.bad{stroke:var(--bad)}.card{position:absolute;width:255px;min-height:130px;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:14px;cursor:pointer;box-shadow:0 4px 18px #0003}.card:hover,.card.selected{border-color:var(--accent)}.card .name{font-weight:600;font-size:14px;overflow-wrap:anywhere;line-height:1.4;margin:8px 0}.card .kind{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}.card .meta>span{margin-right:10px}.card .meta{border-top:1px solid var(--border);padding-top:10px;display:flex;flex-wrap:wrap;font-size:11px;color:var(--muted)}.dot{width:7px;height:7px;border-radius:100%;display:inline-block;margin-right:5px;background:#718096}.good .dot{background:var(--accent)}.bad .dot{background:var(--bad)}.warn .dot{background:var(--warn)}.good{color:var(--accent)}.bad{color:var(--bad)}.warn{color:var(--warn)}.metricGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}.metric{border:1px solid var(--border);border-radius:7px;padding:10px}.metric strong{display:block;font:21px monospace;margin-bottom:4px}.metric span{font-size:11px;color:var(--muted)}.mono{font:12px ui-monospace,monospace;overflow-wrap:anywhere;white-space:pre-wrap}.actions{display:grid;gap:8px;margin:16px 0}.member{display:block;width:100%;text-align:left;font:12px monospace;margin:5px 0}.legend{display:flex;gap:14px;font-size:11px;flex-wrap:wrap}#message{position:fixed;bottom:18px;left:250px;max-width:calc(100vw - 300px);background:#283643;border:1px solid var(--border);padding:12px 18px;z-index:8;white-space:pre-wrap;border-radius:8px;display:none}.warning{color:var(--warn);font-size:12px;line-height:1.5;margin-bottom:8px}dialog{color:var(--text);background:var(--panel);border:1px solid var(--border);border-radius:10px;max-width:1100px;width:90vw;max-height:85vh;padding:0}dialog::backdrop{background:#000a}.dialogHeader{display:flex;justify-content:space-between;padding:15px 20px;border-bottom:1px solid var(--border);align-items:center}.source{overflow:auto;max-height:70vh;padding:15px 0;font:12px/1.6 ui-monospace,monospace}.sourceLine{display:flex;white-space:pre;min-width:max-content}.sourceLine.focus{background:#26433e}.lineNo{width:65px;text-align:right;padding-right:16px;color:#8191a5;flex-shrink:0;user-select:none}textarea{width:100%;min-height:200px;font:12px/1.6 monospace}#policyDialog .body{padding:20px}.empty{padding:70px;color:var(--muted);line-height:1.8}.full{width:100%}#search{width:210px}@media(max-width:1100px){main{grid-template-columns:190px minmax(350px,1fr)}.right{display:none}header{padding:0 12px}#search{width:150px}}@media(max-width:700px){main{grid-template-columns:1fr}aside{display:none}.tools .optional{display:none}}
+</style>
+<header><div class="brand"><span class="mark">U</span><div><h1>UML viewer</h1><div id="project" class="sub">Loading source graph…</div></div></div><div class="tools"><input id="search" placeholder="Find a package or symbol" aria-label="Search"><button id="scan">Rescan</button><button id="download" class="optional">Export JSON</button></div></header>
+<main>
+<aside><div class="section"><div class="label">Architecture</div><div id="views"></div><button id="newProposal" class="full">+ New proposal</button></div><div class="section"><div class="label">Display</div><label class="hint"><input type="checkbox" id="external"> <span id="contextLabel">External dependencies</span></label><div style="margin-top:12px"><button id="zoomOut">−</button> <span id="zoomText" class="hint">100%</span> <button id="zoomIn">+</button></div><button id="editPolicy" class="full" style="margin-top:12px">Edit layout policy</button></div><div class="section"><div class="label">Quality</div><div class="hint good"><span class="dot"></span>CRAP ≤ 10; no survivors</div><div class="hint bad"><span class="dot"></span>CRAP > 10 or survivors</div><div class="hint warn"><span class="dot"></span>Uncovered mutants</div><div class="hint"><span class="dot"></span>No result or stale result</div></div><div class="section"><div class="label">Codex inbox <span id="pending" class="badge">0</span></div><p class="hint">Requests wait for the skill in your Codex conversation.</p><button id="copyPrompt" class="full">Copy handoff prompt</button></div><div id="reviewScope" class="section"></div><div id="warnings"></div></aside>
+<section class="canvasWrap"><div class="canvasBar"><div><button id="back" style="padding:3px 8px">←</button> <span id="breadcrumb">Packages</span></div><span id="count" class="hint"></span></div><div id="diagram"></div></section>
+<aside class="right"><div class="label">Inspector</div><div id="inspector" class="hint">Select a package or declaration. Double-click to explore its contents.</div></aside>
+</main>
+<div id="message" role="status"></div>
+<dialog id="sourceDialog"><div class="dialogHeader"><span id="sourceTitle" class="mono"></span><button id="closeSource">Close</button></div><div id="sourceBody" class="source"></div></dialog>
+<dialog id="policyDialog"><div class="dialogHeader"><span>Layout policy · proposals do not change source</span><button id="closePolicy">Cancel</button></div><div class="body"><p class="hint">Assign package or type IDs to proposal group names. Levels map package IDs or proposal group names to numbers; higher-level → lower-level dependencies are highlighted.</p><textarea id="policyText" rows="20" spellcheck="false"></textarea><button id="savePolicy" style="margin-top:12px">Save policy</button></div></dialog>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const token=location.hash.slice(1)||sessionStorage.getItem('uml-token');
+if(token)sessionStorage.setItem('uml-token',token);
+history.replaceState(null,'',location.pathname);
+let graph,policy={proposals:[],levels:{}},proposalID='',current='',selected='',zoom=1,byID=new Map(),polling=false;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(path,body){
+ const response=await fetch('/api/'+path,{method:body===undefined?'GET':'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
+ if(!response.ok)throw Error(await response.text());
+ return response.json();
+}
+function message(text){$('message').textContent=text;$('message').style.display='block';clearTimeout(message.timer);message.timer=setTimeout(()=>$('message').style.display='none',8000)}
+function guard(fn){return (...args)=>Promise.resolve().then(()=>fn(...args)).catch(e=>message(e.message))}
+function proposal(){return policy.proposals.find(p=>p.id===proposalID)}
+function parent(n){return proposal()?.groups?.[n.id]?'group:'+proposal().groups[n.id]:n.parent||''}
+function descendants(id){
+ return graph.nodes.filter(n=>{let p=n.id,seen=new Set();while(p&&!seen.has(p)){if(p===id)return true;seen.add(p);const node=byID.get(p);p=node?parent(node):''}return false});
+}
+function children(id){
+ const omitted=new Set(proposal()?.omit||[]);
+ let nodes=graph.nodes.filter(n=>parent(n)===id&&!omitted.has(n.id)&&(n.kind!=='external'||$('external').checked));
+ if(!id&&proposal())for(const group of new Set(Object.values(proposal().groups||{})))nodes.push({id:'group:'+group,name:group,kind:'proposal group',lang:'mixed'});
+ const search=$('search').value.toLowerCase();
+ if(search)return graph.nodes.filter(n=>(n.name+' '+n.package+' '+n.signature).toLowerCase().includes(search)&&!omitted.has(n.id)).slice(0,150);
+ return nodes;
+}
+function metrics(n){
+ const ms=descendants(n.id).filter(x=>x.metrics).map(x=>x.metrics);
+ if(!ms.length)return {};
+ const result={stale:ms.some(m=>m.stale)};
+ for(const k of ['crap','coverage','cc','killed','survived','uncovered']){
+  const values=ms.map(m=>m[k]).filter(x=>x!=null);
+  if(values.length)result[k]=k==='crap'?Math.max(...values):k==='coverage'?values.reduce((a,b)=>a+b,0)/values.length:values.reduce((a,b)=>a+b,0);
+ }
+ return result;
+}
+function quality(m){return m.stale?'':m.crap>10||m.survived>0?'bad':m.uncovered>0?'warn':m.crap!=null||m.killed>0?'good':''}
+function number(n){return n==null?'—':Number.isInteger(n)?String(n):n.toFixed(1)}
+function render(){
+ if(!graph)return;
+ byID=new Map(graph.nodes.map(n=>[n.id,n]));
+ $('project').textContent=graph.name+(graph.review?' · Local change review':' · Go / Java');
+ $('contextLabel').textContent=graph.review?'Dependency context':'External dependencies';
+ $('views').innerHTML=`<button class="view ${!proposalID?'active':''}" data-view="">${graph.review?'Local change review':'Source architecture'}</button>`+policy.proposals.map(p=>`<button class="view ${p.id===proposalID?'active':''}" data-view="${esc(p.id)}">${esc(p.name)} <span class="badge">proposal</span></button>`).join('');
+ $('views').querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{proposalID=b.dataset.view;current='';selected='';render()});
+ $('warnings').innerHTML=graph.warnings.slice(0,12).map(w=>`<div class="warning">${esc(w)}</div>`).join('');
+ $('reviewScope').innerHTML=graph.review?`<div class="label">Review scope</div><p class="hint">${graph.review.files.length} Go/Java files · ${graph.review.local_commits} local commits<br>Base: ${esc(graph.review.base_ref)}<br><span class="mono">${esc(graph.review.merge_base.slice(0,10))}</span></p>`+graph.review.files.map(f=>`<button class="member" data-review-file="${esc(f.path)}"><span class="badge">${esc(f.status)}</span> ${esc(f.path)}${f.old_path?'<br><span class="hint">from '+esc(f.old_path)+'</span>':''}${f.index_only?'<br><span class="hint">index differs; current disk shown</span>':''}</button>`).join(''):'';
+ $('reviewScope').querySelectorAll('[data-review-file]').forEach(button=>button.onclick=()=>{const n=graph.nodes.find(n=>n.file===button.dataset.reviewFile||n.id==='deleted:'+button.dataset.reviewFile||n.id==='changed-file:'+button.dataset.reviewFile);if(n){current=parent(n);selected=n.id;render()}});
+ $('breadcrumb').textContent=(proposal()?proposal().name+' / ':'')+(byID.get(current)?.name||current.replace(/^group:/,'')||'Packages');
+ $('back').disabled=!current;
+ const nodes=children(current),width=900,cardW=255,cardH=150,gapX=42,gapY=55,pad=35,cols=3;
+ const height=Math.max(500,Math.ceil(nodes.length/cols)*(cardH+gapY)+pad*2);
+ $('count').textContent=nodes.length+' elements';
+ const positions=new Map(nodes.map((n,i)=>[n.id,{x:pad+(i%cols)*(cardW+gapX),y:pad+Math.floor(i/cols)*(cardH+gapY)}]));
+ const visible=new Set(nodes.map(n=>n.id));
+ function ancestor(id){const seen=new Set();while(id&&!seen.has(id)){if(visible.has(id))return id;seen.add(id);const n=byID.get(id);id=n?parent(n):''}return null}
+ const edges=new Map();
+ for(const e of graph.edges){const from=ancestor(e.from),to=ancestor(e.to);if(from&&to&&from!==to){const key=from+'\0'+to;if(!edges.has(key))edges.set(key,{from,to,pairs:[]});edges.get(key).pairs.push(e)}}
+ function level(id){return policy.levels?.[id.replace(/^group:/,'')]}
+ let edgeHTML='';
+ for(const e of edges.values()){
+  const a=positions.get(e.from),b=positions.get(e.to),sameRow=a.y===b.y;
+  const right=a.x<b.x;
+  const x1=sameRow?a.x+(right?cardW:0):a.x+cardW/2,y1=sameRow?a.y+cardH/2:a.y+cardH;
+  const x2=sameRow?b.x+(right?0:cardW):b.x+cardW/2,y2=sameRow?b.y+cardH/2:b.y;
+  const bend=sameRow?(x1+x2)/2:(y1+y2)/2;
+  const curve=sameRow?`M${x1},${y1} C${bend},${y1} ${bend},${y2} ${x2},${y2}`:`M${x1},${y1} C${x1},${bend} ${x2},${bend} ${x2},${y2}`;
+  const bad=level(e.from)!=null&&level(e.to)!=null&&level(e.from)>level(e.to);
+  edgeHTML+=`<path class="edge ${bad?'bad':''}" marker-end="url(#arrow)" d="${curve}"><title>${esc(e.pairs.map(p=>(byID.get(p.from)?.name||p.from)+' → '+(byID.get(p.to)?.name||p.to)+' ['+p.kind+']').join('\n'))}</title></path>`;
+ }
+ $('diagram').style.width=width+'px';$('diagram').style.height=height+'px';$('diagram').style.transform=`scale(${zoom})`;
+ $('diagram').innerHTML=`<svg id="edges" width="${width}" height="${height}"><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8293a8"/></marker></defs>${edgeHTML}</svg>`+nodes.map(n=>{
+  const p=positions.get(n.id),m=metrics(n),state=quality(m);
+  return `<article tabindex="0" class="card ${selected===n.id?'selected':''}" data-node="${esc(n.id)}" style="left:${p.x}px;top:${p.y}px;height:${cardH}px"><div class="kind">${esc(n.lang)} · ${esc(n.kind)}${n.change?' · '+esc(n.change):''}</div><div class="name">${esc(n.name)}</div><div class="meta ${state}"><span><i class="dot"></i>${m.stale?'Stale results':m.crap!=null?'CRAP '+number(m.crap):'No CRAP result'}</span>${m.survived!=null?`<span>${m.survived} survivors</span>`:''}</div></article>`;
+ }).join('')+(!nodes.length?'<div class="empty">No elements in this view.<br>Use Rescan after adding source files, or change the search.</div>':'');
+ $('diagram').querySelectorAll('[data-node]').forEach(el=>{
+  const n=nodes.find(n=>n.id===el.dataset.node);
+  el.onclick=()=>{selected=n.id;renderInspector(n);$('diagram').querySelectorAll('.selected').forEach(c=>c.classList.remove('selected'));el.classList.add('selected')};
+  el.ondblclick=guard(async()=>{if(children(n.id).length){current=n.id;render()}else if(n.file)await source(n)});
+  el.onkeydown=e=>{if(e.key==='Enter')el.ondblclick()};
+ });
+ if(selected){const n=byID.get(selected)||nodes.find(n=>n.id===selected);if(n)renderInspector(n)}
+ $('zoomText').textContent=Math.round(zoom*100)+'%';
+}
+function renderInspector(n){
+ const m=metrics(n),members=graph.nodes.filter(x=>x.parent===n.id),q=quality(m);
+ $('inspector').innerHTML=`<h2>${esc(n.name)}</h2><div class="hint">${esc(n.kind)} · ${esc(n.lang)}${n.change?' · '+esc(n.change):''}</div>${n.file?`<p class="mono">${esc(n.file)}:${n.line}</p>`:''}<div class="mono">${esc(n.signature||'')}</div><div class="metricGrid">${[['crap','Max CRAP'],['coverage','Mean coverage %'],['cc','Complexity'],['killed','Killed'],['survived','Survived'],['uncovered','Uncovered']].map(([k,label])=>`<div class="metric ${q}"><strong>${number(m[k])}</strong><span>${label}</span></div>`).join('')}</div><p class="hint">${m.stale?'Results predate a source change or lack provenance.':'Aggregates include measured declarations only; a dash means no result.'}</p><div class="actions">${n.file?'<button id="openSource">Open source</button>':''}<button data-action="inspect">Ask Codex about this</button><button data-action="refresh-crap">Request CRAP refresh</button><button data-action="refresh-mutation">Request mutation refresh</button>${proposal()?'<button id="moveGroup">Move into proposal group</button>':''}</div>${members.length?'<div class="label">Members</div>'+members.map(x=>`<button class="member" data-member="${esc(x.id)}">${x.public?'+':'−'} ${esc(x.signature||x.name)}</button>`).join(''):''}`;
+ if($('openSource'))$('openSource').onclick=guard(()=>source(n));
+ $('inspector').querySelectorAll('[data-member]').forEach(b=>b.onclick=guard(()=>source(byID.get(b.dataset.member))));
+ $('inspector').querySelectorAll('[data-action]').forEach(b=>b.onclick=guard(async()=>{
+  const req=await api('requests',{action:b.dataset.action,target:n.id,proposal:proposalID,prompt:''});
+  message('Queued '+req.action+'. Use “Copy handoff prompt” to send it to Codex.');await pending();
+ }));
+ if($('moveGroup'))$('moveGroup').onclick=guard(async()=>{const name=prompt('Proposal group name');if(!name?.trim())return;proposal().groups=proposal().groups||{};proposal().groups[n.id]=name.trim();await api('policy',policy);current='';render()});
+}
+async function source(n){
+ const data=await api('source?file='+encodeURIComponent(n.file));
+ $('sourceTitle').textContent=n.file+':'+n.line;
+ $('sourceBody').innerHTML=data.body.split('\n').map((text,i)=>`<div class="sourceLine ${i+1>=n.line&&i+1<=n.end_line?'focus':''}" id="line-${i+1}"><span class="lineNo">${i+1}</span><span>${esc(text)}</span></div>`).join('');
+ $('sourceDialog').showModal();$('line-'+n.line)?.scrollIntoView({block:'center'});
+}
+async function pending(){const requests=await api('requests');$('pending').textContent=requests.length}
+async function refresh(scan=false){graph=await api(scan?'scan':'graph',scan?{}:undefined);policy=await api('policy');render();await pending()}
+$('scan').onclick=guard(()=>refresh(true));
+$('search').oninput=()=>{current='';render()};
+$('external').onchange=render;
+$('back').onclick=()=>{current=byID.has(current)?parent(byID.get(current)):'';render()};
+$('zoomIn').onclick=()=>{zoom=Math.min(1.6,zoom+.1);render()};
+$('zoomOut').onclick=()=>{zoom=Math.max(.5,zoom-.1);render()};
+$('closeSource').onclick=()=>$('sourceDialog').close();
+$('closePolicy').onclick=()=>$('policyDialog').close();
+$('editPolicy').onclick=()=>{$('policyText').value=JSON.stringify(policy,null,2);$('policyDialog').showModal()};
+$('savePolicy').onclick=guard(async()=>{const p=JSON.parse($('policyText').value);policy=await api('policy',p);$('policyDialog').close();render()});
+$('newProposal').onclick=guard(async()=>{const name=prompt('Proposal name');if(!name?.trim())return;const p={id:'proposal-'+Date.now(),name:name.trim(),groups:{},omit:[]};policy.proposals.push(p);await api('policy',policy);proposalID=p.id;current='';render()});
+$('copyPrompt').onclick=guard(async()=>{const text='Use $uml-viewer to inspect and handle pending viewer requests for '+JSON.stringify(graph.root)+(graph.review?' in --unpushed mode with baseline '+JSON.stringify(graph.review.base_ref):'')+'.';await navigator.clipboard.writeText(text);message('Copied. Paste into your Codex conversation.')});
+$('download').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(graph,null,2)],{type:'application/json'}));a.download=graph.name+'-uml.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sourceDialog').open&&!$('policyDialog').open){current=byID.has(current)?parent(byID.get(current)):'';render()}});
+guard(()=>refresh())();
+setInterval(async()=>{if(polling||$('policyDialog').open)return;polling=true;try{await refresh()}catch(e){message(e.message)}finally{polling=false}},5000);
+</script>
+</html>

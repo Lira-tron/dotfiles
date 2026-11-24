@@ -28,6 +28,7 @@ source $BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $BREW_PREFIX/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 eval "$(tv init zsh)"
+source "$HOME/.config/zsh/tvw.zsh"
 # source <(fzf --zsh)
 eval "$(mise activate zsh)"
 
@@ -48,7 +49,7 @@ eval "$(atuin init zsh)"
 export WORDCHARS='~!#$%^&*(){}[]<>?.+;-'
 
 export FZF_DEFAULT_OPTS="--color=fg:${fg},bg:${bg},hl:${purple},fg+:${fg},bg+:${bg_highlight},hl+:${purple},info:${blue},prompt:${cyan},pointer:${cyan},marker:${cyan},spinner:${cyan},header:${cyan}"
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --exclude .bemol'
 export FZF_CTRL_R_OPTS="--reverse --info hidden"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
@@ -115,6 +116,7 @@ alias gt='gotests -all -w -parallel '
 alias k='kubectl'
 
 alias checkPort='lsof -n -i'
+alias umlStop='pkill -e -INT -u "$UID" -f "^([^[:space:]]*/)?uml-viewer[[:space:]]+serve([[:space:]]|$)" || print -r -- "Nothing was killed"'
 
 alias lg='lazygit'
 alias gb='git branch'
@@ -134,33 +136,13 @@ alias tm='t new-session -As'
 
 alias sizeorder="du -ah . | grep -v "/$" | sort -rh"
 
-alias lyosx='osxphotos export --export-by-date /Volumes/DataShared/Pictures/Library --sidecar XMP --touch-file --download-missing --skip-edited'
-alias lyicloudpd='icloudpd --directory /Volumes/DataShared/Pictures/Library --folder-structure {:%Y/%m/%d} --align-raw original --username octalimon@gmail.com --watch-with-interval 86400 --set-exif-datetime --xmp-sidecar'
-alias sshHost='ssh Liras-Mac-M1.local -t "tmux new-session -s ssh || tmux attach-session -t ssh"'
-
-
-
-# Disable auto-setting terminal title.
-DISABLE_AUTO_TITLE="true"
-function precmd () {
-  echo -ne "\033]0;$(print -rD $PWD)\007"
-}
-precmd
-
-function preexec () {
-  if [[ $1 =~ ^ssh ]]; then
-    print -Pn "\e]0; 🚨🚨🚨$(print -rD $PWD) $1 🚨🚨🚨\a"
-  else
-    print -Pn "\e]0;🚀 $(print -rD $PWD) $1  🚀\a"
-  fi
-}
 
 
 # using ripgrep combined with preview
 # find-in-file - usage: fif <searchTerm>
 fg() {
   if [ ! "$#" -gt 0 ]; then echo "Need a string to search for!"; return 1; fi
-  selected_file=$(rg --files-with-matches --hidden --g '!.git/' --no-messages "$1"  | fzf --preview "highlight -O ansi -l {} 2> /dev/null | rg --colors 'match:bg:yellow' --ignore-case --hidden --pretty --context 10 '$1' || rg --ignore-case --hidden --pretty --context 10 '$1' {}"); if [ -n "$selected_file" ]; then vim "$selected_file"; fi
+  selected_file=$(rg --files-with-matches --hidden --g '!.git/' --g '!.bemol/' --no-messages "$1"  | fzf --preview "highlight -O ansi -l {} 2> /dev/null | rg --colors 'match:bg:yellow' --ignore-case --hidden --pretty --context 10 '$1' || rg --ignore-case --hidden --pretty --context 10 '$1' {}"); if [ -n "$selected_file" ]; then vim "$selected_file"; fi
 }
 
 fcd() {
@@ -214,43 +196,34 @@ function extract {
 
 function gitPull() {
     local conflicts=()
-    local current_dir=$(pwd)
+    local processed=0
+    local dir folder
 
-    # Check current directory first
-    if [[ -d ".git" ]]; then
-        echo "Processing: ."
-        git pull --rebase 2>&1 | tee /tmp/git_output
-        if [[ ${PIPESTATUS[0]} -ne 0 ]] || grep -q "CONFLICT\|Automatic merge failed\|unmerged files\|fatal:" /tmp/git_output; then
-            conflicts+=(".")
+    # Check this repository, child repositories, and workspace packages.
+    for dir in . */(N) src/*/(N); do
+        [[ -e "$dir/.git" ]] || continue
+        echo "Processing: $dir"
+        (( processed += 1 ))
+
+        if ! git -C "$dir" pull --rebase; then
+            conflicts+=("$dir")
         fi
         echo ""
-    fi
-
-    # Check subdirectories
-    for dir in */; do
-        if [[ -d "$dir/.git" ]]; then
-            echo "Processing: $dir"
-            cd "$dir"
-
-            git pull --rebase 2>&1 | tee /tmp/git_output
-            if [[ ${PIPESTATUS[0]} -ne 0 ]] || grep -q "CONFLICT\|Automatic merge failed\|unmerged files\|fatal:" /tmp/git_output; then
-                conflicts+=("$dir")
-            fi
-
-            cd "$current_dir"
-            echo ""
-        fi
     done
 
     echo "=== SUMMARY ==="
-    if [[ ${#conflicts[@]} -eq 0 ]]; then
-        echo "All repositories updated successfully!"
+    if [[ $processed -eq 0 ]]; then
+        echo "No Git repositories found in this directory, its children, or src/."
+        return 1
+    elif [[ ${#conflicts[@]} -eq 0 ]]; then
+        echo "Repositories updated successfully: $processed"
     else
         echo "Issues found in ${#conflicts[@]} folder(s):"
         for folder in "${conflicts[@]}"; do
             echo "  - $folder"
             echo "    cd $folder"
         done
+        return 1
     fi
 }
 
@@ -283,7 +256,12 @@ function setJava () {
    echo "JAVA_HOME=$JAVA_HOME"
 }
 
-alias ed='claude --dangerously-skip-permissions --aws-profile dev'
+# alias ed='claude --dangerously-skip-permissions --aws-profile dev'
+if [[ $HOST == dev-dsk* ]]; then
+  alias ed='env -u DISPLAY -u WAYLAND_DISPLAY codex --aws-profile dev'
+else
+  alias ed='codex --aws-profile dev'
+fi
 alias edd='claude agents --dangerously-skip-permissions --aws-profile dev'
 alias edr='claude -r --dangerously-skip-permissions --aws-profile dev'
 alias edrev='claude --agent reviewer --dangerously-skip-permissions --aws-profile dev'
@@ -368,3 +346,19 @@ source <(carapace _carapace)
 
 eval "$(zoxide init zsh)"
 
+autoload -Uz add-zsh-hook
+
+_herdr_rename_tab_to_cwd() {
+    [[ -n "${HERDR_PANE_ID:-}" && -n "${HERDR_TAB_ID:-}" ]] || return
+
+    local tab_name="${PWD:t}"
+    [[ -n "$tab_name" ]] || tab_name="/"
+    command herdr tab rename "$HERDR_TAB_ID" "$tab_name" >/dev/null 2>&1
+}
+
+add-zsh-hook chpwd _herdr_rename_tab_to_cwd
+_herdr_rename_tab_to_cwd
+
+# if you wish to use IMDS set AWS_EC2_METADATA_DISABLED=false
+
+export AWS_EC2_METADATA_DISABLED=true

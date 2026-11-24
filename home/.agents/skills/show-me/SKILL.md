@@ -1,9 +1,16 @@
 ---
 name: show-me
-description: Help the user understand the current topic visually with concise diagrams, code-shape sketches, and focused HTML artifacts.
+description: Help the user review code or understand code, changes, or concepts through focused visual explanations and walkthroughs. Use when the goal is explanation or code review. Do not select solely to create or render a diagram; use a diagram tool directly for standalone diagrams or diagrams in documents.
 ---
 
-Help the user understand the current topic of conversation visually. Skip the preamble and keep prose brief. Pick the smallest view that makes the key point clear.
+Help the user review code or understand code, a proposed code change, or a concept visually. Skip the preamble and keep prose brief. Pick the smallest view that makes the key point clear.
+
+Choose this skill when the main goal is a focused explanation, code walkthrough, or code review. Use the rendering instructions below for diagrams that support that explanation or review. When the requested deliverable is a standalone diagram or a diagram for a document, use a diagram tool directly.
+
+Before saving an image or HTML file, follow [the shared artifact rule](../../rules/ai-artifacts.md).
+Use the calling workflow's absolute output path within the selected feature,
+or default to `<AI_ARTIFACT_ROOT>/visuals/`. Create the output directory first.
+Replace `<absolute-output-path>` in the examples with that resolved path.
 
 - Show logic or an algorithm as pseudocode:
 
@@ -43,17 +50,7 @@ src/
 └── transport/      # sends API requests
 ```
 
-- Show component interaction, control flow, or data flow with Mermaid:
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant UI
-    participant Daemon
-    User->>UI: choose command
-    UI->>Daemon: send expanded prompt
-    Daemon-->>UI: stream result
-```
+- Show component interaction, control flow, or data flow in the code being explored or reviewed as a diagram. When `~/.agents/skills/show-me/references/rendered-diagrams.md` exists, read it and render the diagram as it describes. Otherwise write the diagram inline as a PlantUML or Mermaid fenced block.
 
 - Use `diff` when the point is what changes and the surrounding shape already exists. Match the diff shape to the topic.
 
@@ -114,10 +111,10 @@ function expandSkill(command: string): string {
 }
 ```
 
-- For a visual UI, layout, state comparison, or concept too dense for Mermaid, write one focused HTML file — a diagram, an infographic, or a short slide deck, whichever fits the point. Match the product's colors, type, spacing, and components; use real labels and data; support desktop and mobile. Then open it for the user:
+- For a code walkthrough or review whose UI, layout, or state changes benefit from an HTML view, write one focused HTML file. Match the product's colors, type, spacing, and components; use real labels and data; support desktop and mobile. Then open it for the user:
 
 ```
-Bash(open path/to/show-me-{description}.html)
+Bash(xdg-open '<absolute-output-path>.html')
 ```
 
 ### guidance

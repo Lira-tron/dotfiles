@@ -1,0 +1,4 @@
+interface:
+  display_name: "dry4java (use dryer)"
+  short_description: "Use dryer for the maintained quality workflow"
+  default_prompt: "Use $dry4java to follow the shared dryer workflow for this change."

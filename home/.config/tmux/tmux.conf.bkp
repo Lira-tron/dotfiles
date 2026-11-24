@@ -1,0 +1,178 @@
+# ============================================================================ #
+# ===                               PLUGINS                                === #
+# ============================================================================ #
+
+set -g @plugin 'christoomey/vim-tmux-navigator'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-cpu'
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'jaclu/tmux-menus'
+set -g @plugin 'tmux-plugins/tmux-sessionist'
+
+# ============================================================================ #
+# ===                               GENERAL                                === #
+# ============================================================================ #
+
+set-window-option -g mode-keys vi
+
+set -g default-terminal "tmux-256color"
+set -as terminal-features ",tmux*:RGB"
+set-option -a terminal-overrides ",*256col*:RGB"
+
+# Start windows numbering at 1.
+set -g base-index 1
+
+# Start pane numbering at 1.
+setw -g pane-base-index 1
+
+# Re-draw status window every 5 seconds.
+set -g status-interval 5
+
+# Set scrollback history (100k).
+set -g history-limit 100000
+
+# Shorten command delay.
+set -sg escape-time 0
+
+# Notify applications (nvim) of focus changes
+set-option -g focus-events on
+
+# renumber windows when a window is closed
+set-option -g renumber-windows on
+
+# allow to use OSC52 to copy from ssh
+# https://github.com/tmux/tmux/wiki/Clipboard
+set -s set-clipboard on
+
+# Set Ctrl-a as the default prefix key combination and unbind C-b to free it up.
+set -g prefix C-a
+unbind C-b
+
+# Use send-prefix to pass C-a through to application.
+bind C-a send-prefix
+
+# Reload ~/.tmux.conf using PREFIX r.
+# bind r source-file ~/.tmux.conf
+
+# Create window with current path.
+bind c new-window -c "#{pane_current_path}"
+
+# Bind <prefix>- to split window horizontally.
+bind - split-window -v -c "#{pane_current_path}"
+unbind %
+
+# Bind <prefix>| to split window vertically.
+bind | split-window -h -c "#{pane_current_path}"
+unbind '"'
+
+# Kill pane without confirmation.
+bind x kill-pane
+
+# Remove delay after escape.
+set -sg escape-time 0
+
+# Map vim movement keys as pane movement keys with prefix.
+bind -r h select-pane -L
+bind -r j select-pane -D
+bind -r k select-pane -U
+bind -r l select-pane -R
+
+# Cycle through the windows.
+# bind -r C-h select-window -t :-
+# bind -r C-l select-window -t :+
+
+# Resize panes using PREFIX H, J, K, L.
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# Visual notification of activity in other windows.
+setw -g monitor-activity off
+set -g visual-activity off
+
+# Move windows to left or right
+# bind-key -n C-S-Left swap-window -t -1
+# bind-key -n C-S-Right swap-window -t +1
+
+# enable mouse support
+set -g mouse on
+
+# ============================================================================ #
+# ===                            THEME CHANGES                             === #
+# ============================================================================ #
+
+set-option -s @DARK0_HARD '#1D2021'
+set-option -s @DARK0 '#282828'
+set-option -s @DARK0_SOFT '#32302F'
+set-option -s @DARK1 '#3C3836'
+set-option -s @DARK2 '#504945'
+set-option -s @DARK3 '#665C54'
+set-option -s @DARK4 '#7C6F64'
+
+set-option -s @GRAY '#928374'
+
+set-option -s @LIGHT0_HARD '#F9F5D7'
+set-option -s @LIGHT0 '#FBF1C7'
+set-option -s @LIGHT0_SOFT '#F2E5BC'
+set-option -s @LIGHT1 '#EBDBB2'
+set-option -s @LIGHT2 '#D5C4A1'
+set-option -s @LIGHT3 '#BDAD93'
+set-option -s @LIGHT4 '#A89984'
+
+set-option -s @BRIGHT_RED '#FB4934'
+set-option -s @BRIGHT_GREEN '#B8BB26'
+set-option -s @BRIGHT_YELLOW '#FABD2F'
+set-option -s @BRIGHT_BLUE '#83A598'
+set-option -s @BRIGHT_PURPLE '#D3869B'
+set-option -s @BRIGHT_AQUA '#8EC07C'
+set-option -s @BRIGHT_ORANGE '#FE8019'
+
+set-option -s @NEUTRAL_RED '#CC241D'
+set-option -s @NEUTRAL_GREEN '#98971A'
+set-option -s @NEUTRAL_YELLOW '#D79921'
+set-option -s @NEUTRAL_BLUE '#458588'
+set-option -s @NEUTRAL_PURPLE '#B16286'
+set-option -s @NEUTRAL_AQUA '#689D6A'
+set-option -s @NEUTRAL_ORANGE '#D65D0E'
+
+set-option -s @FADED_RED '#9D0006'
+set-option -s @FADED_GREEN '#79740E'
+set-option -s @FADED_YELLOW '#B57614'
+set-option -s @FADED_BLUE '#076678'
+set-option -s @FADED_PURPLE '#8F3F71'
+set-option -s @FADED_AQUA '#427B58'
+set-option -s @FADED_ORANGE '#AF3A03'
+
+source-file $XDG_CONFIG_HOME/tmux/tmux-set-theme.conf
+
+# The panes {
+set -g pane-border-style "fg=#{@BG1} bg=#{@BG0}"
+set -g pane-active-border-style "fg=#{@FG0} bg=#{@BG0}"
+# }
+
+set -g status-position bottom
+set -g status-left-length 0
+set -g status-right-length 0
+set -g window-status-separator ' '
+
+%if $SSH_CONNECTION
+set -g status-right ' #[fg=#{@PURPLE}]#{host} #[fg=#{@FG4}]- #{cpu_percentage} - %b/%d %a %I:%M%p %Z '
+%else
+set -g status-right ' #[fg=#{@FG4}]#{cpu_percentage} - %b/%d %a %I:%M%p %Z '
+%endif
+
+set -g status-style "fg=#{@PURPLE} bg=#{@BG1}"
+
+setw -g window-status-format ' #[fg=#{@PURPLE}]#I#[fg=#{@FG4}]:#W#[fg=#{@PURPLE}]#F '
+setw -g window-status-current-format '#[fg=#{@PURPLE},bg=#{@BG2},bold] #I#[fg=#{@FG4}]:#W#[fg=#{@PURPLE}]#F '
+
+set -g message-style "fg=#{@FG0} bg=#{@BG0} bold"
+
+set-environment -g TMUX_PLUGIN_MANAGER_PATH $XDG_DATA_HOME/tmux/plugins
+
+if "test ! -d $XDG_DATA_HOME/tmux/plugins/tpm" \
+   "run 'git clone https://github.com/tmux-plugins/tpm $XDG_DATA_HOME/tmux/plugins/tpm && $XDG_DATA_HOME/tmux/plugins/tpm/bin/install_plugins'"
+
+# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf).
+run -b "$XDG_DATA_HOME/tmux/plugins/tpm/tpm"

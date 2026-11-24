@@ -1,0 +1,5 @@
+interface:
+  display_name: "Code Finalizer"
+  short_description: "Select final checks and reviews before CR submission"
+policy:
+  allow_implicit_invocation: false

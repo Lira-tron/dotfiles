@@ -1,0 +1,4 @@
+interface:
+  display_name: "crap4java (use crapper)"
+  short_description: "Use crapper for the maintained quality workflow"
+  default_prompt: "Use $crap4java to follow the shared crapper workflow for this change."

@@ -33,6 +33,11 @@ def check_command(command: str):
     if re.search(r"\bgit\s+push\b", command):
         return True, "Blocked: git push is not allowed. Commits stay local."
 
+    # Block CR publishing flags anywhere in the command's arguments.
+    cr_publish = r"(?:^|[\s/;&|()])cr(?=\s)[^;&|\n]*\s--(?:auto-)?publish(?=\s|$|[;&|])"
+    if re.search(cr_publish, command.replace("\\\n", "")):
+        return True, "Blocked: CR publishing is not allowed. Use --no-auto-publish and leave the revision unpublished."
+
     # Block sudo
     if re.search(r"\bsudo\s+", command):
         return True, "Blocked: sudo commands are not allowed."
