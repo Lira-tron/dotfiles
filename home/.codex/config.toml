@@ -256,14 +256,14 @@ metrics_exporter = { otlp-http = { endpoint = "http://127.0.0.1:29774/v1/metrics
 region = "us-west-2"
 
 [model_providers.amazon-bedrock.aws.credential_export]
-command = "/home/limonoct/.toolbox/bin/codex"
+command = "/Users/limonoct/.toolbox/bin/codex"
 args = ["amzn", "credential-process", "--aws-profile", "dev"]
 
 [model_providers.amazon-bedrock-runtime.aws]
 region = "us-east-1"
 
 [model_providers.amazon-bedrock-runtime.aws.credential_export]
-command = "/home/limonoct/.toolbox/bin/codex"
+command = "/Users/limonoct/.toolbox/bin/codex"
 args = ["amzn", "credential-process", "--aws-profile", "dev"]
 
 
@@ -373,6 +373,9 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/workplace/limonoct/KuiperArtifactManagementService/src/KuiperArtifactManagementServiceGoSDK"]
+trust_level = "trusted"
+
+[projects."/Volumes/workplace/LimonoctNvim/src/LimonoctNvim/dotfiles/dotfiles"]
 trust_level = "trusted"
 
 [marketplaces.aim]
@@ -512,6 +515,28 @@ trusted_hash = "sha256:c7a38901faf35b4e304771fa7dd9eec7754130c772f04b9d59ba6951b
 
 [hooks.state."gopls-mcp@gopls-mcp-marketplace:hooks/codex-hooks.json:session_start:0:0"]
 trusted_hash = "sha256:a357111f3c5e03bdcb371ea6fcb8ced08de12adb807b3cbf39a5fe8198cba75b"
+trusted_content_hash = "sha256:d468b273fc81bf1cfc02bac120a78594743b6da4673caa7e0b410b062a357618"
+
+[hooks.state."/Users/limonoct/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:0e41eb88f22c64908f04149bfe94a79e3ca170152683a29949ec2be4a7f4abd7"
+
+[hooks.state."/Users/limonoct/.codex/hooks.json:pre_tool_use:0:1"]
+trusted_hash = "sha256:b57c5fde679818f2c503265c55f860179c007f5c7e2605959f14ccca877a9b0c"
+
+[hooks.state."/Users/limonoct/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:9406ff996ebd34307b60a3aa3737be091ccb65afc15dc858fc2851a5ad6cb6f3"
+
+[hooks.state."/Users/limonoct/.codex/hooks.json:session_start:0:1"]
+trusted_hash = "sha256:9bc3ca47a4ef38ae6208ad97db3f1abdc3ae076398e5a344de87ac866f25e562"
+
+[hooks.state."/Users/limonoct/.codex/hooks.json:session_start:1:0"]
+trusted_hash = "sha256:8d40b7e36f39d71f96c35538c0ff9b50709b7c67e550e3866621ff25e2cb1b1b"
+
+[hooks.state."/Users/limonoct/.codex/hooks.json:session_end:0:0"]
+trusted_hash = "sha256:c28b3fbced3257ee83ac785cc99e9dbf37efe560b3d1181aa9cddb286256e2c0"
+
+[hooks.state."/Users/limonoct/.codex/hooks.json:stop:0:0"]
+trusted_hash = "sha256:c7a38901faf35b4e304771fa7dd9eec7754130c772f04b9d59ba6951b3076e3b"
 
 [features]
 hooks = true
