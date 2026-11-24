@@ -56,8 +56,6 @@ rex.bind("resize/right", "pane.resize", { direction = "right" })
 rex.bind("ctrl+alt+shift+c", "pane.copy")
 rex.bind("shift+cmd+v", "pane.split", { direction = "right" })
 rex.bind("shift+cmd+m", "pane.zoom")
-rex.bind("shift+cmd+n", "pane.focus_next")
-rex.bind("shift+cmd+e", "pane.focus_previous")
 rex.bind("alt+m", "pane.zoom")
 
 require("workspaces")
