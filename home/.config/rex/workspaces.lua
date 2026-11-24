@@ -183,3 +183,4 @@ rex.action({
 })
 
 rex.bind("ctrl+a>t", "workspace_picker_native")
+rex.bind("shift+cmd+t", "workspace_picker_native")
