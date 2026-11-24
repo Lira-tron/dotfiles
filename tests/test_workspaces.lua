@@ -29,7 +29,7 @@ local function setup(remote)
         return { ok = true, stdout = "[dir] project\t/tmp/project\n" }
       end
       assert(argv[2] == os.getenv("HOME") .. "/.config/television/cable/rex-worktrees.py")
-      return { ok = true, stdout = "[tree] feature\ttree-id\n" }
+      return { ok = true, stdout = "[tree] KuiperArtifactManagementService · global-endpoint\ttree-id\n" }
     end,
   })
   rex = {
@@ -96,7 +96,9 @@ test("local picker lists worktrees and workplace directories and permits cancell
   assert(#calls == 0 and #picks == 1 and layer == nil)
   assert(picks[1].items[1].id == "none")
   assert(picks[1].items[2].id == "tree-id")
+  assert(picks[1].items[2].title == "global-endpoint")
   assert(picks[1].items[3].id == "/tmp/project")
+  assert(picks[1].items[3].title == "project")
 end)
 
 test("opening a directory keeps the helper on the pane's host", function()
