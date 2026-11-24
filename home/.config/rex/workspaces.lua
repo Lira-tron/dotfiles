@@ -112,6 +112,18 @@ rex.action({
   title = "Open Worktree or Directory (Native)…",
   description = "Pick a Git worktree or directory in the command palette, then open, create, or remove it",
   run = function(ctx)
+    -- API calls follow the pane's server, but rex.exec always runs on the config's host.
+    if ctx.server then
+      local result, err = rex.call("client.action", {
+        action = "workspace_picker_native",
+        session_id = ctx.session_id,
+        block_id = ctx.block_id,
+      })
+      if err then
+        error(err, 0)
+      end
+      return result
+    end
     local cwd = pane_cwd(ctx)
     local items, by_id = workspace_items(cwd)
     local value = rex.ui.pick({ title = "Worktrees and directories", placeholder = "Filter", items = items })
@@ -146,8 +158,8 @@ rex.action({
     -- Closing the palette hands focus back to the pane it opened over, after the layer took it.
     local refocus = ("rex.session.focus_block({ block_id = %q })"):format(layer.block_ids[1])
     rex.exec.start(
-      { "/bin/sh", "-c", 'sleep 0.3; exec "$0" do -s "$1" -e "$2"', REX_BIN .. "/rex", ctx.session_id, refocus },
-      { detach = true, stdout = false, stderr = false }
+      { "/bin/sh", "-c", 'sleep 0.3; exec "$0" do -s "$1" -e "$2"', "rex", ctx.session_id, refocus },
+      { detach = true, stdout = false, stderr = false, env = exec_env() }
     )
     return layer
   end,
