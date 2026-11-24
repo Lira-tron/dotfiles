@@ -110,61 +110,75 @@ local function helper_argv(action, value)
   return { "python3", HELPER, action, value }
 end
 
+local function workspace_operation(ctx, operation, value)
+  -- Forward only host operations; waiting in a remote picker exceeds the call's 10s deadline.
+  if ctx.server then
+    local result, err = rex.call("client.action", {
+      action = "workspace_picker_native",
+      args = { operation = operation, value = value },
+      session_id = ctx.session_id,
+      block_id = ctx.block_id,
+    })
+    if err then
+      error(err, 0)
+    end
+    return result.result
+  end
+  local cwd = pane_cwd(ctx)
+  if operation == "list" then
+    local items, by_id = workspace_items(cwd)
+    return { items = items, by_id = by_id }
+  end
+  -- Delete and create confirm and read names from a terminal, so they run in a floating shell.
+  if operation == "connect" then
+    exec_lines(helper_argv(operation, value), cwd)
+    return
+  end
+  local layer, err = rex.session.new_layer({
+    session_id = ctx.session_id,
+    bounds = { 0.2, 0.2, 0.6, 0.5 },
+    focus = true,
+    layout = rex.layout.block({
+      flavor = TERMINAL .. ".shell",
+      options = { command = helper_argv(operation, value), cwd = cwd },
+    }),
+  })
+  if not layer then
+    error(err, 0)
+  end
+  -- Closing the palette hands focus back to the pane it opened over, after the layer took it.
+  local refocus = ("rex.session.focus_block({ block_id = %q })"):format(layer.block_ids[1])
+  rex.exec.start(
+    { "/bin/sh", "-c", 'sleep 0.3; exec "$0" do -s "$1" -e "$2"', "rex", ctx.session_id, refocus },
+    { detach = true, stdout = false, stderr = false, env = exec_env() }
+  )
+  return layer
+end
+
 rex.action({
   name = "workspace_picker_native",
   title = "Open Worktree or Directory (Native)…",
   description = "Pick a Git worktree or directory in the command palette, then open, create, or remove it",
-  run = function(ctx)
-    -- API calls follow the pane's server, but rex.exec always runs on the config's host.
-    if ctx.server then
-      local result, err = rex.call("client.action", {
-        action = "workspace_picker_native",
-        session_id = ctx.session_id,
-        block_id = ctx.block_id,
-      })
-      if err then
-        error(err, 0)
-      end
-      return result
+  args = { operation = "string?", value = "string?" },
+  run = function(ctx, args)
+    if args.operation then
+      return workspace_operation(ctx, args.operation, args.value)
     end
-    local cwd = pane_cwd(ctx)
-    local items, by_id = workspace_items(cwd)
-    local value = rex.ui.pick({ title = "Worktrees and directories", placeholder = "Filter", items = items })
+    local choices = workspace_operation(ctx, "list")
+    local value = rex.ui.pick({ title = "Worktrees and directories", placeholder = "Filter", items = choices.items })
     if value == nil then
       return
     end
-    local kind = by_id[value].detail
+    local item = choices.by_id[value]
+    local kind = item.detail
     local action = "create"
     if MENUS[kind] then
-      action = rex.ui.pick({ title = by_id[value].title, placeholder = "Action", items = MENUS[kind] })
+      action = rex.ui.pick({ title = item.title, placeholder = "Action", items = MENUS[kind] })
       if action == nil then
         return
       end
     end
-    -- Delete and create confirm and read names from a terminal, so they run in a floating shell.
-    if action == "connect" then
-      exec_lines(helper_argv(action, value), cwd)
-      return
-    end
-    local layer, err = rex.session.new_layer({
-      session_id = ctx.session_id,
-      bounds = { 0.2, 0.2, 0.6, 0.5 },
-      focus = true,
-      layout = rex.layout.block({
-        flavor = TERMINAL .. ".shell",
-        options = { command = helper_argv(action, value), cwd = cwd },
-      }),
-    })
-    if not layer then
-      error(err, 0)
-    end
-    -- Closing the palette hands focus back to the pane it opened over, after the layer took it.
-    local refocus = ("rex.session.focus_block({ block_id = %q })"):format(layer.block_ids[1])
-    rex.exec.start(
-      { "/bin/sh", "-c", 'sleep 0.3; exec "$0" do -s "$1" -e "$2"', "rex", ctx.session_id, refocus },
-      { detach = true, stdout = false, stderr = false, env = exec_env() }
-    )
-    return layer
+    return workspace_operation(ctx, action, value)
   end,
 })
 
