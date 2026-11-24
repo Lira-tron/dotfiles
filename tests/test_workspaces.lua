@@ -96,7 +96,7 @@ test("local picker lists worktrees and workplace directories and permits cancell
   assert(#calls == 0 and #picks == 1 and layer == nil)
   assert(picks[1].items[1].id == "none")
   assert(picks[1].items[2].id == "tree-id")
-  assert(picks[1].items[2].title == "global-endpoint")
+  assert(picks[1].items[2].title == "global-endpoint · KuiperArtifactManagementService")
   assert(picks[1].items[3].id == "/tmp/project")
   assert(picks[1].items[3].title == "project")
 end)

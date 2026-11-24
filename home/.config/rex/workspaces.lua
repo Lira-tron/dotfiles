@@ -88,10 +88,10 @@ local function workspace_items(cwd)
       if kind and not by_id[value] then
         by_id[value] = {
           id = value,
-          -- Temporary: Rex's native picker has no width option, so show only the worktree name.
+          -- Put the worktree first so it stays visible in Rex's narrow native picker.
           -- To restore "repository · worktree", uncomment this and remove the next title line:
           -- title = title,
-          title = kind == "tree" and title:gsub("^.- · ", "") or title,
+          title = kind == "tree" and title:gsub("^(.-) · (.*)$", "%2 · %1") or title,
           subtitle = kind == "dir" and value or nil,
           icon = ICONS[kind] or "plus",
           detail = kind,
