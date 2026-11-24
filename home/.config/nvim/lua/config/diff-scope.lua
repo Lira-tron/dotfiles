@@ -294,6 +294,205 @@ function M.pick()
   end)
 end
 
+local function modified_buffers(root)
+  local edits = {}
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if
+      vim.api.nvim_buf_is_loaded(buf)
+      and vim.bo[buf].buftype == ""
+      and vim.bo[buf].modified
+    then
+      local path = vim.api.nvim_buf_get_name(buf)
+      path = vim.uv.fs_realpath(path) or path
+      if
+        path:sub(1, #root + 1) == root .. "/"
+        and vim.fs.root(path, ".git") == root
+      then
+        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+        local separator = vim.bo[buf].fileformat == "dos" and "\r\n" or "\n"
+        local text = table.concat(lines, separator)
+        if vim.bo[buf].endofline and text ~= "" then
+          text = text .. separator
+        end
+        edits[path:sub(#root + 2)] = text
+      end
+    end
+  end
+  return edits
+end
+
+local function buffer_patch(file, block, reference, text, mode)
+  local old = block and block.rename and block.rename.from or file
+  local header = { "diff --git a/" .. old .. " b/" .. file }
+  if not reference then
+    header[#header + 1] = "new file mode " .. mode
+  end
+  if block and block.rename then
+    vim.list_extend(header, {
+      "rename from " .. old,
+      "rename to " .. file,
+    })
+  end
+  if block and block.mode then
+    vim.list_extend(header, {
+      "old mode " .. block.mode.from,
+      "new mode " .. block.mode.to,
+    })
+  end
+  local base = reference or ""
+  if base == text then
+    return #header > 1 and (table.concat(header, "\n") .. "\n") or nil
+  end
+  if base:find("\0", 1, true) or text:find("\0", 1, true) then
+    header[#header + 1] = "Binary files a/"
+      .. old
+      .. " and b/"
+      .. file
+      .. " differ"
+  else
+    vim.list_extend(header, {
+      "--- " .. (reference and ("a/" .. old) or "/dev/null"),
+      "+++ b/" .. file,
+      vim.diff(base, text, { ctxlen = 3, algorithm = "histogram" }),
+    })
+  end
+  return table.concat(header, "\n") .. "\n"
+end
+
+local function collect_diff(root, ref, args, callback)
+  local edits = modified_buffers(root)
+  local function run(command, next_step)
+    local argv = { "git", "--no-optional-locks", "-C", root }
+    vim.list_extend(argv, command)
+    -- Keep blob bytes intact, including CRLF and binary contents.
+    vim.system(
+      argv,
+      {},
+      vim.schedule_wrap(function(result)
+        if result.code ~= 0 then
+          vim.notify(
+            "Cannot read diff: " .. vim.trim(result.stderr),
+            vim.log.levels.ERROR
+          )
+          return
+        end
+        next_step(result.stdout)
+      end)
+    )
+  end
+  run(args, function(patch)
+    local blocks, patches = {}, {}
+    for _, block in
+      ipairs(
+        require("snacks.picker.source.diff").parse(vim.split(patch, "\n")).blocks
+      )
+    do
+      blocks[block.file] = block
+      local lines = vim.deepcopy(block.header)
+      for _, hunk in ipairs(block.hunks) do
+        vim.list_extend(lines, hunk.diff)
+      end
+      patches[block.file] = table.concat(lines, "\n") .. "\n"
+    end
+    run(
+      { "ls-files", "--others", "--exclude-standard", "--unmerged", "-z" },
+      function(files)
+        local pending, conflicts = {}, {}
+        for entry in files:gmatch("[^%z]+") do
+          local conflict = entry:match("^%d+ %x+ [123]\t(.*)$")
+          local file = conflict or entry
+          local path = root .. "/" .. file
+          local stat = vim.uv.fs_lstat(path)
+          if conflict then
+            conflicts[file] = true
+          elseif
+            stat
+            and (stat.type == "file" or stat.type == "link")
+            and vim.fs.root(path, ".git") == root
+          then
+            pending[file] = true
+          end
+        end
+        for file in pairs(edits) do
+          if not conflicts[file] then
+            pending[file] = true
+          end
+        end
+        local inventory = ref == ":index" and { "ls-files", "--stage", "-z" }
+          or { "ls-tree", "-r", "-z", ref }
+        run(inventory, function(tree)
+          local blobs = {}
+          for entry in tree:gmatch("[^%z]+") do
+            local blob, stage, file
+            if ref == ":index" then
+              blob, stage, file = entry:match("^%d+ (%x+) (%d+)\t(.*)$")
+            else
+              blob, file = entry:match("^%d+ blob (%x+)\t(.*)$")
+            end
+            if file and (not stage or stage == "0") then
+              blobs[file] = blob
+            end
+          end
+          local queue = vim.tbl_keys(pending)
+          table.sort(queue)
+          local function next_file(index)
+            local file = queue[index]
+            if not file then
+              local result = {}
+              for _, name in ipairs(vim.fn.sort(vim.tbl_keys(patches))) do
+                result[#result + 1] = patches[name]
+              end
+              callback(table.concat(result))
+              return
+            end
+            git(
+              root,
+              { "check-ignore", "--quiet", "--", file },
+              function(ignored)
+                if ignored.code == 0 then
+                  next_file(index + 1)
+                  return
+                elseif ignored.code ~= 1 then
+                  vim.notify(ignored.stderr, vim.log.levels.ERROR)
+                  return
+                end
+                local block = blocks[file]
+                local old = block and block.rename and block.rename.from or file
+                local function update(reference)
+                  local text = edits[file]
+                  local path = root .. "/" .. file
+                  local stat = vim.uv.fs_lstat(path)
+                  if text == nil then
+                    if stat and stat.type == "link" then
+                      text = vim.uv.fs_readlink(path)
+                    else
+                      local handle = assert(io.open(path, "rb"))
+                      text = handle:read("*a")
+                      handle:close()
+                    end
+                  end
+                  local mode = stat and stat.type == "link" and "120000"
+                    or stat and bit.band(stat.mode, 64) ~= 0 and "100755"
+                    or "100644"
+                  patches[file] =
+                    buffer_patch(file, block, reference, text, mode)
+                  next_file(index + 1)
+                end
+                if blobs[old] then
+                  run({ "show", blobs[old] }, update)
+                else
+                  update(nil)
+                end
+              end
+            )
+          end
+          next_file(1)
+        end)
+      end
+    )
+  end)
+end
+
 function M.git_diff(group)
   with_repository(function(root)
     local function open(ref, label)
@@ -312,22 +511,23 @@ function M.git_diff(group)
       args[#args + 1] = "--"
       -- Use the exact reference: Snacks' Git finder always adds --merge-base
       -- and otherwise combines separate staged and unstaged comparisons.
-      Snacks.picker({
-        title = "Git Diff ("
-          .. (group and "files" or "hunks")
-          .. ") · "
-          .. label,
-        finder = "diff",
-        cmd = "git",
-        args = args,
-        cwd = root,
-        group = group,
-        format = "git_status",
-        preview = "diff",
-        matcher = { sort_empty = true },
-        sort = { fields = { "score:desc", "file", "idx" } },
-        main = { current = true },
-      })
+      collect_diff(root, ref, args, function(patch)
+        Snacks.picker({
+          title = "Git Diff ("
+            .. (group and "files" or "hunks")
+            .. ") · "
+            .. label,
+          finder = "diff",
+          diff = patch,
+          cwd = root,
+          group = group,
+          format = "git_status",
+          preview = "diff",
+          matcher = { sort_empty = true },
+          sort = { fields = { "score:desc", "file", "idx" } },
+          main = { current = true },
+        })
+      end)
     end
     local scope = scopes[root]
     if not scope then
