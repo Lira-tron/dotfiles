@@ -11,6 +11,7 @@ home/.claude/skills/*
 
 !home/.codex/
 home/.codex/*
+!home/.codex/config.toml.bkp
 !home/.codex/skills/
 home/.codex/skills/*
 !home/.codex/skills/review-description
