@@ -1,1 +1,0 @@
-../../ai/codex/scripts/git-context.py

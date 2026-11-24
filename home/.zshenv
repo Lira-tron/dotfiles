@@ -153,11 +153,3 @@ fi
 if [ -f "$HOME/.cargo/env" ]; then
     . "$HOME/.cargo/env"
 fi
-
-# Clear the retired Codex footer overrides inherited from existing terminal sessions.
-if [ "${CODEX_NATIVE_BINARY:-}" = "$HOME/.local/lib/codex-status/codex" ]; then
-    unset CODEX_NATIVE_BINARY
-fi
-if [ "${CODEX_GIT_CONTEXT_HELPER:-}" = "$HOME/.codex/git-context.py" ]; then
-    unset CODEX_GIT_CONTEXT_HELPER
-fi
