@@ -25,6 +25,12 @@ ifeq ($(UNAME_S),Darwin)
 	brew install font-jetbrains-mono
 	brew install font-meslo-lg-nerd-font
 	brew install reattach-to-user-namespace pngpaste trash
+ifneq ($(DOTFILES_PROFILE),work)
+	brew tap RhetTbull/osxphotos
+	brew install osxphotos
+	brew install icloudpd
+	brew install tw93/tap/mole
+endif
 	brew install --cask syntax-highlight
 	brew install --cask ghostty
 	brew install --cask mouseless
@@ -49,6 +55,7 @@ endif
 # Mac instructions
 # For Raycast, System Settings -> keyboard -> keyboard Shortcuts -> Spotlight and unselect command space
 # Go te Setting -> keyboard -> keyboard shortcuts -> Keyboard -> move focust to next window -> Set it to HyperN
+# Go to settings Mission Control -> Shortcuts -> Remove C-up and C-down
 # For the raindrop raycast, go to settings in raindrop -> for developer and copy and paste the app test token
 # For better display 2388x1668, 1194x834, 1389x970 for ipad pro 11
 # Install backblaze manually
@@ -69,6 +76,10 @@ install-appstore::
 	mas install 1475387142 # Tailscale
 	mas install 694633015 # Keepsolid
 	mas install 302584613 # Amazon Kindle
+ifneq ($(DOTFILES_PROFILE),work)
+	mas install 457622435 # Yoink
+	# mas install 414528154 # ScreenFloat
+endif
 
 setup-java:: download-jdtls setup-java-debug setup-vscode-java-test setup-vscode-java-decompiler
 
