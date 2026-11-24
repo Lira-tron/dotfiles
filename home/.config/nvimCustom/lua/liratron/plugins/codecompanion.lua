@@ -6,7 +6,7 @@ return {
     "nvim-treesitter/nvim-treesitter",
   },
   keys = {
-    { "<leader>ac", ":CodeCompanionChat<CR>", desc = "Copilot toggle" },
+    { "<leader>ac", ":CodeCompanionChat<CR>", desc = "CodeCompanion chat" },
   }
 }
 
