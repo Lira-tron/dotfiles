@@ -1,11 +1,11 @@
 ---
 name: show-me
-description: Help the user review code or understand code, changes, or concepts through focused visual explanations and walkthroughs. Use when the goal is explanation or code review. Do not select solely to create or render a diagram; use diagram-tools-mcp directly for standalone diagrams or diagrams in documents.
+description: Help the user review code or understand code, changes, or concepts through focused visual explanations and walkthroughs. Use when the goal is explanation or code review. Do not select solely to create or render a diagram; use a diagram tool directly for standalone diagrams or diagrams in documents.
 ---
 
 Help the user review code or understand code, a proposed code change, or a concept visually. Skip the preamble and keep prose brief. Pick the smallest view that makes the key point clear.
 
-Choose this skill when the main goal is a focused explanation, code walkthrough, or code review. Use the rendering instructions below for diagrams that support that explanation or review. When the requested deliverable is a standalone diagram or a diagram for a document, use `diagram-tools-mcp` directly.
+Choose this skill when the main goal is a focused explanation, code walkthrough, or code review. Use the rendering instructions below for diagrams that support that explanation or review. When the requested deliverable is a standalone diagram or a diagram for a document, use a diagram tool directly.
 
 Before saving an image or HTML file, follow [the shared artifact rule](../../rules/ai-artifacts.md).
 Use the calling workflow's absolute output path within the selected feature,
@@ -50,61 +50,7 @@ src/
 └── transport/      # sends API requests
 ```
 
-- Show component interaction, control flow, or data flow in the code being explored or reviewed as a rendered PlantUML image. Write the diagram in PlantUML, render it, save it locally, and give the user both the local image and the live link.
-
-1. Call `mcp__diagram-tools-mcp__diagram_get_image_url` with the raw source and `format: "png"`. Pass `@startuml ... @enduml` only — no markdown fence, no `plantuml` language tag.
-
-```plantuml
-@startuml
-participant User
-participant UI
-participant Daemon
-User -> UI: choose command
-UI -> Daemon: send expanded prompt
-Daemon --> UI: stream result
-@enduml
-```
-
-2. Download it. The returned URL is Midway-gated, so it renders in the user's browser but not from a bare fetch:
-
-```
-Bash(curl -sSL -b ~/.midway/cookie -o '<absolute-output-path>.png' '<image-url>')
-```
-
-A `307` instead of `200 image/png` means the Midway cookie is stale — tell the user to run `mwinit`, don't retry blindly.
-
-3. Reference both, so the diagram lands whether or not the user clicks. Always use the **absolute** path — a relative one resolves against the viewer's working directory rather than the markdown file, so it silently fails to render when opened from elsewhere. Write the literal path, not `~`, which markdown renderers do not expand:
-
-```markdown
-![what the diagram shows](<absolute-output-path>.png)
-
-[open in PlantUML viewer](<image-url>)
-```
-
-If the diagram accompanies a saved report, use that report's asset directory
-within the selected feature and reference the image by its absolute path.
-
-4. Then open the local copy:
-
-```
-Bash(xdg-open '<absolute-output-path>.png')
-```
-
-- PlantUML does not cover every diagram type. When the shape genuinely needs Mermaid (state diagrams, `gitGraph`, `mindmap`, C4), keep the fence readable inline and link the viewer — `diagram_get_image_url` rejects Mermaid, so there is no image to download and the link is the only rendered form:
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant UI
-    participant Daemon
-    User->>UI: choose command
-    UI->>Daemon: send expanded prompt
-    Daemon-->>UI: stream result
-```
-
-[open in diagram viewer](https://console.harmony.a2z.com/mermaid-live-editor/edit#pako:...)
-
-Get that URL from `mcp__diagram-tools-mcp__diagram_encode`, which takes the same fence-free raw source.
+- Show component interaction, control flow, or data flow in the code being explored or reviewed as a diagram. When `~/.agents/skills/show-me/references/rendered-diagrams.md` exists, read it and render the diagram as it describes. Otherwise write the diagram inline as a PlantUML or Mermaid fenced block.
 
 - Use `diff` when the point is what changes and the surrounding shape already exists. Match the diff shape to the topic.
 
