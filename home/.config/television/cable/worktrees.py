@@ -104,6 +104,17 @@ def current_rows(root):
     return []
 
 
+def workspace_package(root):
+    workspace = current_workspace(root)
+    if workspace is None:
+        return None
+    packages = [path for path in sorted((workspace / "src").iterdir()) if (path / ".git").exists()]
+    if not packages:
+        raise ValueError(f"No Git packages in Brazil workspace: {workspace}")
+    preferred = workspace / "src" / workspace.name
+    return preferred if preferred in packages else packages[0]
+
+
 def current_parent(root):
     try:
         package = subprocess.check_output(
@@ -111,14 +122,12 @@ def current_parent(root):
         )
         repo = Path(os.fsdecode(package).strip())
     except subprocess.CalledProcessError:
-        workspace = current_workspace(root)
-        if workspace is None:
+        repo = workspace_package(root)
+        if repo is None:
             raise
-        packages = [path for path in sorted((workspace / "src").iterdir()) if (path / ".git").exists()]
-        if not packages:
-            raise ValueError(f"No Git packages in Brazil workspace: {workspace}")
-        preferred = workspace / "src" / workspace.name
-        repo = preferred if preferred in packages else packages[0]
+    # At a workspace root, brazil-context reports the workspace itself, which is not a Git checkout.
+    if not (repo / ".git").exists():
+        repo = workspace_package(root) or repo
     return checkouts(repo)[0]["worktree"]
 
 
