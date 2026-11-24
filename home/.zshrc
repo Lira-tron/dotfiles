@@ -136,18 +136,6 @@ alias tm='t new-session -As'
 
 alias sizeorder="du -ah . | grep -v "/$" | sort -rh"
 
-# Remote Rex terminals use Gruvbox Material hard dark, so they stand out from the Mac app's theme.
-if [[ $OSTYPE == linux* && -n $REX_BLOCK ]] && (( $+commands[rex] )); then
-  rex do -e "return rex.block.call('com.superlogical.terminal', 'set_theme', {
-    block_id = '$REX_BLOCK', scheme = 'dark',
-    background = '#1d2021', foreground = '#d4be98', cursor = '#d4be98',
-    palette = {
-      '0=#141617', '1=#ea6962', '2=#a9b665', '3=#d8a657', '4=#7daea3', '5=#d3869b', '6=#89b482', '7=#d4be98',
-      '8=#32302f', '9=#ea6962', '10=#a9b665', '11=#d8a657', '12=#7daea3', '13=#d3869b', '14=#89b482', '15=#d4be98',
-    },
-  })" >/dev/null 2>&1 &!
-fi
-
 
 
 # using ripgrep combined with preview
