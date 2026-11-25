@@ -124,8 +124,10 @@ After all selected reviews finish, consolidate their findings in
 Preserve severity, source, scope, and each review's outcome. Record every finding
 as fixed with validation, or unchanged with an evidence-backed reason.
 
-Apply warranted corrections within the task. Rebuild and checkpoint changed
-code through the committer, then rerun only checks and reviews invalidated by
+Apply warranted corrections within the task. Rebuild, then dispatch the complete
+task suffix through [commit](../commit/SKILL.md), explicitly identifying review
+fixes for its shared regrouping procedure. Use the resulting groups as the new
+checkpoint, then rerun only checks and reviews invalidated by
 the correction. Refresh changed-line mappings without changing the fixed bases.
 Source, test, requirement, and configuration changes can invalidate different
 evidence; assess their actual dependencies. Honor stricter resubmission rules

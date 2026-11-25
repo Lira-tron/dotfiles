@@ -10,8 +10,8 @@ evidence under its `committer/` directory and pass the absolute path to helpers.
 
 ## Authority and scope
 
-A request to commit authorizes the committer to reconsider and, when useful,
-regroup the current task's verified unpushed commits together with its staged,
+A request to commit authorizes the committer to reconsider and regroup
+the current task's verified unpushed commits together with its staged,
 unstaged, and relevant untracked changes. This includes folding review fixes
 into their original logical groups and removing work that has been canceled.
 Separate rewrite approval is unnecessary within this boundary. Honor explicit
@@ -40,7 +40,10 @@ regrouping grants no permission to push or create, update, or publish a review.
    Without remotes, rewrite only when the repository is known to be local-only.
 3. Record a fixed base and a contiguous task-owned suffix ending at `HEAD`.
    Every replaced commit must be absent from all fetched remote branches and
-   tags and have no known prior publication. Check patch-equivalent upstream
+   tags and have no known prior presence on a source remote. Uploading commits
+   to the same code review alone does not freeze them; an automatic merge or
+   push does. Verify the source remotes again after review activity.
+   Check patch-equivalent upstream
    changes as well; do not reintroduce work already integrated under other hashes.
    Protect unrelated commits, tagged commits, and commits used by other local
    branches, worktrees, or review stack dependencies. A backup ref created by
@@ -70,6 +73,25 @@ constraints.
 - Preserve useful existing groups and hashes when new work merely adds an
   independent group. Regroup when it improves the final history, not on every
   invocation.
+
+### After review fixes
+
+On every post-review commit request, reassess the complete eligible task suffix,
+including corrections already committed on top. Fold fixes to unpushed task
+work into the logical groups they correct. An extra "fix review comments" commit
+is not the default final history. Append a correction only when its original
+commit is protected or the user requires append-only history; state that reason.
+
+For example, four unpushed feature commits followed by a review fix to the second
+become coherent replacement groups with that fix included. The committer may
+retain four groups, split them, or combine related groups based on the final
+contents; the old count is not a constraint. Rebuild the eligible suffix when
+needed, using the recovery and verification procedure below.
+
+Write each message to explain its resulting change and purpose. Remove obsolete
+claims from replaced messages. Completion requires a disposition for every
+review-fix commit: folded into a named group, retained for an independent
+purpose, or appended because protected history or user instructions require it.
 
 For example, independent groups `A, B, C` followed by removal of `B` become
 `A, C` (with replacement hashes where necessary). Fold the removal into history

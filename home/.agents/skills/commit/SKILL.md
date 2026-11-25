@@ -27,8 +27,10 @@ Pass the user's intent to the committer:
   `~/.agents/agents/committer/unpushed-commits.md` for regrouping authority and
   boundaries. Pass the selected checkout and external artifact paths, task
   context, known base, build evidence, and any append-only or preserve-history
-  instruction. Let the committer choose whether and how to regroup; do not
-  force one commit or prescribe groups. Dispatch even with a clean working tree
+  instruction. For post-review fixes, explicitly pass the full task suffix and
+  finding dispositions; require the policy's **After review fixes** procedure.
+  Let the committer choose the final groups; do not force one commit or prescribe
+  their number. Dispatch even with a clean working tree
   when the request may involve existing unpushed work.
 - **Amend**: Preserve an explicit target, scope, and authorization when given.
   Task-local regrouping uses the shared history policy; other message-only
