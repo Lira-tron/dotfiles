@@ -1,6 +1,6 @@
 name = "committer"
 description = "Git specialist for atomic commits, task-local unpushed regrouping, and explicitly requested draft CRs."
-model = "openai.gpt-5.6-luna"
+# Inherit the active provider's working model; a fixed provider-specific ID can be unavailable.
 model_reasoning_effort = "low"
 sandbox_mode = "workspace-write"
 developer_instructions = """
