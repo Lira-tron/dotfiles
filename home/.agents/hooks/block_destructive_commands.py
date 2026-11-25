@@ -3,10 +3,14 @@
 
 import json
 import re
+import shlex
 import sys
+from pathlib import PurePosixPath
+
+from shell_commands import inert_data_command
 
 
-def check_command(command: str):
+def dangerous_remove(command: str):
     """Check whether a shell command should be blocked.
 
     Returns (blocked: bool, reason: str | None).
@@ -28,6 +32,14 @@ def check_command(command: str):
     rm_pattern = rf"\brm\s+{rm_flags}\s+(?:--\s+)?{rm_target}"
     if re.search(rm_pattern, command):
         return True, "Blocked: destructive rm -rf on a broad path"
+    return False, None
+
+
+def legacy_check_command(command: str):
+    """Retain conservative protections for syntax not proven to be inert data."""
+    blocked, reason = dangerous_remove(command)
+    if blocked:
+        return blocked, reason
 
     # Block git push (all variants: plain, --force, --force-with-lease, etc.)
     if re.search(r"\bgit\s+push\b", command):
@@ -43,6 +55,46 @@ def check_command(command: str):
         return True, "Blocked: sudo commands are not allowed."
 
     return False, None
+
+
+def git_subcommand(words):
+    """Find the Git operation after global options."""
+    index = 1
+    value_options = {"-c", "-C", "--git-dir", "--work-tree", "--namespace", "--config-env"}
+    while index < len(words) and words[index].startswith("-"):
+        index += 2 if words[index] in value_options else 1
+    return words[index:] if index < len(words) else []
+
+
+def git_prohibition(command):
+    """Conservatively inspect Git words, including literal Python argv arrays."""
+    words = re.findall(r"[\w./=:-]+", command)
+    for index, word in enumerate(words):
+        if PurePosixPath(word).name != "git":
+            continue
+        operation = git_subcommand(words[index:])
+        if operation and operation[0] == "push":
+            return True, "Blocked: git push is not allowed. Commits stay local."
+        if operation and (operation[0] == "clean" or
+                          (operation[0] == "reset" and "--hard" in operation)):
+            return True, "Blocked: destructive Git cleanup is not allowed."
+    return False, None
+
+
+def check_command(command: str):
+    """Keep conservative checks, except for narrowly verified literal-data cases."""
+    try:
+        # Only the header is shell syntax in a here-document. Do not parse its body.
+        words = shlex.split(command.split("\n", 1)[0])
+    except ValueError:
+        return True, "Blocked: malformed shell quoting; use a simple command."
+    if inert_data_command(command):
+        return dangerous_remove(" ".join(words)) if PurePosixPath(words[0]).name == "rm" else (False, None)
+    blocked, reason = dangerous_remove(" ".join(words))
+    if blocked:
+        return blocked, reason
+    blocked, reason = legacy_check_command(command)
+    return (blocked, reason) if blocked else git_prohibition(command)
 
 
 def main():
