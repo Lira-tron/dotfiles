@@ -14,6 +14,10 @@ Honor the user's requested checks and mandatory project rules first. Otherwise,
 select checks that answer a concrete concern in the task. Language support or
 tool availability alone does not require a full hardening run.
 
+For CR/PR readiness, also apply
+`~/.agents/skills/quality-gates/references/review-gates.md` when installed.
+Its required reviews are submission gates even when code metrics do not apply.
+
 | Check | Selection reason |
 | --- | --- |
 | Tests and build | Verify affected behavior and satisfy the owning project's checks; use its existing integration/acceptance runner when the changed contract requires it. |

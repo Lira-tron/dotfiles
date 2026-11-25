@@ -13,6 +13,7 @@ Apply the quality model through the project's existing tests and the shared
 - Inspect the repository's actual build, test, coverage, feature, and mutation configuration before choosing commands.
 - Capture [the local-change scope](references/change-scope.md) and establish a passing baseline before quality analysis. Reuse a caller's recorded bases and task inventory across checkpoints. Include unpushed commits and pending task edits; exclude unchanged code already upstream.
 - Follow [selection and evidence reuse](references/quality-gates.md#selection). A caller may supply the selected checks and their reasons; honor project requirements without expanding that selection into the full suite.
+- For CR/PR readiness, read `~/.agents/skills/quality-gates/references/review-gates.md` when present and satisfy its required review gates. Apply them to small and documentation-only changes too; ordinary local validation does not imply a submission request.
 - Use the public tool manager at `~/.agents/tools/quality-gates/bin/quality-tool`. Do not rely on an unrelated executable found on `PATH`.
 - Run selected coverage, CRAP, DRY, Lean, mutation, and structure checks sequentially, never concurrently.
 - Cap tools at four workers when they support worker limits.
