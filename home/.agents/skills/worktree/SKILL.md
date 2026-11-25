@@ -87,6 +87,9 @@ checkout.
 
 ## Run and finish the task
 
+Before lengthy validation, follow `~/.agents/rules/workflow-preflight.md` when
+present. It supplies the local environment's task-specific readiness checks.
+
 Perform task edits, builds, tests, reviews, commits, and CR/PR commands in the
 selected checkout. Keep evidence in its owning package/feature directory. Invoke
 the user's quality workflows only when requested; worktree setup does not
