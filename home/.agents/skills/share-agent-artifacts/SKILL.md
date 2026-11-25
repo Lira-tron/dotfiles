@@ -24,6 +24,25 @@ Without a private layer, do not create employer-specific artifacts; ask first.
 Use `edit-dotfiles` for task-worktree edits and activation. The paths above are
 the stable canonical sources; edit their counterparts in the task worktree.
 
+## Machine profiles
+
+These dotfiles serve machines with and without the private layer.
+
+- `DOTFILES_PROFILE` is `personal` by default in the public `.zshenv`; a
+  private layer's `.zshenv.local` sets it to `work`. Gate personal-only or
+  work-only behaviour on it, as `.zshrc` aliases and `Makefile` installs do.
+  Handle Mac versus Linux with `uname` or `$OSTYPE`, not another profile.
+- Public files hold working defaults for a machine without a private layer:
+  `DOTFILES_DIR=~/dotfiles`, `KNOWLEDGE_DIR=~/knowledge`, and
+  `NOTES_DIR=$KNOWLEDGE_DIR/notes`. The private layer overrides them.
+- Write paths relative to `$HOME` or through those variables, never as
+  `/Users/...` or `/home/...`.
+- When a generic public file needs an employer-specific addition, have it read
+  an optional private file, as `~/.config/git/config` includes
+  `~/.config/git/local`.
+- After moving or deleting a tracked file, remove its dangling `$HOME` symlink
+  by literal path before `make link`; stow leaves it behind.
+
 ## Sharing model
 
 Keep one canonical artifact under `home/.agents/<kind>/`. Do not assume either client automatically discovers files there. Expose the canonical artifact from each client's expected location with a relative symlink or, when their formats differ, a thin tool-specific adapter.
