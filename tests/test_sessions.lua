@@ -1,6 +1,7 @@
 -- Run from the repository root: lua tests/test_sessions.lua
 local sessions, calls, picks, inputs, selections, prompt_order
 local hosts, choice, name, create_error, exec_error, select_error, encoded, response
+local ctx, workspace_calls, directory_rows
 local source = arg[1] or "home/.config/rex/sessions.lua"
 
 local function create(host, method, args)
@@ -16,6 +17,8 @@ local function setup()
   hosts, name = { "lyhost", "devbox" }, "review"
   choice = "remote:devbox"
   create_error, exec_error, select_error = nil, nil, nil
+  ctx, workspace_calls = { server = "lyhost", session_id = "session:test", block_id = "block:test" }, {}
+  directory_rows = { { name = "project", path = "/tmp/my projects/project/" } }
   rex = {
     servers = function() return hosts end,
     server = function(host)
@@ -66,7 +69,14 @@ local function setup()
     layout = { block = function(opts) return { block = opts } end },
     client = { queue = function() error("Selection must be sent through its owning host") end },
   }
+  local previous = package.loaded.workspaces
+  package.loaded.workspaces = function(context, operation, value)
+    workspace_calls[#workspace_calls + 1] = { ctx = context, operation = operation, value = value }
+    if operation == "directories" then return directory_rows end
+    assert(operation == "connect")
+  end
   sessions = dofile(source)
+  package.loaded.workspaces = previous
 end
 
 local function run()
@@ -103,9 +113,9 @@ test("the session picker chooses local or a host before asking for its name", fu
   for _, target in ipairs({ "local", "remote:lyhost", "remote:devbox" }) do
     setup()
     choice, name = target, "  review  "
-    sessions.pick()
+    sessions.pick(ctx)
     local host = target == "local" and "local" or target:sub(8)
-    assert(#picks == 1 and #picks[1].items == 3, "no extra host or worktree menu")
+    assert(#picks == 1 and #picks[1].items == 4, "no extra host or worktree menu")
     assert(picks[1].items[1].title == "Create session" and picks[1].items[1].subtitle == "This Mac")
     assert(picks[1].items[2].subtitle == "lyhost" and picks[1].items[3].subtitle == "devbox")
     assert(table.concat(prompt_order, ",") == "pick,input")
@@ -118,9 +128,28 @@ test("the session picker chooses local or a host before asking for its name", fu
   end
 end)
 
+test("directory shortcuts are in the session menu and open on the pane's host", function()
+  choice = "dir:/tmp/my projects/project/"
+  sessions.pick(ctx)
+  local directory = picks[1].items[4]
+  assert(directory.title == "project" and directory.icon == "folder")
+  assert(directory.subtitle == "lyhost · /tmp/my projects/project/")
+  assert(#workspace_calls == 2)
+  assert(workspace_calls[1].operation == "directories" and workspace_calls[1].ctx == ctx)
+  assert(workspace_calls[2].operation == "connect" and workspace_calls[2].ctx == ctx)
+  assert(workspace_calls[2].value == "/tmp/my projects/project/")
+  assert(#inputs == 0 and #calls == 0)
+end)
+
+test("empty directory lists retain the session actions", function()
+  directory_rows, choice = {}, nil
+  sessions.pick(ctx)
+  assert(#picks[1].items == 3)
+end)
+
 test("cancelling session selection asks for no name and creates nothing", function()
   choice = nil
-  sessions.pick()
+  sessions.pick(ctx)
   assert(#picks == 1 and #inputs == 0 and #calls == 0 and #selections == 0)
 end)
 
@@ -129,7 +158,7 @@ test("cancelled or blank names create nothing on local and remote hosts", functi
     for _, value in ipairs({ false, "", " \t " }) do
       setup()
       choice, name = target, value or nil
-      sessions.pick()
+      sessions.pick(ctx)
       assert(#picks == 1 and #inputs == 1 and #calls == 0 and #selections == 0)
     end
   end

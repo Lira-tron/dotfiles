@@ -1,3 +1,5 @@
+local workspace_operation = require("workspaces")
+
 local function session_command(args)
   local argv = {
     "/bin/zsh", "-c",
@@ -48,9 +50,19 @@ local function create(choice, name)
   session_command(args)
 end
 
-local function pick()
-  local choice = rex.ui.pick({ title = "Create session", items = items() })
+local function pick(ctx)
+  local choices = items()
+  for _, directory in ipairs(workspace_operation(ctx, "directories")) do
+    choices[#choices + 1] = {
+      id = "dir:" .. directory.path,
+      title = directory.name,
+      subtitle = (ctx.server and ctx.server .. " · " or "") .. directory.path,
+      icon = "folder",
+    }
+  end
+  local choice = rex.ui.pick({ title = "Sessions", items = choices })
   if choice == nil then return end
+  if choice:sub(1, 4) == "dir:" then return workspace_operation(ctx, "connect", choice:sub(5)) end
   local name = rex.ui.input({
     title = choice == "local" and "Session:" or choice:sub(8) .. " session:",
     placeholder = "Session name",

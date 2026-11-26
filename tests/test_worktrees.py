@@ -1,6 +1,7 @@
 import contextlib
 import importlib.util
 import io
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -87,6 +88,21 @@ class WorktreeFeatureTests(unittest.TestCase):
                                ("feature-work-1125", "feature-work-1125")):
             with self.subTest(name=name):
                 self.assertEqual(worktrees.worktree_feature(name, created), expected)
+
+
+class WorkplaceRootTests(unittest.TestCase):
+    def test_all_worktrees_honor_the_root_override_and_default(self):
+        for configured, expected in (("/tmp/my projects", "/tmp/my projects"), ("", "/example-home/workplace")):
+            with (
+                self.subTest(configured=configured),
+                patch.dict(os.environ, {"WORKPLACE_DIR": configured}),
+                patch.object(worktrees.Path, "home", return_value=Path("/example-home")),
+                patch.object(worktrees.sys, "argv", [str(SOURCE), "all"]),
+                patch.object(worktrees, "workplace_rows", return_value=[]) as rows,
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                worktrees.main()
+                rows.assert_called_once_with(Path(expected))
 
 
 if __name__ == "__main__":

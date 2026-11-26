@@ -7,7 +7,7 @@ requirements = ["rex", "fd", "eza", "python3"]
 command = [
   '''python3 "$HOME/.config/television/cable/rex-worktrees.py" current''',
   '''python3 "$HOME/.config/television/cable/rex-worktrees.py" sessions''',
-  '''fd -t d -d 1 . "$HOME/workplace" --format '[dir] {/}	{}' ''',
+  '''fd -t d -d 1 . "${WORKPLACE_DIR:-$HOME/workplace}" --format '[dir] {/}	{}' ''',
 ]
 frecency = true
 display = "{split:\t:0}"

@@ -23,16 +23,16 @@ local function setup(remote)
   }, {
     __call = function(_, argv, opts)
       commands[#commands + 1] = { argv = argv, opts = opts, remote = remote_call }
-      if argv[1] == "/bin/zsh" then
+      if argv[1] == "/bin/zsh" and argv[3] == "print -r -- $PATH" then
         return { ok = true, stdout = "/usr/bin:/bin\n" }
       end
       if remote and not remote_call then
         return nil, "python3: working directory: stat " .. foreign_cwd .. ": no such file or directory"
       end
       assert(opts.cwd == (remote and foreign_cwd or "/tmp/project"), "helper lost the pane's working directory")
-      if argv[1] == "fd" then
-        assert(argv[7] == os.getenv("HOME") .. "/workplace", "directories must use this host's workplace")
-        return { ok = true, stdout = "[dir] project\t/tmp/project\n" }
+      if argv[1] == "/bin/zsh" then
+        assert(argv[3]:find("WORKPLACE_DIR", 1, true), "directories must honor the configured root")
+        return { ok = true, stdout = "project\t/tmp/my projects/project/\n" }
       end
       assert(argv[2] == os.getenv("HOME") .. "/.config/television/cable/rex-worktrees.py")
       return { ok = true, stdout = "[tree] ExampleService · feature-branch\ttree-id\n" }
@@ -120,7 +120,7 @@ end)
 
 test("both remote menus can wait 15 seconds before opening the selection", function()
   setup(true)
-  selection, menu_action = "/tmp/project", "connect"
+  selection, menu_action = "tree-id", "connect"
   run()
   assert(elapsed == 30 and #picks == 2)
   assert(pick_hosts[1] == "local" and pick_hosts[2] == "local")
@@ -149,7 +149,7 @@ end)
 
 test("failure opening the remote selection reaches the original action", function()
   setup(true)
-  selection, menu_action = "/tmp/project", "connect"
+  selection, menu_action = "tree-id", "connect"
   remote_error, failed_operation = "Remote session could not be opened", "connect"
   local ok, err = pcall(run)
   assert(not ok and err == remote_error)
@@ -172,26 +172,34 @@ test("remote delete retains its interactive confirmation shell", function()
   end
 end)
 
-test("local picker lists worktrees and workplace directories and permits cancellation", function()
+test("the T picker lists only worktrees and worktree actions", function()
   setup(false)
   run()
   assert(#calls == 0 and #picks == 1 and layer == nil)
   assert(picks[1].items[1].id == "none")
   assert(picks[1].items[1].title == "New worktree…")
-  assert(#picks[1].items == 3)
+  assert(#picks[1].items == 2)
   assert(picks[1].items[2].id == "tree-id")
   assert(picks[1].items[2].title == "feature-branch · ExampleService")
-  assert(picks[1].items[3].id == "/tmp/project")
-  assert(picks[1].items[3].title == "project")
+  assert(picks[1].title == "Worktrees")
 end)
 
 test("opening a directory keeps the helper on the pane's host", function()
   setup(false)
-  selection, menu_action = "/tmp/project", "connect"
-  run()
+  run({ operation = "connect", value = "/tmp/project" })
   local command = commands[#commands].argv
   assert(command[3] == "connect" and command[4] == "/tmp/project")
   assert(layer == nil)
+end)
+
+test("directory discovery for the N picker runs on the pane's host", function()
+  for _, remote in ipairs({ false, true }) do
+    setup(remote)
+    local result = run({ operation = "directories" })
+    assert(#result == 1 and result[1].name == "project" and result[1].path == "/tmp/my projects/project/")
+    assert(commands[#commands].remote == remote)
+    assert(#picks == 0 and layer == nil and #starts == 0)
+  end
 end)
 
 test("new worktrees take native input and start detached on the pane's host", function()

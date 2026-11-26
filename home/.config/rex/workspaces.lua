@@ -35,17 +35,12 @@ rex.action({
 rex.bind("ctrl+a>shift+t", "workspace_picker")
 
 local HELPER = os.getenv("HOME") .. "/.config/television/cable/rex-worktrees.py"
-local ICONS = { tree = "branch", dir = "folder" }
 local MENUS = {
   tree = {
     { id = "connect", title = "Open", icon = "branch" },
     { id = "create", title = "New worktree…", icon = "plus" },
     { id = "delete", title = "Delete worktree…", icon = "document" },
     { id = "force_delete", title = "Force-delete worktree…", icon = "document" },
-  },
-  dir = {
-    { id = "connect", title = "Open as session", icon = "folder" },
-    { id = "create", title = "New worktree…", icon = "plus" },
   },
 }
 
@@ -78,26 +73,19 @@ local function workspace_items(cwd)
   -- Always offered first; the helper's own empty-list placeholder uses the same id and is skipped.
   by_id.none = { id = "none", title = "New worktree…", icon = "plus", detail = "none" }
   items[1] = by_id.none
-  local sources = {
-    { "python3", HELPER, "current" },
-    { "fd", "-t", "d", "-d", "1", ".", os.getenv("HOME") .. "/workplace", "--format", "[dir] {/}\t{}" },
-  }
-  for _, argv in ipairs(sources) do
-    for line in exec_lines(argv, cwd) do
-      local kind, title, value = line:match("^%[(%w+)%] (.-)\t(.+)$")
-      if kind and not by_id[value] then
-        by_id[value] = {
-          id = value,
-          -- Put the worktree first so it stays visible in Rex's narrow native picker.
-          -- To restore "repository · worktree", uncomment this and remove the next title line:
-          -- title = title,
-          title = kind == "tree" and title:gsub("^(.-) · (.*)$", "%2 · %1") or title,
-          subtitle = kind == "dir" and value or nil,
-          icon = ICONS[kind] or "plus",
-          detail = kind,
-        }
-        items[#items + 1] = by_id[value]
-      end
+  for line in exec_lines({ "python3", HELPER, "current" }, cwd) do
+    local kind, title, value = line:match("^%[(%w+)%] (.-)\t(.+)$")
+    if kind == "tree" and not by_id[value] then
+      by_id[value] = {
+        id = value,
+        -- Put the worktree first so it stays visible in Rex's narrow native picker.
+        -- To restore "repository · worktree", uncomment this and remove the next title line:
+        -- title = title,
+        title = title:gsub("^(.-) · (.*)$", "%2 · %1"),
+        icon = "branch",
+        detail = kind,
+      }
+      items[#items + 1] = by_id[value]
     end
   end
   return items, by_id
@@ -128,6 +116,17 @@ local function workspace_operation(ctx, operation, value, name)
   if operation == "list" then
     local items, by_id = workspace_items(cwd)
     return { items = items, by_id = by_id }
+  end
+  if operation == "directories" then
+    local directories = {}
+    for line in exec_lines({
+      "/bin/zsh", "-c",
+      'if [[ -d "${WORKPLACE_DIR:-$HOME/workplace}" ]]; then fd -t d -d 1 . "${WORKPLACE_DIR:-$HOME/workplace}" --format "{/}\t{}"; fi',
+    }, cwd) do
+      local label, path = line:match("^(.-)\t(.+)$")
+      if path then directories[#directories + 1] = { name = label, path = path } end
+    end
+    return directories
   end
   if operation == "create" then
     if not name or name == "" then error("A worktree name is required.", 0) end
@@ -173,15 +172,15 @@ end
 
 rex.action({
   name = "workspace_picker_native",
-  title = "Open Worktree or Directory (Native)…",
-  description = "Pick a Git worktree or directory in the command palette, then open, create, or remove it",
+  title = "Open Worktree (Native)…",
+  description = "Pick a Git worktree in the command palette, then open, create, or remove it",
   args = { operation = "string?", value = "string?", name = "string?" },
   run = function(ctx, args)
     if args.operation then
       return workspace_operation(ctx, args.operation, args.value, args.name)
     end
     local choices = workspace_operation(ctx, "list")
-    local value = rex.ui.pick({ title = "Worktrees and directories", placeholder = "Filter", items = choices.items })
+    local value = rex.ui.pick({ title = "Worktrees", placeholder = "Filter", items = choices.items })
     if value == nil then
       return
     end
@@ -217,3 +216,5 @@ rex.action({
 
 rex.bind("ctrl+a>t", "workspace_picker_native")
 rex.bind("shift+cmd+t", "workspace_picker_native")
+
+return workspace_operation

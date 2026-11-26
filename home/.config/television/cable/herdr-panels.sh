@@ -20,7 +20,7 @@ FRECENCY_FILE=$TV_DATA_DIR/frecency.json
 
 DIRECTORY_ROWS=''
 if [[ $MODE == all ]]; then
-  DIRECTORY_ROWS=$(fd -t d -d 1 . "$HOME/workplace" --format '[dir] {/}	{}	{/}')
+  DIRECTORY_ROWS=$(fd -t d -d 1 . "${WORKPLACE_DIR:-$HOME/workplace}" --format '[dir] {/}	{}	{/}')
 fi
 
 SNAPSHOT=$(herdr api snapshot 2>/dev/null) || exit $?

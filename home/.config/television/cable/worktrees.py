@@ -373,7 +373,7 @@ def main():
     if mode == "current":
         print("\n".join(current_rows(Path.cwd())))
     elif mode == "all":
-        print("\n".join(workplace_rows(Path.home() / "workplace")))
+        print("\n".join(workplace_rows(Path(os.environ.get("WORKPLACE_DIR") or Path.home() / "workplace"))))
     elif mode == "close-workspace":
         close_workspace(sys.argv[2])
     else:
