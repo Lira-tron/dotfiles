@@ -2,12 +2,14 @@
 """Rex sessions for Television: list them, and open worktrees or directories as sessions."""
 
 import base64
+import contextlib
 import importlib.util
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 
 # Importing worktrees.py must not write bytecode into the dotfiles source.
 sys.dont_write_bytecode = True
@@ -152,7 +154,7 @@ def delete(value, force):
             kill_sessions(found)
 
 
-def create(value):
+def create(value, name=None):
     if kind(value) == "session":
         server = pick_server()
         name = worktrees.prompt("New Rex session name (blank cancels): ")
@@ -164,9 +166,30 @@ def create(value):
     else:
         parent = worktrees.current_parent(Path.cwd())
         selected = {"parent": parent, "path": parent}
-    created = worktrees.create_worktree(selected)
+    created = worktrees.create_worktree(selected, name=name)
     if created:
         open_session(created["path"])
+
+
+def error_message(error):
+    if isinstance(error, subprocess.CalledProcessError) and error.stderr:
+        return error.stderr.decode(errors="replace").strip()
+    return str(error) or type(error).__name__
+
+
+def create_named(value, name):
+    with tempfile.TemporaryFile(mode="w+t") as output:
+        try:
+            with contextlib.redirect_stderr(output):
+                create(value, name)
+        except (subprocess.CalledProcessError, OSError, ValueError) as error:
+            output.seek(0)
+            message = "\n".join(filter(None, [error_message(error), output.read()[-4000:]]))
+            subprocess.run(
+                ["rex", "do", "workspace_creation_failed", "message=" + message],
+                check=True, stdout=subprocess.DEVNULL,
+            )
+            raise
 
 
 def main():
@@ -184,6 +207,8 @@ def main():
         delete(sys.argv[2], force="--force" in sys.argv[3:])
     elif mode == "create":
         create(sys.argv[2])
+    elif mode == "create-named":
+        create_named(sys.argv[2], sys.argv[3])
     else:
         raise ValueError(f"Unknown Rex worktree action: {mode}")
 
@@ -192,10 +217,7 @@ if __name__ == "__main__":
     try:
         main()
     except (subprocess.CalledProcessError, OSError, ValueError, StopIteration) as error:
-        if isinstance(error, subprocess.CalledProcessError) and error.stderr:
-            print(error.stderr.decode(errors="replace").strip(), file=sys.stderr)
-        else:
-            print(error or type(error).__name__, file=sys.stderr)
+        print(error_message(error), file=sys.stderr)
         if sys.argv[1] in ("connect", "create", "delete") and sys.stderr.isatty():
             worktrees.prompt("Press Enter to close.")
         sys.exit(getattr(error, "returncode", 1))

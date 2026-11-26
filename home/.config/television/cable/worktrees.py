@@ -315,7 +315,16 @@ def delete_worktree(selected, force=False):
         subprocess.run(["herdr", "pane", "close", pane], check=True, cwd=parent)
 
 
-def create_worktree(selected):
+def worktree_feature(name, created):
+    if "/" in name or "\\" in name or name.startswith("-"):
+        raise ValueError("Use a worktree name without slashes or a leading dash.")
+    feature = name.removesuffix("-" + created.strftime("%m%d"))
+    if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", feature):
+        raise ValueError("Use a lowercase kebab-case feature name for artifact storage.")
+    return feature
+
+
+def create_worktree(selected, name=None):
     root = subprocess.check_output(
         ["brazil-context", "package", "root"], cwd=selected["parent"], stderr=subprocess.PIPE,
     )
@@ -329,15 +338,12 @@ def create_worktree(selected):
     print(f"Repository: {parent}\nBase: {branch or 'detached HEAD'} @ {base[:12]}", file=sys.stderr)
     print(f"Brazil parent: {workspace}\nAll parent packages use their current committed HEADs.", file=sys.stderr)
     print("Uncommitted edits stay in the original checkout.", file=sys.stderr)
-    name = prompt("New worktree name (blank cancels): ")
+    if name is None:
+        name = prompt("New worktree name (blank cancels): ")
     if not name:
         return None
-    if "/" in name or "\\" in name or name.startswith("-"):
-        raise ValueError("Use a worktree name without slashes or a leading dash.")
     created = datetime.now(timezone.utc)
-    feature = name.removesuffix("-" + created.strftime("%m%d"))
-    if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", feature):
-        raise ValueError("Use a lowercase kebab-case feature name for artifact storage.")
+    feature = worktree_feature(name, created)
     artifact_tool = Path.home() / ".local/bin/ai-artifacts"
     if not artifact_tool.is_file():
         raise ValueError("Install the shared ai-artifacts helper with make link before creating a worktree.")

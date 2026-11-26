@@ -1,4 +1,5 @@
 local TERMINAL = "com.superlogical.terminal"
+local sessions = require("sessions")
 
 local function pane_cwd(ctx)
   if not ctx.block_id then
@@ -76,7 +77,7 @@ end
 local function workspace_items(cwd)
   local items, by_id = {}, {}
   -- Always offered first; the helper's own empty-list placeholder uses the same id and is skipped.
-  by_id.none = { id = "none", title = "New worktree…", icon = "plus", detail = "none" }
+  by_id.none = { id = "none", title = "New…", icon = "plus", detail = "none" }
   items[1] = by_id.none
   local sources = {
     { "python3", HELPER, "current" },
@@ -110,12 +111,12 @@ local function helper_argv(action, value)
   return { "python3", HELPER, action, value }
 end
 
-local function workspace_operation(ctx, operation, value)
+local function workspace_operation(ctx, operation, value, name)
   -- Forward only host operations; waiting in a remote picker exceeds the call's 10s deadline.
   if ctx.server then
     local result, err = rex.call("client.action", {
       action = "workspace_picker_native",
-      args = { operation = operation, value = value },
+      args = { operation = operation, value = value, name = name },
       session_id = ctx.session_id,
       block_id = ctx.block_id,
     })
@@ -129,7 +130,15 @@ local function workspace_operation(ctx, operation, value)
     local items, by_id = workspace_items(cwd)
     return { items = items, by_id = by_id }
   end
-  -- Delete and create confirm and read names from a terminal, so they run in a floating shell.
+  if operation == "create" then
+    if not name or name == "" then error("A worktree name is required.", 0) end
+    local process, err = rex.exec.start({ "python3", HELPER, "create-named", value, name }, {
+      cwd = cwd, env = exec_env(), detach = true, stdout = false, stderr = false,
+    })
+    if not process then error(err, 0) end
+    return
+  end
+  -- Deletion still asks for confirmation in a floating shell.
   if operation == "connect" then
     exec_lines(helper_argv(operation, value), cwd)
     return
@@ -155,14 +164,33 @@ local function workspace_operation(ctx, operation, value)
   return layer
 end
 
+local function read_name()
+  local name = rex.ui.input({ title = "Name", placeholder = "Name", confirm = "Continue" })
+  if name == nil then return end
+  name = name:match("^%s*(.-)%s*$")
+  if name == "" then return end
+  return name
+end
+
+local function create_new(ctx)
+  local name = read_name()
+  if name == nil then return end
+  local items = { { id = "worktree", title = "Create worktree", icon = "branch" } }
+  for _, item in ipairs(sessions.items()) do items[#items + 1] = item end
+  local choice = rex.ui.pick({ title = name, placeholder = "Choose what to create", items = items })
+  if choice == nil then return end
+  if choice == "worktree" then return workspace_operation(ctx, "create", "none", name) end
+  return sessions.create(choice, name)
+end
+
 rex.action({
   name = "workspace_picker_native",
   title = "Open Worktree or Directory (Native)…",
   description = "Pick a Git worktree or directory in the command palette, then open, create, or remove it",
-  args = { operation = "string?", value = "string?" },
+  args = { operation = "string?", value = "string?", name = "string?" },
   run = function(ctx, args)
     if args.operation then
-      return workspace_operation(ctx, args.operation, args.value)
+      return workspace_operation(ctx, args.operation, args.value, args.name)
     end
     local choices = workspace_operation(ctx, "list")
     local value = rex.ui.pick({ title = "Worktrees and directories", placeholder = "Filter", items = choices.items })
@@ -172,15 +200,37 @@ rex.action({
     local item = choices.by_id[value]
     local kind = item.detail
     local action = "create"
+    if kind == "none" then
+      return create_new(ctx)
+    end
     if MENUS[kind] then
       action = rex.ui.pick({ title = item.title, placeholder = "Action", items = MENUS[kind] })
       if action == nil then
         return
       end
     end
+    if action == "create" then
+      local name = read_name()
+      if name == nil then return end
+      return workspace_operation(ctx, action, value, name)
+    end
     return workspace_operation(ctx, action, value)
+  end,
+})
+
+rex.action({
+  name = "workspace_creation_failed",
+  title = "Worktree Creation Failed",
+  args = { message = "string" },
+  run = function(_, args)
+    rex.ui.pick({
+      title = "Worktree creation failed",
+      items = { { id = "close", title = "Dismiss", subtitle = args.message, icon = "document" } },
+    })
   end,
 })
 
 rex.bind("ctrl+a>t", "workspace_picker_native")
 rex.bind("shift+cmd+t", "workspace_picker_native")
+
+return create_new

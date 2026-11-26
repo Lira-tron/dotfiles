@@ -1,10 +1,14 @@
 import importlib.util
+import base64
+import json
 from pathlib import Path
+import subprocess
+import sys
 import unittest
 from unittest.mock import patch
 
 
-SOURCE = Path(__file__).resolve().parents[1] / "home/.config/television/cable/rex-worktrees.py"
+SOURCE = Path(__file__).absolute().parents[1] / "home/.config/television/cable/rex-worktrees.py"
 spec = importlib.util.spec_from_file_location("rex_worktrees", SOURCE)
 rex_worktrees = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rex_worktrees)
@@ -193,6 +197,68 @@ class RexServerArgsTests(unittest.TestCase):
 
     def test_remote_adds_server_flag(self):
         self.assertEqual(rex_worktrees.on("lyhost"), ["-S", "lyhost"])
+
+
+class RexNamedWorktreeTests(unittest.TestCase):
+    def test_native_name_reaches_worktree_creation_and_opens_result(self):
+        selected = {"parent": "/workspace/src/Package", "path": "/workspace/worktrees/old/src/Package"}
+        token = base64.urlsafe_b64encode(json.dumps(selected).encode()).decode()
+        for value in (token, "none"):
+            with (
+                self.subTest(value=value),
+                patch.object(rex_worktrees.worktrees, "current_parent", return_value=selected["parent"]),
+                patch.object(rex_worktrees.worktrees, "create_worktree", return_value={"path": "/created"}) as create,
+                patch.object(rex_worktrees.worktrees, "prompt", side_effect=AssertionError("No terminal prompt")),
+                patch.object(rex_worktrees, "open_session") as open_session,
+                patch.object(rex_worktrees.sys, "argv", [str(SOURCE), "create-named", value, "feature-work"]),
+            ):
+                rex_worktrees.main()
+                expected = selected if value == token else {"parent": selected["parent"], "path": selected["parent"]}
+                create.assert_called_once_with(expected, name="feature-work")
+                open_session.assert_called_once_with("/created")
+
+    def test_cancelled_creation_does_not_open_a_session(self):
+        with (
+            patch.object(rex_worktrees.worktrees, "current_parent", return_value="/workspace"),
+            patch.object(rex_worktrees.worktrees, "create_worktree", return_value=None),
+            patch.object(rex_worktrees, "open_session") as open_session,
+        ):
+            rex_worktrees.create_named("none", "")
+        open_session.assert_not_called()
+
+    def test_failure_displays_native_error_and_preserves_failure(self):
+        failures = [
+            (ValueError("Invalid name"), "Invalid name"),
+            (OSError("Missing helper"), "Missing helper"),
+            (ValueError(), "ValueError"),
+            (subprocess.CalledProcessError(1, ["git"], stderr=b"  Branch exists\n"), "Branch exists"),
+            (subprocess.CalledProcessError(1, ["git"]), str(subprocess.CalledProcessError(1, ["git"]))),
+        ]
+        for failure, message in failures:
+            with (
+                self.subTest(message=message),
+                patch.object(rex_worktrees, "create", side_effect=failure),
+                patch.object(rex_worktrees.subprocess, "run") as run,
+                self.assertRaises(type(failure)),
+            ):
+                rex_worktrees.create_named("none", "feature-work")
+            run.assert_called_once_with(
+                ["rex", "do", "workspace_creation_failed", "message=" + message],
+                check=True, stdout=subprocess.DEVNULL,
+            )
+
+    def test_background_failure_keeps_command_diagnostics_in_the_native_message(self):
+        def fail(*args):
+            print("Brazil: disk full", file=sys.stderr)
+            raise ValueError("Worktree failed")
+
+        with (
+            patch.object(rex_worktrees, "create", side_effect=fail),
+            patch.object(rex_worktrees.subprocess, "run") as run,
+            self.assertRaisesRegex(ValueError, "Worktree failed"),
+        ):
+            rex_worktrees.create_named("none", "feature-work")
+        self.assertEqual(run.call_args.args[0][-1], "message=Worktree failed\nBrazil: disk full\n")
 
 
 if __name__ == "__main__":
