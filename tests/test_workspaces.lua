@@ -2,7 +2,7 @@
 local actions, calls, commands, starts, picks
 local ctx, remote_error, failed_operation, selection, menu_action, picked, layer
 local remote_call, elapsed, pick_hosts
-local inputs, name, start_error, prompt_order, tree_rows
+local inputs, name, start_error, prompt_order, tree_rows, encoded
 local source = arg[1] or "home/.config/rex/workspaces.lua"
 local foreign_cwd = "/workplace/someone/Example/src/Example/dotfiles/dotfiles"
 
@@ -13,7 +13,7 @@ local function setup(remote)
   elapsed, pick_hosts = 0, {}
   selection, menu_action, picked, layer = nil, nil, false, nil
   inputs, name, start_error = {}, "feature-work", nil
-  prompt_order = {}
+  prompt_order, encoded = {}, {}
   tree_rows = "[tree] ExampleService · feature-branch\ttree-id\n"
   local exec = setmetatable({
     start = function(argv, opts)
@@ -28,18 +28,21 @@ local function setup(remote)
         return { ok = true, stdout = "/usr/bin:/bin\n" }
       end
       if remote and not remote_call then
-        return nil, "python3: working directory: stat " .. foreign_cwd .. ": no such file or directory"
+        return nil, "working directory: stat " .. foreign_cwd .. ": no such file or directory"
       end
       assert(opts.cwd == (remote and foreign_cwd or "/tmp/project"), "helper lost the pane's working directory")
       if argv[1] == "/bin/zsh" then
         assert(argv[3]:find("WORKPLACE_DIR", 1, true), "directories must honor the configured root")
         return { ok = true, stdout = "project\t/tmp/my projects/project/\n" }
       end
-      assert(argv[2] == os.getenv("HOME") .. "/.config/rex/rex-worktrees.py")
-      return { ok = true, stdout = tree_rows }
+      error("Unexpected command: " .. table.concat(argv, " "))
     end,
   })
   rex = {
+    json = { encode = function(value)
+      encoded[#encoded + 1] = value
+      return tostring(#encoded)
+    end },
     action = function(action) actions[action.name] = action end,
     bind = function() end,
     call = function(method, args)
@@ -87,7 +90,27 @@ local function setup(remote)
       return { block_ids = { "block:created" } }
     end },
   }
+  local old_files, old_actions = package.loaded.files, package.loaded.worktree_actions
+  package.loaded.files = {
+    env = function() return { PATH = "/usr/bin:/bin" } end,
+    run = function(argv, cwd)
+      local result, err = rex.exec(argv, { cwd = cwd })
+      if not result then error(err, 0) end
+      return result.stdout
+    end,
+  }
+  package.loaded.worktree_actions = {
+    current = function(cwd)
+      commands[#commands + 1] = { operation = "current", remote = remote_call, cwd = cwd }
+      assert(not remote or remote_call, "discovery ran on the wrong host")
+      return tree_rows
+    end,
+    connect = function(value)
+      commands[#commands + 1] = { operation = "connect", value = value, remote = remote_call }
+    end,
+  }
   dofile(source)
+  package.loaded.files, package.loaded.worktree_actions = old_files, old_actions
 end
 
 local function run(args)
@@ -129,7 +152,7 @@ test("both remote menus can wait 15 seconds before opening the selection", funct
   assert(calls[2].args.args.value == selection)
   assert(calls[2].args.session_id == ctx.session_id and calls[2].args.block_id == ctx.block_id)
   local command = commands[#commands]
-  assert(command.remote and command.argv[3] == "connect" and command.argv[4] == selection)
+  assert(command.remote and command.operation == "connect" and command.value == selection)
   assert(layer == nil)
 end)
 
@@ -166,9 +189,12 @@ test("remote delete retains its interactive confirmation shell", function()
     assert(layer.session_id == ctx.session_id)
     assert(layer.layout.options.cwd == foreign_cwd)
     local command = layer.layout.options.command
-    assert(command[3] == (operation == "force_delete" and "delete" or operation))
-    assert(command[4] == selection)
-    assert(command[5] == (operation == "force_delete" and "--force" or nil))
+    assert(command[1] == "rex" and command[2] == "do")
+    assert(command[3]:match("/worktree_command.lua$"))
+    assert(command[4] == "--args" and #command == 5)
+    local request = encoded[tonumber(command[5])]
+    assert(request.operation == "delete" and request.value == selection)
+    assert(request.force == (operation == "force_delete" and true or nil))
     assert(#starts == 1 and starts[1].opts.detach)
   end
 end)
@@ -189,8 +215,8 @@ end)
 test("opening a directory keeps the helper on the pane's host", function()
   setup(false)
   run({ operation = "connect", value = "/tmp/project" })
-  local command = commands[#commands].argv
-  assert(command[3] == "connect" and command[4] == "/tmp/project")
+  local command = commands[#commands]
+  assert(command.operation == "connect" and command.value == "/tmp/project")
   assert(layer == nil)
 end)
 
@@ -219,8 +245,10 @@ test("new worktrees take native input and start detached on the pane's host", fu
       assert(#starts == 1)
       local process = starts[1]
       assert(process.remote == remote)
-      assert(process.argv[1] == "python3" and process.argv[2]:match("/rex%-worktrees.py$"))
-      assert(process.argv[3] == "create-named" and process.argv[4] == target and process.argv[5] == "feature-work")
+      assert(process.argv[1] == "rex" and process.argv[2] == "do" and process.argv[3]:match("/worktree_command.lua$"))
+      local request = encoded[tonumber(process.argv[5])]
+      assert(process.argv[4] == "--args" and request.operation == "create-named")
+      assert(request.value == target and request.name == "feature-work")
       assert(#process.argv == 5 and process.opts.detach)
       assert(process.opts.cwd == (remote and foreign_cwd or "/tmp/project"))
       if remote then
@@ -241,7 +269,7 @@ end)
 
 test("background launch errors reach the native caller", function()
   setup(true)
-  selection, start_error = "none", "Could not start python3"
+  selection, start_error = "none", "Could not start rex"
   local ok, err = pcall(run)
   assert(not ok and err == start_error and layer == nil)
 end)
@@ -263,7 +291,8 @@ test("delete worktree lists only worktrees and starts the native-confirmation he
     assert(picks[2].items[1].id == "tree-id")
     assert(#inputs == 0 and layer == nil and #starts == 1)
     local command = starts[1]
-    assert(command.argv[3] == "delete-native" and command.argv[4] == "tree-id" and #command.argv == 4)
+    local request = encoded[tonumber(command.argv[5])]
+    assert(command.argv[4] == "--args" and request.operation == "delete-native" and request.value == "tree-id")
     assert(command.opts.detach and command.remote == remote)
     assert(command.opts.cwd == (remote and foreign_cwd or "/tmp/project"))
     if remote then assert(calls[2].args.args.operation == "delete_native") end
@@ -304,5 +333,16 @@ test("background failures are displayed in a native prompt", function()
     assert(#picks == 1 and picks[1].title == (operation == "delete" and "Worktree deletion failed" or "Worktree creation failed"))
     assert(picks[1].items[1].subtitle == "Operation failed")
     assert(layer == nil and #starts == 0)
+  end
+end)
+
+
+test("numeric and boolean-looking names are passed as JSON strings", function()
+  for _, value in ipairs({ "00123", "true", "false" }) do
+    setup(true)
+    selection, name = "none", value
+    run()
+    local argv = starts[1].argv
+    assert(argv[4] == "--args" and encoded[tonumber(argv[5])].name == value)
   end
 end)

@@ -1,12 +1,12 @@
 [metadata]
 name = "rex-workspaces"
 description = "Open Git worktrees and directories as Rex sessions, or switch between sessions"
-requirements = ["rex", "fd", "eza", "python3"]
+requirements = ["rex", "fd", "eza"]
 
 [source]
 command = [
-  '''python3 "$HOME/.config/rex/rex-worktrees.py" current''',
-  '''python3 "$HOME/.config/rex/rex-worktrees.py" sessions''',
+  '''rex do "$HOME/.config/rex/worktree_command.lua" operation=current''',
+  '''rex do "$HOME/.config/rex/worktree_command.lua" operation=sessions''',
   '''fd -t d -d 1 . "${WORKPLACE_DIR:-$HOME/workplace}" --format '[dir] {/}	{}' ''',
 ]
 frecency = true
@@ -14,7 +14,7 @@ display = "{split:\t:0}"
 output = "{split:\t:1}"
 
 [preview]
-command = '''python3 "$HOME/.config/rex/rex-worktrees.py" preview '{split:\t:1}' '''
+command = '''rex do "$HOME/.config/rex/worktree_command.lua" operation=preview 'value={split:\t:1}' '''
 
 [keybindings]
 enter = "actions:connect"
@@ -27,20 +27,20 @@ ctrl-g = "actions:create"
 
 [actions.connect]
 description = "Switch to the session, or open the worktree or directory as a session"
-command = '''python3 "$HOME/.config/rex/rex-worktrees.py" connect '{split:\t:1}' '''
+command = '''rex do "$HOME/.config/rex/worktree_command.lua" operation=connect 'value={split:\t:1}' '''
 mode = "execute"
 
 [actions.delete]
 description = "Delete the worktree and close its session, or close the session after confirming"
-command = '''python3 "$HOME/.config/rex/rex-worktrees.py" delete '{split:\t:1}' '''
+command = '''rex do "$HOME/.config/rex/worktree_command.lua" operation=delete 'value={split:\t:1}' '''
 mode = "execute"
 
 [actions.force_delete]
 description = "Force-delete the worktree and close its session, or close the session without confirming"
-command = '''python3 "$HOME/.config/rex/rex-worktrees.py" delete '{split:\t:1}' --force'''
+command = '''rex do "$HOME/.config/rex/worktree_command.lua" operation=delete 'value={split:\t:1}' force=true'''
 mode = "execute"
 
 [actions.create]
 description = "Create a named session, on the remote host unless you answer no, when a session is selected; otherwise a named worktree"
-command = '''python3 "$HOME/.config/rex/rex-worktrees.py" create '{split:\t:1}' '''
+command = '''rex do "$HOME/.config/rex/worktree_command.lua" operation=create 'value={split:\t:1}' '''
 mode = "execute"

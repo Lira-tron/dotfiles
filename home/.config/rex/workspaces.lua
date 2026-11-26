@@ -1,3 +1,5 @@
+local fs = require("files")
+local worktrees = require("worktree_actions")
 local TERMINAL = "com.superlogical.terminal"
 
 local function pane_cwd(ctx)
@@ -34,7 +36,7 @@ rex.action({
 
 rex.bind("ctrl+a>shift+t", "workspace_picker")
 
-local HELPER = os.getenv("HOME") .. "/.config/rex/rex-worktrees.py"
+local HELPER = os.getenv("HOME") .. "/.config/rex/worktree_command.lua"
 local MENUS = {
   tree = {
     { id = "connect", title = "Open", icon = "branch" },
@@ -44,30 +46,6 @@ local MENUS = {
   },
 }
 
-local REX_BIN = os.getenv("HOME")
-  .. "/Library/Application Support/com.superlogical.rex/RexServer/Versions/Current/Rex Server.app/Contents/MacOS"
-local user_path
-
--- The Rex server's PATH lacks Homebrew, toolbox, and the rex CLI, which the helper runs.
-local function exec_env()
-  if not user_path then
-    local result = rex.exec({ "/bin/zsh", "-c", "print -r -- $PATH" })
-    user_path = ((result and result.ok) and result.stdout:gsub("%s+$", "") or os.getenv("PATH")) .. ":" .. REX_BIN
-  end
-  return { PATH = user_path }
-end
-
-local function exec_lines(argv, cwd)
-  local result, err = rex.exec(argv, { cwd = cwd, env = exec_env() })
-  if not result then
-    error(err, 0)
-  end
-  if not result.ok then
-    error(result.stderr ~= "" and result.stderr or table.concat(argv, " ") .. " failed", 0)
-  end
-  return result.stdout:gmatch("[^\n]+")
-end
-
 local function workspace_items(cwd)
   local items, by_id = {}, {}
   -- Always offered first; the helper's own empty-list placeholder uses the same id and is skipped.
@@ -75,7 +53,7 @@ local function workspace_items(cwd)
   items[1] = by_id.none
   by_id.delete = { id = "delete", title = "Delete worktree…", icon = "document", detail = "delete" }
   items[2] = by_id.delete
-  for line in exec_lines({ "python3", HELPER, "current" }, cwd) do
+  for line in worktrees.current(cwd):gmatch("[^\n]+") do
     local kind, title, value = line:match("^%[(%w+)%] (.-)\t(.+)$")
     if kind == "tree" and not by_id[value] then
       by_id[value] = {
@@ -93,11 +71,10 @@ local function workspace_items(cwd)
   return items, by_id
 end
 
-local function helper_argv(action, value)
-  if action == "force_delete" then
-    return { "python3", HELPER, "delete", value, "--force" }
-  end
-  return { "python3", HELPER, action, value }
+local function helper_argv(action, value, name)
+  local args = { operation = action == "force_delete" and "delete" or action, value = value, name = name }
+  if action == "force_delete" then args.force = true end
+  return { "rex", "do", HELPER, "--args", rex.json.encode(args) }
 end
 
 local function workspace_operation(ctx, operation, value, name)
@@ -121,30 +98,30 @@ local function workspace_operation(ctx, operation, value, name)
   end
   if operation == "directories" then
     local directories = {}
-    for line in exec_lines({
+    for line in fs.run({
       "/bin/zsh", "-c",
       'if [[ -d "${WORKPLACE_DIR:-$HOME/workplace}" ]]; then fd -t d -d 1 . "${WORKPLACE_DIR:-$HOME/workplace}" --format "{/}\t{}"; fi',
-    }, cwd) do
+    }, cwd):gmatch("[^\n]+") do
       local label, path = line:match("^(.-)\t(.+)$")
       if path then directories[#directories + 1] = { name = label, path = path } end
     end
     return directories
   end
   if operation == "create" or operation == "delete_native" then
-    local argv = { "python3", HELPER, "delete-native", value }
+    local argv = helper_argv("delete-native", value)
     if operation == "create" then
       if not name or name == "" then error("A worktree name is required.", 0) end
-      argv[3], argv[5] = "create-named", name
+      argv = helper_argv("create-named", value, name)
     end
     local process, err = rex.exec.start(argv, {
-      cwd = cwd, env = exec_env(), detach = true, stdout = false, stderr = false,
+      cwd = cwd, env = fs.env(), detach = true, stdout = false, stderr = false,
     })
     if not process then error(err, 0) end
     return
   end
   -- Existing per-worktree deletion actions retain their terminal confirmation.
   if operation == "connect" then
-    exec_lines(helper_argv(operation, value), cwd)
+    worktrees.connect(value)
     return
   end
   local layer, err = rex.session.new_layer({
@@ -163,7 +140,7 @@ local function workspace_operation(ctx, operation, value, name)
   local refocus = ("rex.session.focus_block({ block_id = %q })"):format(layer.block_ids[1])
   rex.exec.start(
     { "/bin/sh", "-c", 'sleep 0.3; exec "$0" do -s "$1" -e "$2"', "rex", ctx.session_id, refocus },
-    { detach = true, stdout = false, stderr = false, env = exec_env() }
+    { detach = true, stdout = false, stderr = false, env = fs.env() }
   )
   return layer
 end
