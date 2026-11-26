@@ -86,3 +86,97 @@ rex.action({
 rex.bind("shift+cmd+x", "session_close_confirm")
 
 require("workspaces")
+
+local REMOTE_PREFIX = "🥊-"
+
+local function session_call(host, method, args)
+  if host then
+    return rex.server(host).call(method, args)
+  end
+  -- rex.call follows the focused pane's host. The CLI here runs on the home
+  -- server, so "local" still means the Mac when a remote pane is selected.
+  local result, err = rex.exec({
+    "/bin/zsh", "-c",
+    'unset REX_SERVER REX_SESSION REX_BLOCK REX_CLIENT; '
+      .. 'export PATH="$PATH:$HOME/Library/Application Support/com.superlogical.rex/RexServer/Versions/Current/Rex Server.app/Contents/MacOS"; '
+      .. 'exec rex "$@"',
+    "rex", "api", "call", method, rex.json.encode(args or {}),
+  })
+  if not result then return nil, err end
+  if not result.ok then return nil, result.stderr end
+  return rex.json.decode(result.stdout)
+end
+
+local function append_sessions(items, host)
+  local result, err = session_call(host, "session.list")
+  if not result then
+    if not host then error(err, 0) end
+    rex.log("warn", "Could not list sessions on " .. host .. ": " .. err)
+    return
+  end
+  for _, session in ipairs(result.sessions or {}) do
+    items[#items + 1] = {
+      id = session.session_id,
+      title = session.label,
+      subtitle = host or "This Mac",
+      icon = host and "server" or "terminal",
+    }
+  end
+end
+
+local function create_session(host)
+  local name = rex.ui.input({
+    title = host and ("New session on " .. host) or "New local session",
+    placeholder = "Session name",
+    confirm = "Create session",
+  })
+  if name == nil then return end
+  name = name:match("^%s*(.-)%s*$")
+  if name == "" then return end
+  if host and name:sub(1, #REMOTE_PREFIX) ~= REMOTE_PREFIX then
+    name = REMOTE_PREFIX .. name
+  end
+  local created, err = session_call(host, "session.create", {
+    label = name,
+    initial_windows = {
+      { layout = rex.layout.block({ flavor = "com.superlogical.terminal.shell" }) },
+    },
+  })
+  if not created then error(err, 0) end
+  rex.client.queue("session.select", { session_id = created.session_id })
+end
+
+rex.action({
+  name = "session_picker_native",
+  title = "Open Session (Custom Native)…",
+  description = "Switch sessions or create a named local or remote session",
+  run = function()
+    local hosts = rex.servers()
+    local items = {
+      { id = "new_local", title = "New local session…", icon = "plus" },
+      { id = "new_remote", title = "New remote session…", icon = "server" },
+    }
+    append_sessions(items)
+    for _, host in ipairs(hosts) do
+      append_sessions(items, host)
+    end
+    local choice = rex.ui.pick({ title = "Sessions", placeholder = "Filter sessions", items = items })
+    if choice == nil then return end
+    if choice == "new_local" then
+      return create_session()
+    end
+    if choice == "new_remote" then
+      if #hosts == 0 then error("No connected remote hosts are available.", 0) end
+      local host_items = {}
+      for _, host in ipairs(hosts) do
+        host_items[#host_items + 1] = { id = host, title = host, icon = "server" }
+      end
+      local host = rex.ui.pick({ title = "Create session on host", items = host_items })
+      if host == nil then return end
+      return create_session(host)
+    end
+    rex.client.queue("session.select", { session_id = choice })
+  end,
+})
+
+rex.bind("shift+cmd+f", "session_picker_native")
