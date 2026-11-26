@@ -34,7 +34,7 @@ rex.action({
 
 rex.bind("ctrl+a>shift+t", "workspace_picker")
 
-local HELPER = os.getenv("HOME") .. "/.config/television/cable/rex-worktrees.py"
+local HELPER = os.getenv("HOME") .. "/.config/rex/rex-worktrees.py"
 local MENUS = {
   tree = {
     { id = "connect", title = "Open", icon = "branch" },

@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "home/.config/television/cable/worktrees.py"
+SOURCE = ROOT / "home/.config/rex/worktrees.py"
 spec = importlib.util.spec_from_file_location("worktree_creation", SOURCE)
 worktrees = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(worktrees)

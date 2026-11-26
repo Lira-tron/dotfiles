@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import patch
 
 
-SOURCE = Path(__file__).absolute().parents[1] / "home/.config/television/cable/worktrees.py"
+SOURCE = Path(__file__).absolute().parents[1] / "home/.config/rex/worktrees.py"
 spec = importlib.util.spec_from_file_location("worktrees", SOURCE)
 worktrees = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(worktrees)

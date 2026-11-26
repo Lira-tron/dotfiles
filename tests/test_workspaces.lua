@@ -35,7 +35,7 @@ local function setup(remote)
         assert(argv[3]:find("WORKPLACE_DIR", 1, true), "directories must honor the configured root")
         return { ok = true, stdout = "project\t/tmp/my projects/project/\n" }
       end
-      assert(argv[2] == os.getenv("HOME") .. "/.config/television/cable/rex-worktrees.py")
+      assert(argv[2] == os.getenv("HOME") .. "/.config/rex/rex-worktrees.py")
       return { ok = true, stdout = tree_rows }
     end,
   })

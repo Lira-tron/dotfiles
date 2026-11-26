@@ -1,6 +1,6 @@
 # Find worktrees here and below first, then stop at the nearest parent with matches.
 tvw() {
-    local tree_source='python3 "$HOME/.config/television/cable/worktrees.py" current'
+    local tree_source='python3 "$HOME/.config/rex/worktrees.py" current'
     local tree_keys='tab="select_next_entry";backtab="select_prev_entry"'
     if [[ "${HERDR_ENV:-}" == 1 ]]; then
         tree_keys+=';ctrl-g="actions:create_current"'
@@ -19,10 +19,10 @@ tvw() {
         tree_action="${selection%%$'\n'*}"
         tree_token="${selection#*$'\n'}"
         case "$tree_action" in
-            enter) tree_path=$(python3 "$HOME/.config/television/cable/worktrees.py" path "$tree_token") || return ;;
-            ctrl-g) tree_path=$(python3 "$HOME/.config/television/cable/worktrees.py" create-current) || return ;;
-            ctrl-d) python3 "$HOME/.config/television/cable/worktrees.py" delete "$tree_token"; return $? ;;
-            ctrl-u) python3 "$HOME/.config/television/cable/worktrees.py" delete "$tree_token" --force; return $? ;;
+            enter) tree_path=$(python3 "$HOME/.config/rex/worktrees.py" path "$tree_token") || return ;;
+            ctrl-g) tree_path=$(python3 "$HOME/.config/rex/worktrees.py" create-current) || return ;;
+            ctrl-d) python3 "$HOME/.config/rex/worktrees.py" delete "$tree_token"; return $? ;;
+            ctrl-u) python3 "$HOME/.config/rex/worktrees.py" delete "$tree_token" --force; return $? ;;
         esac
         [[ -n "$tree_path" ]] || return 0
         builtin cd -- "$tree_path"

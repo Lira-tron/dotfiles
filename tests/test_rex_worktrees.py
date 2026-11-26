@@ -3,6 +3,7 @@ import base64
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -10,12 +11,27 @@ import unittest
 from unittest.mock import patch
 
 
-SOURCE = Path(__file__).absolute().parents[1] / "home/.config/television/cable/rex-worktrees.py"
+SOURCE = Path(__file__).absolute().parents[1] / "home/.config/rex/rex-worktrees.py"
 spec = importlib.util.spec_from_file_location("rex_worktrees", SOURCE)
 rex_worktrees = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rex_worktrees)
 
 SESSION = "session:01a20c35-252f-79b4-a4be-3d98f4dc39e1"
+
+
+class RexStandaloneHelperTests(unittest.TestCase):
+    def test_rex_helpers_load_without_a_television_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            rex_dir = Path(directory).resolve() / "rex"
+            rex_dir.mkdir()
+            for name in ("rex-worktrees.py", "worktrees.py"):
+                shutil.copy2(SOURCE.parent / name, rex_dir / name)
+            spec = importlib.util.spec_from_file_location("standalone_rex", rex_dir / "rex-worktrees.py")
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            self.assertEqual(module.WORKTREES, rex_dir / "worktrees.py")
+            self.assertEqual(module.kind("session:example"), "session")
+            self.assertFalse((Path(directory) / "television").exists())
 
 
 class RexSessionActionTests(unittest.TestCase):

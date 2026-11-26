@@ -131,5 +131,5 @@ printf '%s\n' "$SNAPSHOT" |
   '
 
 if [[ $MODE == all ]]; then
-  python3 "$HOME/.config/television/cable/worktrees.py" all
+  python3 "$SCRIPT_DIR/../../rex/worktrees.py" all
 fi
