@@ -1,5 +1,4 @@
 local TERMINAL = "com.superlogical.terminal"
-local sessions = require("sessions")
 
 local function pane_cwd(ctx)
   if not ctx.block_id then
@@ -77,7 +76,7 @@ end
 local function workspace_items(cwd)
   local items, by_id = {}, {}
   -- Always offered first; the helper's own empty-list placeholder uses the same id and is skipped.
-  by_id.none = { id = "none", title = "New…", icon = "plus", detail = "none" }
+  by_id.none = { id = "none", title = "New worktree…", icon = "plus", detail = "none" }
   items[1] = by_id.none
   local sources = {
     { "python3", HELPER, "current" },
@@ -165,22 +164,11 @@ local function workspace_operation(ctx, operation, value, name)
 end
 
 local function read_name()
-  local name = rex.ui.input({ title = "Name", placeholder = "Name", confirm = "Continue" })
+  local name = rex.ui.input({ title = "Worktree name:", placeholder = "Worktree name", confirm = "Create" })
   if name == nil then return end
   name = name:match("^%s*(.-)%s*$")
   if name == "" then return end
   return name
-end
-
-local function create_new(ctx)
-  local name = read_name()
-  if name == nil then return end
-  local items = { { id = "worktree", title = "Create worktree", icon = "branch" } }
-  for _, item in ipairs(sessions.items()) do items[#items + 1] = item end
-  local choice = rex.ui.pick({ title = name, placeholder = "Choose what to create", items = items })
-  if choice == nil then return end
-  if choice == "worktree" then return workspace_operation(ctx, "create", "none", name) end
-  return sessions.create(choice, name)
 end
 
 rex.action({
@@ -200,9 +188,6 @@ rex.action({
     local item = choices.by_id[value]
     local kind = item.detail
     local action = "create"
-    if kind == "none" then
-      return create_new(ctx)
-    end
     if MENUS[kind] then
       action = rex.ui.pick({ title = item.title, placeholder = "Action", items = MENUS[kind] })
       if action == nil then
@@ -232,5 +217,3 @@ rex.action({
 
 rex.bind("ctrl+a>t", "workspace_picker_native")
 rex.bind("shift+cmd+t", "workspace_picker_native")
-
-return create_new

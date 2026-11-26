@@ -48,4 +48,18 @@ local function create(choice, name)
   session_command(args)
 end
 
-return { items = items, create = create }
+local function pick()
+  local choice = rex.ui.pick({ title = "Create session", items = items() })
+  if choice == nil then return end
+  local name = rex.ui.input({
+    title = choice == "local" and "Session:" or choice:sub(8) .. " session:",
+    placeholder = "Session name",
+    confirm = "Create",
+  })
+  if name == nil then return end
+  name = name:match("^%s*(.-)%s*$")
+  if name == "" then return end
+  return create(choice, name)
+end
+
+return { items = items, create = create, pick = pick }

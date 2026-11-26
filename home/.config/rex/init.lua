@@ -85,12 +85,14 @@ rex.action({
 })
 rex.bind("shift+cmd+x", "session_close_confirm")
 
+require("workspaces")
+
 rex.action({
   name = "create_session",
-  title = "Create Worktree or Session…",
-  description = "Enter a name, then create a worktree, local session, or session on a remote host",
+  title = "Create Session…",
+  description = "Choose this Mac or a remote host, then enter the session name",
   category = "Session",
-  run = require("workspaces"),
+  run = require("sessions").pick,
 })
 
 rex.bind("shift+cmd+n", "create_session")

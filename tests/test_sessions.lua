@@ -1,5 +1,5 @@
 -- Run from the repository root: lua tests/test_sessions.lua
-local sessions, calls, picks, inputs, selections
+local sessions, calls, picks, inputs, selections, prompt_order
 local hosts, choice, name, create_error, exec_error, select_error, encoded, response
 local source = arg[1] or "home/.config/rex/sessions.lua"
 
@@ -12,6 +12,7 @@ end
 
 local function setup()
   calls, picks, inputs, selections = {}, {}, {}, {}
+  prompt_order = {}
   hosts, name = { "lyhost", "devbox" }, "review"
   choice = "remote:devbox"
   create_error, exec_error, select_error = nil, nil, nil
@@ -51,8 +52,16 @@ local function setup()
       decode = function(value) assert(value == "response"); return response end,
     },
     ui = {
-      pick = function() error("Session creation must not open another host picker") end,
-      input = function() error("The name has already been entered") end,
+      pick = function(opts)
+        picks[#picks + 1] = opts
+        prompt_order[#prompt_order + 1] = "pick"
+        return choice
+      end,
+      input = function(opts)
+        inputs[#inputs + 1] = opts
+        prompt_order[#prompt_order + 1] = "input"
+        return name
+      end,
     },
     layout = { block = function(opts) return { block = opts } end },
     client = { queue = function() error("Selection must be sent through its owning host") end },
@@ -88,6 +97,42 @@ test("a host named local stays distinct from the local Mac", function()
   hosts = { "local" }
   local items = sessions.items()
   assert(items[1].id == "local" and items[2].id == "remote:local")
+end)
+
+test("the session picker chooses local or a host before asking for its name", function()
+  for _, target in ipairs({ "local", "remote:lyhost", "remote:devbox" }) do
+    setup()
+    choice, name = target, "  review  "
+    sessions.pick()
+    local host = target == "local" and "local" or target:sub(8)
+    assert(#picks == 1 and #picks[1].items == 3, "no extra host or worktree menu")
+    assert(picks[1].items[1].title == "Create session" and picks[1].items[1].subtitle == "This Mac")
+    assert(picks[1].items[2].subtitle == "lyhost" and picks[1].items[3].subtitle == "devbox")
+    assert(table.concat(prompt_order, ",") == "pick,input")
+    assert(#inputs == 1)
+    assert(inputs[1].title == (target == "local" and "Session:" or host .. " session:"))
+    assert(inputs[1].confirm == "Create")
+    assert(#calls == 1 and calls[1].host == host)
+    assert(calls[1].args.label == (target == "local" and "review" or "🥊-review"))
+    assert(#selections == 1 and selections[1].host == host)
+  end
+end)
+
+test("cancelling session selection asks for no name and creates nothing", function()
+  choice = nil
+  sessions.pick()
+  assert(#picks == 1 and #inputs == 0 and #calls == 0 and #selections == 0)
+end)
+
+test("cancelled or blank names create nothing on local and remote hosts", function()
+  for _, target in ipairs({ "local", "remote:devbox" }) do
+    for _, value in ipairs({ false, "", " \t " }) do
+      setup()
+      choice, name = target, value or nil
+      sessions.pick()
+      assert(#picks == 1 and #inputs == 1 and #calls == 0 and #selections == 0)
+    end
+  end
 end)
 
 test("local creation stays on the Mac while a remote pane is selected", function()

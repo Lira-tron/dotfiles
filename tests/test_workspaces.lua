@@ -2,7 +2,7 @@
 local actions, calls, commands, starts, picks
 local ctx, remote_error, failed_operation, selection, menu_action, picked, layer
 local remote_call, elapsed, pick_hosts
-local inputs, name, create_new, session_choices, start_error, prompt_order
+local inputs, name, start_error, prompt_order
 local source = arg[1] or "home/.config/rex/workspaces.lua"
 local foreign_cwd = "/workplace/someone/Example/src/Example/dotfiles/dotfiles"
 
@@ -12,7 +12,7 @@ local function setup(remote)
   remote_error, failed_operation, remote_call = nil, nil, false
   elapsed, pick_hosts = 0, {}
   selection, menu_action, picked, layer = nil, nil, false, nil
-  inputs, session_choices, name, start_error = {}, {}, "feature-work", nil
+  inputs, name, start_error = {}, "feature-work", nil
   prompt_order = {}
   local exec = setmetatable({
     start = function(argv, opts)
@@ -86,18 +86,7 @@ local function setup(remote)
       return { block_ids = { "block:created" } }
     end },
   }
-  local previous = package.loaded.sessions
-  package.loaded.sessions = {
-    items = function() return {
-      { id = "local", title = "Session…", subtitle = "This Mac" },
-      { id = "remote:devbox", title = "🥊 Session on devbox…" },
-    } end,
-    create = function(choice, session_name)
-      session_choices[#session_choices + 1] = { choice = choice, name = session_name }
-    end,
-  }
-  create_new = dofile(source)
-  package.loaded.sessions = previous
+  dofile(source)
 end
 
 local function run(args)
@@ -188,7 +177,7 @@ test("local picker lists worktrees and workplace directories and permits cancell
   run()
   assert(#calls == 0 and #picks == 1 and layer == nil)
   assert(picks[1].items[1].id == "none")
-  assert(picks[1].items[1].title == "New…")
+  assert(picks[1].items[1].title == "New worktree…")
   assert(#picks[1].items == 3)
   assert(picks[1].items[2].id == "tree-id")
   assert(picks[1].items[2].title == "feature-branch · ExampleService")
@@ -209,10 +198,13 @@ test("new worktrees take native input and start detached on the pane's host", fu
   for _, remote in ipairs({ false, true }) do
     for _, target in ipairs({ "none", "tree-id" }) do
       setup(remote)
-      selection, menu_action, name = target, target == "none" and "worktree" or "create", "  feature-work  "
+      selection, menu_action, name = target, "create", "  feature-work  "
       run()
-      assert(#inputs == 1 and inputs[1].title == "Name")
-      assert(elapsed == 75, "both menus and the input must permit user think-time")
+      assert(#inputs == 1 and inputs[1].title == "Worktree name:")
+      assert(inputs[1].confirm == "Create")
+      assert(#picks == (target == "none" and 1 or 2), "no creation-type chooser")
+      assert(prompt_order[#prompt_order] == "Worktree name:")
+      assert(elapsed == (target == "none" and 60 or 75), "menus and input must permit user think-time")
       assert(layer == nil, "creation must not open a terminal overlay")
       assert(#starts == 1)
       local process = starts[1]
@@ -228,40 +220,10 @@ test("new worktrees take native input and start detached on the pane's host", fu
   end
 end)
 
-test("both entry points offer worktree, local session and remote hosts directly", function()
-  for _, from_workspace in ipairs({ false, true }) do
-    for _, target in ipairs({ "local", "remote:devbox" }) do
-      setup(true)
-      name = "  review  "
-      if from_workspace then
-        selection, menu_action = "none", target
-        run()
-      else
-        selection = target
-        create_new(ctx)
-      end
-      assert(#picks == (from_workspace and 2 or 1))
-      local menu = picks[#picks]
-      assert(menu.title == "review" and #menu.items == 3)
-      assert(menu.items[1].id == "worktree" and menu.items[1].title == "Create worktree")
-      assert(menu.items[2].id == "local" and menu.items[3].id == "remote:devbox")
-      assert(#inputs == 1 and inputs[1].title == "Name")
-      assert(prompt_order[from_workspace and 2 or 1] == "Name")
-      assert(prompt_order[from_workspace and 3 or 2] == "review")
-      assert(#session_choices == 1 and session_choices[1].choice == target and session_choices[1].name == "review")
-      assert(layer == nil and #starts == 0)
-    end
-  end
-end)
-
-test("cancelled choices or empty worktree names never start creation", function()
-  setup(true)
-  selection = "none"
-  run()
-  assert(#inputs == 1 and #starts == 0 and #session_choices == 0)
+test("cancelled or empty worktree names never start creation", function()
   for _, value in ipairs({ false, "", " \t " }) do
     setup(true)
-    selection, menu_action, name = "none", "worktree", value or nil
+    selection, name = "none", value or nil
     run()
     assert(#inputs == 1 and #starts == 0 and #calls == 1 and layer == nil)
   end
@@ -269,7 +231,7 @@ end)
 
 test("background launch errors reach the native caller", function()
   setup(true)
-  selection, menu_action, start_error = "none", "worktree", "Could not start python3"
+  selection, start_error = "none", "Could not start python3"
   local ok, err = pcall(run)
   assert(not ok and err == start_error and layer == nil)
 end)
