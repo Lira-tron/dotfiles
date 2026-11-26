@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rex sessions for Television: list them, and open worktrees or directories as sessions."""
+"""Rex session actions for the native picker and its optional Television channel."""
 
 import base64
 import contextlib

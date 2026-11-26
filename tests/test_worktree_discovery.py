@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 
 # Keep the worker checkout when the mutation runner links the test directory.
-SOURCE = Path(__file__).absolute().parents[1] / "home/.config/rex/worktrees.py"
+SOURCE = Path(__file__).absolute().parents[1] / "home/.config/television/cable/worktrees.py"
 spec = importlib.util.spec_from_file_location("worktree_discovery", SOURCE)
 worktrees = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(worktrees)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""List Git worktrees for Television and open existing checkouts in Herdr."""
+"""Git and Brazil worktree operations for the Rex picker."""
 
 import base64
 from datetime import datetime, timezone
@@ -150,112 +150,6 @@ def prompt(message):
         return terminal.readline().strip()
 
 
-def open_worktree(selected):
-    path = Path(selected["path"]).resolve()
-    brazil_root = brazil_workspace(path)
-
-    def same_checkout(candidate):
-        if candidate == path:
-            return True
-        if brazil_root:
-            # Sibling packages share a session; nested Brazil worktrees do not.
-            for root in (candidate, *candidate.parents):
-                if (root / "packageInfo").is_file():
-                    return root == brazil_root
-        return False
-
-    snapshot = json.loads(subprocess.check_output(["herdr", "api", "snapshot"]))["result"]["snapshot"]
-    for workspace in snapshot["workspaces"]:
-        worktree = workspace.get("worktree")
-        if worktree and same_checkout(Path(worktree["checkout_path"]).resolve()):
-            subprocess.run(["herdr", "workspace", "focus", workspace["workspace_id"]], check=True)
-            return
-
-    # Also reuse ordinary sessions opened inside this checkout.
-    for pane in snapshot["panes"]:
-        cwd = Path(pane.get("foreground_cwd") or pane["cwd"]).resolve()
-        if not same_checkout(cwd):
-            if not cwd.is_relative_to(path):
-                continue
-            root = subprocess.run(
-                ["git", "-C", str(cwd), "rev-parse", "--show-toplevel"],
-                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True,
-            )
-            if root.returncode or Path(root.stdout.strip()).resolve() != path:
-                continue
-        subprocess.run(["herdr", "tab", "focus", pane["tab_id"]], check=True)
-        return
-
-    parent = Path(selected["parent"]).resolve()
-    owner = brazil_workspace(parent) if brazil_root else None
-    if owner:
-        # Herdr groups by Git repository; use one package for the Brazil workspace.
-        parents = [
-            Path(worktree["checkout_path"]).resolve()
-            for workspace in snapshot["workspaces"]
-            if (worktree := workspace.get("worktree"))
-            and not worktree.get("is_linked_worktree")
-            and Path(worktree["checkout_path"]).resolve().parent == owner / "src"
-        ]
-        for repo in [owner / "src" / owner.name, *parents]:
-            checkout = brazil_root / "src" / repo.name
-            if (repo / ".git").exists() and (checkout / ".git").exists():
-                parent, path = repo, checkout
-                break
-        else:
-            if parents:
-                # A partial worktree may omit the group's representative package.
-                subprocess.run(
-                    ["herdr", "workspace", "create", "--cwd", str(brazil_root),
-                     "--label", brazil_root.name, "--focus"],
-                    check=True,
-                )
-                return
-
-    subprocess.run(
-        ["herdr", "worktree", "open", "--cwd", str(parent),
-         "--path", str(path), "--focus"],
-        check=True,
-    )
-
-
-def workspace_close_targets(workspace_id):
-    snapshot = json.loads(subprocess.check_output(["herdr", "api", "snapshot"]))["result"]["snapshot"]
-    workspace = next(
-        (item for item in snapshot["workspaces"] if item["workspace_id"] == workspace_id), None,
-    )
-    if workspace is None:
-        raise ValueError(f"Herdr workspace {workspace_id} no longer exists.")
-    worktree = workspace.get("worktree") or {}
-    if worktree.get("repo_key") and not worktree.get("is_linked_worktree"):
-        return [
-            item for item in snapshot["workspaces"]
-            if (item.get("worktree") or {}).get("repo_key") == worktree["repo_key"]
-        ]
-    return [workspace]
-
-
-def close_workspace(workspace_id):
-    targets = workspace_close_targets(workspace_id)
-    command = ["herdr", "workspace", "close", workspace_id]
-    if len(targets) > 1:
-        print("Closing this parent also closes its linked Herdr workspaces:", file=sys.stderr)
-        for workspace in targets:
-            print(
-                f"  {workspace['label']} ({workspace['workspace_id']}): "
-                f"{workspace['worktree']['checkout_path']}", file=sys.stderr,
-            )
-        print("Their panes will close. Files and Git worktrees are kept.", file=sys.stderr)
-        if prompt("Type ok to close these workspaces (blank cancels): ") != "ok":
-            return
-        if {item["workspace_id"] for item in targets} != {
-            item["workspace_id"] for item in workspace_close_targets(workspace_id)
-        }:
-            raise ValueError("The workspace group changed; reopen the picker to review it.")
-        command.append("--group")
-    subprocess.run(command, check=True)
-
-
 def delete_worktree(selected, force=False, confirm=None):
     parent, path = (Path(selected[key]).resolve() for key in ("parent", "path"))
     if path == parent:
@@ -264,17 +158,6 @@ def delete_worktree(selected, force=False, confirm=None):
     if (owner is None) != (workspace is None):
         raise ValueError("Cannot resolve the Brazil worktree and its parent; inspect them before cleanup.")
     target = workspace or path
-    open_panes = []
-    if os.environ.get("HERDR_ENV") == "1":
-        snapshot = json.loads(subprocess.check_output(["herdr", "api", "snapshot"]))
-        open_panes = [
-            pane["pane_id"] for pane in snapshot["result"]["snapshot"]["panes"]
-            if any(
-                cwd and Path(cwd).resolve().is_relative_to(target)
-                for cwd in (pane.get("foreground_cwd"), pane.get("cwd"))
-            )
-        ]
-        open_panes.sort(key=lambda pane: pane == os.environ.get("HERDR_PANE_ID"))
     repos = repositories(workspace) if workspace else [path]
     for repo in repos:
         artifacts = repo / ".ai"
@@ -302,8 +185,6 @@ def delete_worktree(selected, force=False, confirm=None):
     print(f"Delete {target}\nThis removes {scope}. Preserve needed work first.", file=sys.stderr)
     if dirty:
         print("Uncommitted changes will be discarded in: " + ", ".join(map(str, dirty)), file=sys.stderr)
-    if open_panes:
-        print("Open Herdr panes will be closed: " + ", ".join(open_panes), file=sys.stderr)
     if (confirm or prompt)("Type ok to delete (blank cancels): ") != "ok":
         return
     for directory, _, _ in os.walk(target, followlinks=False):
@@ -311,8 +192,6 @@ def delete_worktree(selected, force=False, confirm=None):
         if stat.S_ISDIR(mode) and not mode & stat.S_IWUSR:
             os.chmod(directory, mode | stat.S_IWUSR, follow_symlinks=False)
     subprocess.run(command, check=True, cwd=parent, stdout=sys.stderr, stderr=sys.stderr)
-    for pane in open_panes:
-        subprocess.run(["herdr", "pane", "close", pane], check=True, cwd=parent)
 
 
 def worktree_feature(name, created):
@@ -374,8 +253,6 @@ def main():
         print("\n".join(current_rows(Path.cwd())))
     elif mode == "all":
         print("\n".join(workplace_rows(Path(os.environ.get("WORKPLACE_DIR") or Path.home() / "workplace"))))
-    elif mode == "close-workspace":
-        close_workspace(sys.argv[2])
     else:
         if mode == "create-current":
             parent = current_parent(Path.cwd())
@@ -389,17 +266,12 @@ def main():
             print(path, flush=True)
             subprocess.run(["git", "-C", path, "status", "--short"], check=True)
             subprocess.run(["git", "-C", path, "log", "--oneline", "-8", "--color=always"], check=True)
-        elif mode == "open":
-            open_worktree(selected)
         elif mode == "delete":
             delete_worktree(selected, force="--force" in sys.argv[3:])
         elif mode in ("create", "create-current"):
             created = create_worktree(selected)
             if created:
-                if os.environ.get("HERDR_ENV") == "1":
-                    open_worktree(created)
-                else:
-                    print(created["path"])
+                print(created["path"])
         else:
             raise ValueError(f"Unknown worktree action: {mode}")
 
@@ -412,7 +284,7 @@ if __name__ == "__main__":
             print(error.stderr.decode(errors="replace").strip(), file=sys.stderr)
         else:
             print(error, file=sys.stderr)
-        if sys.argv[1] in ("create", "create-current", "delete", "close-workspace") and sys.stderr.isatty():
+        if sys.argv[1] in ("create", "create-current", "delete") and sys.stderr.isatty():
             prompt("Press Enter to close.")
         sys.exit(getattr(error, "returncode", 1))
     except KeyboardInterrupt:

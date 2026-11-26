@@ -1,8 +1,11 @@
 import contextlib
+import base64
 import importlib.util
 import io
+import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -99,7 +102,7 @@ class DeletionConfirmationTests(unittest.TestCase):
             for status, answer in ((b"", "ok"), (b" M changed.txt\n", "ok"), (b" M changed.txt\n", "cancel")):
                 with (
                     self.subTest(status=status, answer=answer),
-                    patch.dict(os.environ, {"HERDR_ENV": "0"}),
+                    patch.dict(os.environ, {"HERDR_ENV": "1"}),
                     patch.object(worktrees, "brazil_workspace", return_value=None),
                     patch.object(worktrees.subprocess, "check_output", return_value=status),
                     patch.object(worktrees.subprocess, "run") as run,
@@ -150,6 +153,53 @@ class WorkplaceRootTests(unittest.TestCase):
             ):
                 worktrees.main()
                 rows.assert_called_once_with(Path(expected))
+
+
+class RexWorktreeIntegrationTests(unittest.TestCase):
+    def test_standalone_rex_discovers_and_deletes_without_herdr_or_cable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            rex_dir, bin_dir = root / "rex", root / "bin"
+            rex_dir.mkdir()
+            bin_dir.mkdir()
+            shutil.copy2(SOURCE, rex_dir / SOURCE.name)
+            standalone_spec = importlib.util.spec_from_file_location("standalone_worktrees", rex_dir / SOURCE.name)
+            standalone = importlib.util.module_from_spec(standalone_spec)
+            standalone_spec.loader.exec_module(standalone)
+            for executable in ("git", "fd"):
+                (bin_dir / executable).symlink_to(shutil.which(executable))
+            environment = {"PATH": str(bin_dir), "HERDR_ENV": "1", "HERDR_PANE_ID": "unrelated"}
+            parent, target = root / "parent", root / "task"
+            subprocess.run(
+                ["git", "clone", "--shared", "--no-checkout", str(SOURCE.parents[3]), str(parent)],
+                check=True, capture_output=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(parent), "worktree", "add", "--detach", str(target), "HEAD"],
+                check=True, capture_output=True,
+            )
+            external = root / "artifacts"
+            external.mkdir()
+            (external / "notes.md").write_text("keep")
+            (target / ".ai").symlink_to(external, target_is_directory=True)
+            (target / "uncommitted.txt").write_text("local changes")
+            with patch.dict(os.environ, environment), tempfile.TemporaryFile(mode="w+t") as output:
+                self.assertIsNone(shutil.which("herdr"))
+                self.assertIsNone(shutil.which("brazil-context"))
+                entries = standalone.current_rows(parent)
+                self.assertEqual(len(entries), 1)
+                selected = json.loads(base64.urlsafe_b64decode(entries[0].split("\t")[1]))
+                self.assertEqual(selected, {"parent": str(parent), "path": str(target)})
+                with contextlib.redirect_stderr(output):
+                    standalone.delete_worktree(selected, confirm=lambda _: "cancel")
+                    self.assertEqual((target / "uncommitted.txt").read_text(), "local changes")
+                    standalone.delete_worktree(selected, confirm=lambda _: "ok")
+                output.seek(0)
+                self.assertIn("Uncommitted changes will be discarded", output.read())
+                self.assertFalse(target.exists())
+                self.assertEqual(len(standalone.checkouts(parent)), 1)
+            self.assertTrue(parent.is_dir())
+            self.assertEqual((external / "notes.md").read_text(), "keep")
 
 
 if __name__ == "__main__":

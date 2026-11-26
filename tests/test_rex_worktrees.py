@@ -324,7 +324,8 @@ class RexNativeDeletionTests(unittest.TestCase):
             "parent": str(self.parent), "path": str(self.target),
         }).encode()).decode()
         self.reply, self.prompts, self.session_list = "ok", [], []
-        self.enterContext(patch.dict(os.environ, {"HERDR_ENV": "0"}))
+        # Rex must remain independent even when launched from a Herdr shell.
+        self.enterContext(patch.dict(os.environ, {"HERDR_ENV": "1", "HERDR_PANE_ID": "unrelated"}))
         self.enterContext(patch.object(rex_worktrees.worktrees, "brazil_workspace", return_value=None))
         self.status = self.enterContext(patch.object(
             rex_worktrees.worktrees.subprocess, "check_output", return_value=b" M changed.txt\n",
