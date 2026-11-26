@@ -73,6 +73,8 @@ local function workspace_items(cwd)
   -- Always offered first; the helper's own empty-list placeholder uses the same id and is skipped.
   by_id.none = { id = "none", title = "New worktree…", icon = "plus", detail = "none" }
   items[1] = by_id.none
+  by_id.delete = { id = "delete", title = "Delete worktree…", icon = "document", detail = "delete" }
+  items[2] = by_id.delete
   for line in exec_lines({ "python3", HELPER, "current" }, cwd) do
     local kind, title, value = line:match("^%[(%w+)%] (.-)\t(.+)$")
     if kind == "tree" and not by_id[value] then
@@ -128,15 +130,19 @@ local function workspace_operation(ctx, operation, value, name)
     end
     return directories
   end
-  if operation == "create" then
-    if not name or name == "" then error("A worktree name is required.", 0) end
-    local process, err = rex.exec.start({ "python3", HELPER, "create-named", value, name }, {
+  if operation == "create" or operation == "delete_native" then
+    local argv = { "python3", HELPER, "delete-native", value }
+    if operation == "create" then
+      if not name or name == "" then error("A worktree name is required.", 0) end
+      argv[3], argv[5] = "create-named", name
+    end
+    local process, err = rex.exec.start(argv, {
       cwd = cwd, env = exec_env(), detach = true, stdout = false, stderr = false,
     })
     if not process then error(err, 0) end
     return
   end
-  -- Deletion still asks for confirmation in a floating shell.
+  -- Existing per-worktree deletion actions retain their terminal confirmation.
   if operation == "connect" then
     exec_lines(helper_argv(operation, value), cwd)
     return
@@ -184,6 +190,15 @@ rex.action({
     if value == nil then
       return
     end
+    if value == "delete" then
+      local worktrees = {}
+      for _, item in ipairs(choices.items) do
+        if item.detail == "tree" then worktrees[#worktrees + 1] = item end
+      end
+      local selected = rex.ui.pick({ title = "Delete worktree", placeholder = "Choose a worktree", items = worktrees })
+      if selected == nil then return end
+      return workspace_operation(ctx, "delete_native", selected)
+    end
     local item = choices.by_id[value]
     local kind = item.detail
     local action = "create"
@@ -203,12 +218,27 @@ rex.action({
 })
 
 rex.action({
-  name = "workspace_creation_failed",
-  title = "Worktree Creation Failed",
+  name = "workspace_deletion_confirm",
+  title = "Confirm Worktree Deletion",
   args = { message = "string" },
   run = function(_, args)
+    local items = { { id = "cancel", title = "No" } }
+    for line in args.message:gmatch("[^\n]+") do
+      items[#items + 1] = { id = "info:" .. #items, title = line }
+    end
+    items[#items + 1] = { id = "delete", title = "Yes", icon = "document" }
+    local choice = rex.ui.pick({ title = "Delete worktree?", items = items })
+    return choice == "delete" and "ok" or "cancel"
+  end,
+})
+
+rex.action({
+  name = "workspace_operation_failed",
+  title = "Worktree Operation Failed",
+  args = { message = "string", operation = "string" },
+  run = function(_, args)
     rex.ui.pick({
-      title = "Worktree creation failed",
+      title = args.operation == "delete" and "Worktree deletion failed" or "Worktree creation failed",
       items = { { id = "close", title = "Dismiss", subtitle = args.message, icon = "document" } },
     })
   end,

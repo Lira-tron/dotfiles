@@ -2,7 +2,7 @@
 local actions, calls, commands, starts, picks
 local ctx, remote_error, failed_operation, selection, menu_action, picked, layer
 local remote_call, elapsed, pick_hosts
-local inputs, name, start_error, prompt_order
+local inputs, name, start_error, prompt_order, tree_rows
 local source = arg[1] or "home/.config/rex/workspaces.lua"
 local foreign_cwd = "/workplace/someone/Example/src/Example/dotfiles/dotfiles"
 
@@ -14,6 +14,7 @@ local function setup(remote)
   selection, menu_action, picked, layer = nil, nil, false, nil
   inputs, name, start_error = {}, "feature-work", nil
   prompt_order = {}
+  tree_rows = "[tree] ExampleService · feature-branch\ttree-id\n"
   local exec = setmetatable({
     start = function(argv, opts)
       starts[#starts + 1] = { argv = argv, opts = opts, remote = remote_call }
@@ -35,7 +36,7 @@ local function setup(remote)
         return { ok = true, stdout = "project\t/tmp/my projects/project/\n" }
       end
       assert(argv[2] == os.getenv("HOME") .. "/.config/television/cable/rex-worktrees.py")
-      return { ok = true, stdout = "[tree] ExampleService · feature-branch\ttree-id\n" }
+      return { ok = true, stdout = tree_rows }
     end,
   })
   rex = {
@@ -115,7 +116,7 @@ test("remote list can remain open for 15 seconds and then be cancelled", functio
   assert(request.action == "workspace_picker_native")
   assert(request.args.operation == "list")
   assert(request.session_id == ctx.session_id and request.block_id == ctx.block_id)
-  assert(picks[1].items[2].id == "tree-id")
+  assert(picks[1].items[3].id == "tree-id")
 end)
 
 test("both remote menus can wait 15 seconds before opening the selection", function()
@@ -178,9 +179,10 @@ test("the T picker lists only worktrees and worktree actions", function()
   assert(#calls == 0 and #picks == 1 and layer == nil)
   assert(picks[1].items[1].id == "none")
   assert(picks[1].items[1].title == "New worktree…")
-  assert(#picks[1].items == 2)
-  assert(picks[1].items[2].id == "tree-id")
-  assert(picks[1].items[2].title == "feature-branch · ExampleService")
+  assert(picks[1].items[2].id == "delete" and picks[1].items[2].title == "Delete worktree…")
+  assert(#picks[1].items == 3)
+  assert(picks[1].items[3].id == "tree-id")
+  assert(picks[1].items[3].title == "feature-branch · ExampleService")
   assert(picks[1].title == "Worktrees")
 end)
 
@@ -252,10 +254,55 @@ test("creation requests without a name fail before launching a background helper
   end
 end)
 
+test("delete worktree lists only worktrees and starts the native-confirmation helper on their host", function()
+  for _, remote in ipairs({ false, true }) do
+    setup(remote)
+    selection, menu_action = "delete", "tree-id"
+    run()
+    assert(#picks == 2 and picks[2].title == "Delete worktree" and #picks[2].items == 1)
+    assert(picks[2].items[1].id == "tree-id")
+    assert(#inputs == 0 and layer == nil and #starts == 1)
+    local command = starts[1]
+    assert(command.argv[3] == "delete-native" and command.argv[4] == "tree-id" and #command.argv == 4)
+    assert(command.opts.detach and command.remote == remote)
+    assert(command.opts.cwd == (remote and foreign_cwd or "/tmp/project"))
+    if remote then assert(calls[2].args.args.operation == "delete_native") end
+  end
+end)
+
+test("an empty or cancelled worktree deletion list starts nothing", function()
+  for _, rows in ipairs({ "", "[tree] ExampleService · feature-branch\ttree-id\n" }) do
+    setup(true)
+    selection, tree_rows = "delete", rows
+    run()
+    assert(#picks == 2 and #calls == 1 and #starts == 0 and layer == nil)
+  end
+end)
+
+test("native worktree confirmation displays all warnings and requires the delete choice", function()
+  for _, reply in ipairs({ false, "cancel", "info:1", "delete" }) do
+    setup(false)
+    selection = reply or nil
+    local result = actions.workspace_deletion_confirm.run(ctx, {
+      message = "Delete /tmp/task\nThis removes all package branches.\nUncommitted changes will be discarded.",
+    })
+    assert(result == (reply == "delete" and "ok" or "cancel"))
+    local items = picks[1].items
+    assert(#items == 5 and items[1].id == "cancel" and items[5].id == "delete")
+    assert(items[1].title == "No" and items[5].title == "Yes")
+    assert(items[2].title == "Delete /tmp/task")
+    assert(items[3].title == "This removes all package branches.")
+    assert(items[4].title == "Uncommitted changes will be discarded.")
+    assert(layer == nil and #starts == 0)
+  end
+end)
+
 test("background failures are displayed in a native prompt", function()
-  setup(false)
-  actions.workspace_creation_failed.run(ctx, { message = "Branch already exists" })
-  assert(#picks == 1 and picks[1].title == "Worktree creation failed")
-  assert(picks[1].items[1].subtitle == "Branch already exists")
-  assert(layer == nil and #starts == 0)
+  for _, operation in ipairs({ "create", "delete" }) do
+    setup(false)
+    actions.workspace_operation_failed.run(ctx, { operation = operation, message = "Operation failed" })
+    assert(#picks == 1 and picks[1].title == (operation == "delete" and "Worktree deletion failed" or "Worktree creation failed"))
+    assert(picks[1].items[1].subtitle == "Operation failed")
+    assert(layer == nil and #starts == 0)
+  end
 end)

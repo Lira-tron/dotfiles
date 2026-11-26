@@ -1,6 +1,10 @@
 local workspace_operation = require("workspaces")
 
-local function session_command(args)
+local function session_command(args, host)
+  if host then
+    table.insert(args, 1, host)
+    table.insert(args, 1, "-S")
+  end
   local argv = {
     "/bin/zsh", "-c",
     'unset REX_SERVER REX_SESSION REX_BLOCK REX_CLIENT; '
@@ -42,16 +46,37 @@ local function create(choice, name)
   end
   if not created then error(err, 0) end
   -- session.select resolves IDs on the server that sent the client action.
-  local args = { "do", "session.select", "session_id=" .. created.session_id }
-  if host then
-    table.insert(args, 1, host)
-    table.insert(args, 1, "-S")
+  session_command({ "do", "session.select", "session_id=" .. created.session_id }, host)
+end
+
+local function delete_session()
+  local choices, targets = {}, {}
+  for _, location in ipairs(items()) do
+    local host = location.id ~= "local" and location.id:sub(8) or nil
+    local listed = rex.json.decode(session_command({ "ls", "--json" }, host))
+    for _, session in ipairs(listed.sessions) do
+      local id = location.id .. "/" .. session.session_id
+      choices[#choices + 1] = { id = id, title = session.label, subtitle = location.subtitle, icon = location.icon }
+      targets[id] = { host = host, id = session.session_id, label = session.label, location = location.subtitle }
+    end
   end
-  session_command(args)
+  local choice = rex.ui.pick({ title = "Delete session", placeholder = "Choose a session", items = choices })
+  if choice == nil then return end
+  local target = targets[choice]
+  local confirmed = rex.ui.pick({
+    title = "Delete " .. target.label .. " on " .. target.location .. "?",
+    items = {
+      { id = "cancel", title = "No" },
+      { id = "delete", title = "Yes", subtitle = "All its tabs and programs will close. Files are kept.", icon = "document" },
+    },
+  })
+  if confirmed ~= "delete" then return end
+  session_command({ "session", "kill", target.id }, target.host)
 end
 
 local function pick(ctx)
   local choices = items()
+  choices[#choices + 1] = { id = "delete", title = "Delete session…", icon = "document" }
   for _, directory in ipairs(workspace_operation(ctx, "directories")) do
     choices[#choices + 1] = {
       id = "dir:" .. directory.path,
@@ -62,6 +87,7 @@ local function pick(ctx)
   end
   local choice = rex.ui.pick({ title = "Sessions", items = choices })
   if choice == nil then return end
+  if choice == "delete" then return delete_session() end
   if choice:sub(1, 4) == "dir:" then return workspace_operation(ctx, "connect", choice:sub(5)) end
   local name = rex.ui.input({
     title = choice == "local" and "Session:" or choice:sub(8) .. " session:",

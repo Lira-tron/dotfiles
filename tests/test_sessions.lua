@@ -1,6 +1,7 @@
 -- Run from the repository root: lua tests/test_sessions.lua
 local sessions, calls, picks, inputs, selections, prompt_order
 local hosts, choice, name, create_error, exec_error, select_error, encoded, response
+local answers, listed, deleted, list_error, delete_error
 local ctx, workspace_calls, directory_rows
 local source = arg[1] or "home/.config/rex/sessions.lua"
 
@@ -17,6 +18,7 @@ local function setup()
   hosts, name = { "lyhost", "devbox" }, "review"
   choice = "remote:devbox"
   create_error, exec_error, select_error = nil, nil, nil
+  answers, listed, deleted, list_error, delete_error = nil, {}, {}, nil, nil
   ctx, workspace_calls = { server = "lyhost", session_id = "session:test", block_id = "block:test" }, {}
   directory_rows = { { name = "project", path = "/tmp/my projects/project/" } }
   rex = {
@@ -41,6 +43,19 @@ local function setup()
       end
       local host, offset = "local", 5
       if argv[offset] == "-S" then host, offset = argv[offset + 1], offset + 2 end
+      if argv[offset] == "ls" then
+        assert(argv[offset + 1] == "--json")
+        listed[#listed + 1] = host
+        if list_error == host then return { ok = false, stderr = "Host unavailable" } end
+        response = { sessions = { { session_id = "session:shared", label = "work" } } }
+        return { ok = true, stdout = "response" }
+      end
+      if argv[offset] == "session" then
+        assert(argv[offset + 1] == "kill" and #argv == offset + 2)
+        deleted[#deleted + 1] = { host = host, id = argv[offset + 2] }
+        if delete_error then return { ok = false, stderr = delete_error } end
+        return { ok = true, stdout = "" }
+      end
       assert(argv[offset] == "do" and argv[offset + 1] == "session.select")
       if select_error then return { ok = false, stderr = select_error } end
       local id = argv[offset + 2]:match("^session_id=(.+)$")
@@ -58,6 +73,7 @@ local function setup()
       pick = function(opts)
         picks[#picks + 1] = opts
         prompt_order[#prompt_order + 1] = "pick"
+        if answers then return answers[#picks] or nil end
         return choice
       end,
       input = function(opts)
@@ -115,7 +131,7 @@ test("the session picker chooses local or a host before asking for its name", fu
     choice, name = target, "  review  "
     sessions.pick(ctx)
     local host = target == "local" and "local" or target:sub(8)
-    assert(#picks == 1 and #picks[1].items == 4, "no extra host or worktree menu")
+    assert(#picks == 1 and #picks[1].items == 5, "no extra host or worktree menu")
     assert(picks[1].items[1].title == "Create session" and picks[1].items[1].subtitle == "This Mac")
     assert(picks[1].items[2].subtitle == "lyhost" and picks[1].items[3].subtitle == "devbox")
     assert(table.concat(prompt_order, ",") == "pick,input")
@@ -128,10 +144,49 @@ test("the session picker chooses local or a host before asking for its name", fu
   end
 end)
 
+test("session deletion lists every host and closes only the explicitly confirmed target", function()
+  for _, location in ipairs({ "local", "remote:lyhost", "remote:devbox" }) do
+    setup()
+    answers = { "delete", location .. "/session:shared", "delete" }
+    sessions.pick(ctx)
+    local host = location == "local" and "local" or location:sub(8)
+    assert(picks[1].items[4].title == "Delete session…")
+    assert(#picks == 3 and #inputs == 0 and #calls == 0 and #selections == 0)
+    assert(table.concat(listed, ",") == "local,lyhost,devbox")
+    assert(#picks[2].items == 3 and picks[2].items[1].subtitle == "This Mac")
+    assert(picks[2].items[2].subtitle == "lyhost" and picks[2].items[3].subtitle == "devbox")
+    assert(picks[3].title == "Delete work on " .. (host == "local" and "This Mac" or host) .. "?")
+    assert(picks[3].items[1].id == "cancel" and picks[3].items[1].title == "No")
+    assert(picks[3].items[2].title == "Yes")
+    assert(picks[3].items[2].subtitle:find("programs will close", 1, true))
+    assert(#deleted == 1 and deleted[1].host == host and deleted[1].id == "session:shared")
+  end
+end)
+
+test("cancelling the session list or confirmation never deletes anything", function()
+  for _, reply in ipairs({ false, "cancel", "other" }) do
+    setup()
+    answers = { "delete", "local/session:shared", reply }
+    sessions.pick(ctx)
+    assert(#deleted == 0)
+  end
+  setup()
+  answers = { "delete" }
+  sessions.pick(ctx)
+  assert(#picks == 2 and #deleted == 0)
+end)
+
+test("session listing failure does not offer a partial list or delete anything", function()
+  answers, list_error = { "delete" }, "devbox"
+  local ok, err = pcall(sessions.pick, ctx)
+  assert(not ok and err == "Host unavailable")
+  assert(#picks == 1 and #deleted == 0)
+end)
+
 test("directory shortcuts are in the session menu and open on the pane's host", function()
   choice = "dir:/tmp/my projects/project/"
   sessions.pick(ctx)
-  local directory = picks[1].items[4]
+  local directory = picks[1].items[5]
   assert(directory.title == "project" and directory.icon == "folder")
   assert(directory.subtitle == "lyhost · /tmp/my projects/project/")
   assert(#workspace_calls == 2)
@@ -144,7 +199,14 @@ end)
 test("empty directory lists retain the session actions", function()
   directory_rows, choice = {}, nil
   sessions.pick(ctx)
-  assert(#picks[1].items == 3)
+  assert(#picks[1].items == 4)
+end)
+
+test("session deletion errors do not fall back to a different host", function()
+  answers, delete_error = { "delete", "remote:devbox/session:shared", "delete" }, "Could not close session"
+  local ok, err = pcall(sessions.pick, ctx)
+  assert(not ok and err == delete_error)
+  assert(#deleted == 1 and deleted[1].host == "devbox")
 end)
 
 test("cancelling session selection asks for no name and creates nothing", function()

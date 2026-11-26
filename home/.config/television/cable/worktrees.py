@@ -256,7 +256,7 @@ def close_workspace(workspace_id):
     subprocess.run(command, check=True)
 
 
-def delete_worktree(selected, force=False):
+def delete_worktree(selected, force=False, confirm=None):
     parent, path = (Path(selected[key]).resolve() for key in ("parent", "path"))
     if path == parent:
         raise ValueError("The primary checkout cannot be deleted from this picker.")
@@ -304,13 +304,13 @@ def delete_worktree(selected, force=False):
         print("Uncommitted changes will be discarded in: " + ", ".join(map(str, dirty)), file=sys.stderr)
     if open_panes:
         print("Open Herdr panes will be closed: " + ", ".join(open_panes), file=sys.stderr)
-    if prompt("Type ok to delete (blank cancels): ") != "ok":
+    if (confirm or prompt)("Type ok to delete (blank cancels): ") != "ok":
         return
     for directory, _, _ in os.walk(target, followlinks=False):
         mode = os.stat(directory, follow_symlinks=False).st_mode
         if stat.S_ISDIR(mode) and not mode & stat.S_IWUSR:
             os.chmod(directory, mode | stat.S_IWUSR, follow_symlinks=False)
-    subprocess.run(command, check=True, cwd=parent)
+    subprocess.run(command, check=True, cwd=parent, stdout=sys.stderr, stderr=sys.stderr)
     for pane in open_panes:
         subprocess.run(["herdr", "pane", "close", pane], check=True, cwd=parent)
 

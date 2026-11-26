@@ -136,7 +136,7 @@ def kill_sessions(session_ids):
         subprocess.run(["rex", "session", "kill", *session_ids], check=True, stdout=subprocess.DEVNULL)
 
 
-def delete(value, force):
+def delete(value, force, confirm=None):
     if kind(value) == "session":
         if not force:
             label = next(s["label"] for s in sessions() if s["session_id"] == value)
@@ -149,7 +149,7 @@ def delete(value, force):
         found = labelled(session_name(selected["path"]))
         if found:
             print(f"Rex session {session_name(selected['path'])} will be closed.", file=sys.stderr)
-        worktrees.delete_worktree(selected, force=force)
+        worktrees.delete_worktree(selected, force=force, confirm=confirm)
         if not Path(selected["path"]).exists():
             kill_sessions(found)
 
@@ -177,16 +177,26 @@ def error_message(error):
     return str(error) or type(error).__name__
 
 
-def create_named(value, name):
+def native_operation(operation, value, name=None):
     with tempfile.TemporaryFile(mode="w+t") as output:
+        def confirm(_):
+            output.seek(0)
+            result = rex_json("do", "workspace_deletion_confirm", "message=" + output.read())
+            return "ok" if result == "ok" else ""
+
         try:
             with contextlib.redirect_stderr(output):
-                create(value, name)
+                if operation == "create":
+                    create(value, name)
+                elif operation == "delete" and kind(value) == "tree":
+                    delete(value, False, confirm=confirm)
+                else:
+                    raise ValueError("Choose a Git worktree to delete.")
         except (subprocess.CalledProcessError, OSError, ValueError) as error:
             output.seek(0)
             message = "\n".join(filter(None, [error_message(error), output.read()[-4000:]]))
             subprocess.run(
-                ["rex", "do", "workspace_creation_failed", "message=" + message],
+                ["rex", "do", "workspace_operation_failed", "operation=" + operation, "message=" + message],
                 check=True, stdout=subprocess.DEVNULL,
             )
             raise
@@ -208,7 +218,9 @@ def main():
     elif mode == "create":
         create(sys.argv[2])
     elif mode == "create-named":
-        create_named(sys.argv[2], sys.argv[3])
+        native_operation("create", sys.argv[2], sys.argv[3])
+    elif mode == "delete-native":
+        native_operation("delete", sys.argv[2])
     else:
         raise ValueError(f"Unknown Rex worktree action: {mode}")
 

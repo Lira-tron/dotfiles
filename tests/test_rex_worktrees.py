@@ -1,9 +1,11 @@
 import importlib.util
 import base64
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -116,7 +118,6 @@ class RexOpenSessionTests(unittest.TestCase):
         # Then
         labelled.assert_called_once_with(rex_worktrees.session_name(Path("/tmp")), None)
 
-
 class RexSessionLabelTests(unittest.TestCase):
     def test_local_label_on_mac_has_no_prefix(self):
         with patch.object(rex_worktrees.sys, "platform", "darwin"):
@@ -133,7 +134,6 @@ class RexSessionLabelTests(unittest.TestCase):
     def test_prefixed_label_is_not_prefixed_twice(self):
         with patch.object(rex_worktrees.sys, "platform", "linux"):
             self.assertEqual(rex_worktrees.session_label("🥊-review", "lyhost"), "🥊-review")
-
 
 class RexPickServerTests(unittest.TestCase):
     def setUp(self):
@@ -223,7 +223,7 @@ class RexNamedWorktreeTests(unittest.TestCase):
             patch.object(rex_worktrees.worktrees, "create_worktree", return_value=None),
             patch.object(rex_worktrees, "open_session") as open_session,
         ):
-            rex_worktrees.create_named("none", "")
+            rex_worktrees.native_operation("create", "none", "")
         open_session.assert_not_called()
 
     def test_failure_displays_native_error_and_preserves_failure(self):
@@ -241,9 +241,9 @@ class RexNamedWorktreeTests(unittest.TestCase):
                 patch.object(rex_worktrees.subprocess, "run") as run,
                 self.assertRaises(type(failure)),
             ):
-                rex_worktrees.create_named("none", "feature-work")
+                rex_worktrees.native_operation("create", "none", "feature-work")
             run.assert_called_once_with(
-                ["rex", "do", "workspace_creation_failed", "message=" + message],
+                ["rex", "do", "workspace_operation_failed", "operation=create", "message=" + message],
                 check=True, stdout=subprocess.DEVNULL,
             )
 
@@ -257,9 +257,88 @@ class RexNamedWorktreeTests(unittest.TestCase):
             patch.object(rex_worktrees.subprocess, "run") as run,
             self.assertRaisesRegex(ValueError, "Worktree failed"),
         ):
-            rex_worktrees.create_named("none", "feature-work")
+            rex_worktrees.native_operation("create", "none", "feature-work")
         self.assertEqual(run.call_args.args[0][-1], "message=Worktree failed\nBrazil: disk full\n")
 
+
+class RexNativeDeletionTests(unittest.TestCase):
+    def setUp(self):
+        self.root = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.parent, self.target = self.root / "parent", self.root / "task"
+        self.parent.mkdir()
+        self.target.mkdir()
+        self.token = base64.urlsafe_b64encode(json.dumps({
+            "parent": str(self.parent), "path": str(self.target),
+        }).encode()).decode()
+        self.reply, self.prompts, self.session_list = "ok", [], []
+        self.enterContext(patch.dict(os.environ, {"HERDR_ENV": "0"}))
+        self.enterContext(patch.object(rex_worktrees.worktrees, "brazil_workspace", return_value=None))
+        self.status = self.enterContext(patch.object(
+            rex_worktrees.worktrees.subprocess, "check_output", return_value=b" M changed.txt\n",
+        ))
+        self.run = self.enterContext(patch.object(rex_worktrees.subprocess, "run"))
+        self.enterContext(patch.object(rex_worktrees, "rex_json", side_effect=self.rex_json))
+        self.enterContext(patch.object(
+            rex_worktrees.worktrees, "prompt", side_effect=AssertionError("No terminal confirmation"),
+        ))
+
+    def rex_json(self, *args):
+        if args == ("ls",):
+            return {"sessions": self.session_list}
+        self.assertEqual(args[:2], ("do", "workspace_deletion_confirm"))
+        self.prompts.append(args[2])
+        return self.reply
+
+    def test_delete_native_shows_existing_scope_and_dirty_warnings_before_deleting(self):
+        with patch.object(rex_worktrees.sys, "argv", [str(SOURCE), "delete-native", self.token]):
+            rex_worktrees.main()
+        self.assertEqual(len(self.prompts), 1)
+        self.assertTrue(self.prompts[0].startswith("message=Delete " + str(self.target) + "\n"))
+        self.assertIn("its Git branch and external artifacts are retained", self.prompts[0])
+        self.assertIn("Uncommitted changes will be discarded", self.prompts[0])
+        self.assertEqual(self.run.call_args.args[0], [
+            "git", "-C", str(self.parent), "worktree", "remove", str(self.target), "--force",
+        ])
+
+    def test_clean_worktree_deletion_does_not_force_removal(self):
+        self.status.return_value = b""
+        rex_worktrees.native_operation("delete", self.token)
+        self.assertEqual(self.run.call_args.args[0], [
+            "git", "-C", str(self.parent), "worktree", "remove", str(self.target),
+        ])
+
+    def test_only_explicit_ok_from_native_confirmation_deletes(self):
+        for reply in ("cancel", None, True, "yes"):
+            with self.subTest(reply=reply):
+                self.reply = reply
+                rex_worktrees.native_operation("delete", self.token)
+                self.run.assert_not_called()
+
+    def test_primary_checkout_is_rejected_before_native_confirmation(self):
+        token = base64.urlsafe_b64encode(json.dumps({
+            "parent": str(self.parent), "path": str(self.parent),
+        }).encode()).decode()
+        with self.assertRaisesRegex(ValueError, "primary checkout"):
+            rex_worktrees.native_operation("delete", token)
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.run.call_args.args[0][:4], [
+            "rex", "do", "workspace_operation_failed", "operation=delete",
+        ])
+
+    def test_legacy_artifacts_are_preserved_before_confirmation(self):
+        (self.target / ".ai").mkdir()
+        (self.target / ".ai/note.md").write_text("keep")
+        with self.assertRaisesRegex(ValueError, "Preserve and migrate"):
+            rex_worktrees.native_operation("delete", self.token)
+        self.assertEqual(self.prompts, [])
+        self.assertEqual((self.target / ".ai/note.md").read_text(), "keep")
+        self.assertEqual(self.run.call_args.args[0][0], "rex")
+
+    def test_native_delete_rejects_non_worktree_values(self):
+        for value in ("none", "session:test", str(self.target)):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "Choose a Git worktree"):
+                rex_worktrees.native_operation("delete", value)
+        self.assertEqual(self.prompts, [])
 
 if __name__ == "__main__":
     unittest.main()

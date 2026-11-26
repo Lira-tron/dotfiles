@@ -90,7 +90,7 @@ require("workspaces")
 rex.action({
   name = "create_session",
   title = "Create Session…",
-  description = "Choose this Mac or a remote host, then enter the session name",
+  description = "Create, open, or delete sessions on this Mac or a remote host",
   category = "Session",
   run = require("sessions").pick,
 })

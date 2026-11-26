@@ -90,6 +90,53 @@ class WorktreeFeatureTests(unittest.TestCase):
                 self.assertEqual(worktrees.worktree_feature(name, created), expected)
 
 
+class DeletionConfirmationTests(unittest.TestCase):
+    def test_native_confirmation_replaces_only_the_terminal_question(self):
+        with tempfile.TemporaryDirectory() as directory:
+            parent, target = Path(directory) / "parent", Path(directory) / "task"
+            parent.mkdir()
+            target.mkdir()
+            for status, answer in ((b"", "ok"), (b" M changed.txt\n", "ok"), (b" M changed.txt\n", "cancel")):
+                with (
+                    self.subTest(status=status, answer=answer),
+                    patch.dict(os.environ, {"HERDR_ENV": "0"}),
+                    patch.object(worktrees, "brazil_workspace", return_value=None),
+                    patch.object(worktrees.subprocess, "check_output", return_value=status),
+                    patch.object(worktrees.subprocess, "run") as run,
+                    patch.object(worktrees, "prompt", side_effect=AssertionError("Terminal prompt used")),
+                    contextlib.redirect_stderr(io.StringIO()) as output,
+                ):
+                    def confirm(message):
+                        self.assertIn("Type ok to delete", message)
+                        self.assertEqual("Uncommitted changes will be discarded" in output.getvalue(), bool(status))
+                        return answer
+
+                    worktrees.delete_worktree(
+                        {"parent": str(parent), "path": str(target)}, confirm=confirm,
+                    )
+                    self.assertEqual(run.call_count, 1 if answer == "ok" else 0)
+                    if answer == "ok":
+                        self.assertEqual("--force" in run.call_args.args[0], bool(status))
+
+    def test_failed_git_removal_raises_and_keeps_the_target(self):
+        with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryFile(mode="w+t") as output:
+            parent, target = Path(directory) / "not-a-repository", Path(directory) / "task"
+            parent.mkdir()
+            target.mkdir()
+            (target / "keep.txt").write_text("keep")
+            with (
+                patch.dict(os.environ, {"HERDR_ENV": "0"}),
+                patch.object(worktrees, "brazil_workspace", return_value=None),
+                patch.object(worktrees.subprocess, "check_output", return_value=b""),
+                contextlib.redirect_stderr(output),
+                self.assertRaises(subprocess.CalledProcessError),
+            ):
+                worktrees.delete_worktree(
+                    {"parent": str(parent), "path": str(target)}, confirm=lambda _: "ok",
+                )
+            self.assertEqual((target / "keep.txt").read_text(), "keep")
+
+
 class WorkplaceRootTests(unittest.TestCase):
     def test_all_worktrees_honor_the_root_override_and_default(self):
         for configured, expected in (("/tmp/my projects", "/tmp/my projects"), ("", "/example-home/workplace")):
