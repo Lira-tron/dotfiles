@@ -61,14 +61,17 @@ def select(session_id, server=None):
     )
 
 
-def session_label(label, server):
+def session_label(label, server, worktree=False):
     # Run on a Linux host, the picker's own Rex server is that remote host too.
     remote = server or sys.platform != "darwin"
-    return REMOTE_PREFIX + label if remote and not label.startswith(REMOTE_PREFIX) else label
+    prefix = REMOTE_PREFIX if remote else ""
+    if worktree:
+        prefix = "🥊🌴-" if remote else "🌴-"
+    return prefix + label if not label.startswith(prefix) else label
 
 
-def open_session(path, label=None, server=None):
-    label = session_label(label or session_name(path), server)
+def open_session(path, label=None, server=None, worktree=False):
+    label = session_label(label or session_name(path), server, worktree=worktree)
     found = labelled(label, server)
     # A local directory doesn't exist on a remote host, so a remote session starts in its home.
     cwd = [] if server else ["-c", str(path)]
@@ -112,7 +115,7 @@ def connect(value):
     elif kind(value) == "none":
         create(value)
     else:
-        open_session(tree(value)["path"])
+        open_session(tree(value)["path"], worktree=True)
 
 
 def preview(value):
@@ -146,9 +149,10 @@ def delete(value, force, confirm=None):
         kill_sessions([value])
     elif kind(value) == "tree":
         selected = tree(value)
-        found = labelled(session_name(selected["path"]))
+        label = session_label(session_name(selected["path"]), None, worktree=True)
+        found = labelled(label)
         if found:
-            print(f"Rex session {session_name(selected['path'])} will be closed.", file=sys.stderr)
+            print(f"Rex session {label} will be closed.", file=sys.stderr)
         worktrees.delete_worktree(selected, force=force, confirm=confirm)
         if not Path(selected["path"]).exists():
             kill_sessions(found)
@@ -168,7 +172,7 @@ def create(value, name=None):
         selected = {"parent": parent, "path": parent}
     created = worktrees.create_worktree(selected, name=name)
     if created:
-        open_session(created["path"])
+        open_session(created["path"], worktree=True)
 
 
 def error_message(error):

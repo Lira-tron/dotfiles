@@ -118,6 +118,23 @@ class RexOpenSessionTests(unittest.TestCase):
         # Then
         labelled.assert_called_once_with(rex_worktrees.session_name(Path("/tmp")), None)
 
+    def test_worktree_sessions_get_the_marker_and_reuse_matching_sessions(self):
+        for platform, label in (("darwin", "🌴-tmp"), ("linux", "🥊🌴-tmp")):
+            with (
+                self.subTest(platform=platform),
+                patch.object(rex_worktrees.sys, "platform", platform),
+                patch.object(rex_worktrees, "labelled", return_value=[]) as labelled,
+            ):
+                self.rex_json.reset_mock()
+                rex_worktrees.open_session(Path("/tmp"), worktree=True)
+                labelled.assert_called_once_with(label, None)
+                self.rex_json.assert_called_once_with("new", label, "-c", "/tmp")
+                self.rex_json.reset_mock()
+                labelled.return_value = [SESSION]
+                rex_worktrees.open_session(Path("/tmp"), worktree=True)
+                self.rex_json.assert_not_called()
+
+
 class RexSessionLabelTests(unittest.TestCase):
     def test_local_label_on_mac_has_no_prefix(self):
         with patch.object(rex_worktrees.sys, "platform", "darwin"):
@@ -134,6 +151,17 @@ class RexSessionLabelTests(unittest.TestCase):
     def test_prefixed_label_is_not_prefixed_twice(self):
         with patch.object(rex_worktrees.sys, "platform", "linux"):
             self.assertEqual(rex_worktrees.session_label("🥊-review", "lyhost"), "🥊-review")
+
+    def test_worktree_prefixes_are_correct_and_idempotent(self):
+        for platform, server, expected in (
+            ("darwin", None, "🌴-review"),
+            ("darwin", "lyhost", "🥊🌴-review"),
+            ("linux", None, "🥊🌴-review"),
+        ):
+            with self.subTest(platform=platform, server=server), patch.object(rex_worktrees.sys, "platform", platform):
+                self.assertEqual(rex_worktrees.session_label("review", server, worktree=True), expected)
+                self.assertEqual(rex_worktrees.session_label(expected, server, worktree=True), expected)
+
 
 class RexPickServerTests(unittest.TestCase):
     def setUp(self):
@@ -215,7 +243,16 @@ class RexNamedWorktreeTests(unittest.TestCase):
                 rex_worktrees.main()
                 expected = selected if value == token else {"parent": selected["parent"], "path": selected["parent"]}
                 create.assert_called_once_with(expected, name="feature-work")
-                open_session.assert_called_once_with("/created")
+                open_session.assert_called_once_with("/created", worktree=True)
+
+    def test_opening_worktrees_and_directories_keeps_their_markers_distinct(self):
+        token = base64.urlsafe_b64encode(json.dumps({"path": "/tmp/task"}).encode()).decode()
+        with patch.object(rex_worktrees, "open_session") as open_session:
+            rex_worktrees.connect(token)
+            open_session.assert_called_once_with("/tmp/task", worktree=True)
+            open_session.reset_mock()
+            rex_worktrees.connect("/tmp/task")
+            open_session.assert_called_once_with("/tmp/task")
 
     def test_cancelled_creation_does_not_open_a_session(self):
         with (
@@ -339,6 +376,20 @@ class RexNativeDeletionTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaisesRegex(ValueError, "Choose a Git worktree"):
                 rex_worktrees.native_operation("delete", value)
         self.assertEqual(self.prompts, [])
+
+    def test_deleting_a_worktree_closes_only_its_marked_session_after_removal(self):
+        self.session_list = [
+            {"session_id": "session:tree", "label": "🥊🌴-task"},
+            {"session_id": "session:directory", "label": "🥊-task"},
+        ]
+        with (
+            patch.object(rex_worktrees.sys, "platform", "linux"),
+            patch.object(rex_worktrees.worktrees, "delete_worktree", side_effect=lambda *a, **kw: self.target.rmdir()),
+            patch.object(rex_worktrees, "kill_sessions") as kill,
+        ):
+            rex_worktrees.delete(self.token, False)
+        kill.assert_called_once_with(["session:tree"])
+
 
 if __name__ == "__main__":
     unittest.main()
