@@ -1,45 +1,53 @@
 -- Run from the repository root: lua tests/test_init.lua
-local action, bindings, calls, picks, inputs, queued, warnings
-local hosts, answers, name, failures, exec_error, encoded, response
+local actions, bindings, calls, picks, inputs, selections
+local hosts, choice, picked_host, name, create_error, exec_error, select_error, encoded, response
 local source = arg[1] or "home/.config/rex/init.lua"
 
-local function api(host, method, args)
-  calls[#calls + 1] = { host = host, method = method, args = args }
-  if failures[host .. ":" .. method] then
-    return nil, failures[host .. ":" .. method]
-  end
-  if method == "session.list" then
-    return { sessions = { { session_id = "session:" .. host, label = host .. " work" } } }
-  end
-  assert(method == "session.create")
+local function create(host, method, args)
+  assert(method == "session.create", "creation must not enumerate sessions or activity")
+  calls[#calls + 1] = { host = host, args = args }
+  if create_error then return nil, create_error end
   return { session_id = "session:new-" .. host }
 end
 
 local function setup()
-  bindings, calls, picks, inputs, queued, warnings = {}, {}, {}, {}, {}, {}
-  hosts, answers, name, failures, exec_error = { "lyhost", "devbox" }, {}, "review", {}, nil
+  actions, bindings, calls, picks, inputs, selections = {}, {}, {}, {}, {}, {}
+  hosts, picked_host, name = { "lyhost", "devbox" }, "devbox", "review"
+  choice = "remote"
+  create_error, exec_error, select_error = nil, nil, nil
   rex = {
-    action = function(value)
-      if value.name == "session_picker_native" then action = value end
-    end,
+    action = function(value) actions[value.name] = value end,
     bind = function(key, value) bindings[key] = value end,
     mode = function() end,
     servers = function() return hosts end,
     server = function(host)
-      return { call = function(method, args) return api(host, method, args) end }
+      return { call = function(method, args)
+        return create(host, method, args)
+      end }
     end,
-    -- The default API follows the focused remote pane and must never be used
-    -- to discover or create local sessions.
     call = function() error("Used the focused pane's host instead of the chosen host") end,
     exec = function(argv)
       assert(argv[1] == "/bin/zsh" and argv[2] == "-c")
       assert(argv[3]:find("unset REX_SERVER REX_SESSION REX_BLOCK REX_CLIENT", 1, true))
       assert(argv[3]:find('exec rex "$@"', 1, true), "arguments must not be shell-interpolated")
-      assert(argv[4] == "rex" and argv[5] == "api" and argv[6] == "call")
+      assert(argv[4] == "rex")
       if exec_error then return nil, exec_error end
-      local err
-      response, err = api("local", argv[7], encoded)
-      return { ok = response ~= nil, stdout = "response", stderr = err }
+      if argv[5] == "api" then
+        assert(argv[6] == "call")
+        local err
+        response, err = create("local", argv[7], encoded)
+        return { ok = response ~= nil, stdout = "response", stderr = err }
+      end
+      local host, offset = "local", 5
+      if argv[offset] == "-S" then host, offset = argv[offset + 1], offset + 2 end
+      assert(argv[offset] == "do" and argv[offset + 1] == "session.select")
+      if select_error then return { ok = false, stderr = select_error } end
+      local id = argv[offset + 2]:match("^session_id=(.+)$")
+      if id ~= "session:new-" .. host then
+        return { ok = false, stderr = "Session was not found on this server" }
+      end
+      selections[#selections + 1] = { host = host, session_id = id }
+      return { ok = true, stdout = "" }
     end,
     json = {
       encode = function(value) encoded = value; return "request" end,
@@ -48,13 +56,13 @@ local function setup()
     ui = {
       pick = function(opts)
         picks[#picks + 1] = opts
-        return answers[#picks]
+        if #picks == 1 then return choice end
+        return picked_host
       end,
       input = function(opts) inputs[#inputs + 1] = opts; return name end,
     },
     layout = { block = function(opts) return { block = opts } end },
-    client = { queue = function(cmd, args) queued[#queued + 1] = { cmd = cmd, args = args } end },
-    log = function(level, message) warnings[#warnings + 1] = { level, message } end,
+    client = { queue = function() error("Selection must be sent through its owning host") end },
   }
   -- Worktree actions have their own unit suite.
   local workspaces = package.loaded.workspaces
@@ -64,7 +72,7 @@ local function setup()
 end
 
 local function run()
-  return action.run({ server = "lyhost", session_id = "session:lyhost", block_id = "block:remote" })
+  return actions.create_session.run({ server = "lyhost", session_id = "session:lyhost", block_id = "block:remote" })
 end
 
 local function test(title, fn)
@@ -77,119 +85,96 @@ local function test(title, fn)
   print("PASS: " .. title)
 end
 
-local function created()
-  for _, call in ipairs(calls) do
-    if call.method == "session.create" then return call end
-  end
-end
-
-test("the experimental shortcut preserves existing session and activity shortcuts", function()
-  assert(bindings["shift+cmd+f"] == "session_picker_native")
+test("Shift+Cmd+N opens only session creation while native shortcuts stay intact", function()
+  assert(actions.session_picker_native == nil and bindings["shift+cmd+n"] == "create_session")
+  assert(bindings["shift+cmd+f"] == nil)
+  assert(actions.new_local_session == nil and actions.new_remote_session == nil)
+  assert(actions.create_session.title == "Create Session…")
   assert(bindings["shift+cmd+s"] == "session.switch")
   assert(bindings["shift+cmd+a"] == "client.sidebar.activity.toggle")
+  assert(bindings["ctrl+a>shift+s"] == "session.new")
   assert(bindings["ctrl+a>f"] == "session.switch")
   assert(bindings["ctrl+a>g"] == "session.switch")
   assert(bindings["ctrl+a>w"] == "session.switch")
 end)
 
-test("lists creation actions and sessions with native icons and host labels", function()
+test("the initial picker offers only local and remote creation", function()
+  choice = nil
   run()
-  local items = picks[1].items
-  assert(#items == 5)
-  assert(items[1].id == "new_local" and items[2].id == "new_remote")
-  assert(items[3].id == "session:local" and items[3].subtitle == "This Mac")
-  assert(items[3].icon == "terminal")
-  assert(items[4].id == "session:lyhost" and items[4].subtitle == "lyhost")
-  assert(items[4].icon == "server" and items[5].subtitle == "devbox")
-  assert(created() == nil and #queued == 0 and #inputs == 0)
-end)
-
-test("switches to existing local and remote sessions without creating one", function()
-  for _, id in ipairs({ "session:local", "session:lyhost", "session:devbox" }) do
-    setup()
-    answers = { id }
-    run()
-    assert(created() == nil and #inputs == 0 and #queued == 1)
-    assert(queued[1].cmd == "session.select" and queued[1].args.session_id == id)
-  end
+  assert(#picks == 1 and #picks[1].items == 2)
+  assert(picks[1].items[1].id == "local" and picks[1].items[1].title == "New session…")
+  assert(picks[1].items[2].id == "remote" and picks[1].items[2].title == "New remote session…")
+  assert(#calls == 0 and #inputs == 0 and #selections == 0)
 end)
 
 test("local creation stays on the Mac while a remote pane is selected", function()
-  answers, name = { "new_local" }, "  review  "
+  choice, name, hosts = "local", "  review  ", {}
   run()
-  assert(created().host == "local" and created().args.label == "review")
-  assert(created().args.initial_windows[1].layout.block.flavor == "com.superlogical.terminal.shell")
-  assert(queued[1].args.session_id == "session:new-local")
   assert(#picks == 1 and #inputs == 1)
+  assert(#calls == 1 and calls[1].host == "local" and calls[1].args.label == "review")
+  assert(#selections == 1 and selections[1].host == "local")
 end)
 
-test("remote creation uses the chosen host and prefixes the name exactly once", function()
-  for _, label in ipairs({ "review", "🥊-review" }) do
+test("chooses a host and applies its prefix exactly once", function()
+  for _, label in ipairs({ "review", "🥊-review", "  review  " }) do
     setup()
-    answers, name = { "new_remote", "devbox" }, label
+    name = label
     run()
-    assert(picks[2].items[1].id == "lyhost" and picks[2].items[2].id == "devbox")
+    assert(#picks == 2 and picks[2].items[1].id == "lyhost" and picks[2].items[2].id == "devbox")
     assert(inputs[1].title == "New session on devbox")
-    assert(created().host == "devbox" and created().args.label == "🥊-review")
-    assert(queued[1].args.session_id == "session:new-devbox")
+    assert(#calls == 1 and calls[1].host == "devbox" and calls[1].args.label == "🥊-review")
+    assert(calls[1].args.initial_windows[1].layout.block.flavor == "com.superlogical.terminal.shell")
+    assert(#selections == 1 and selections[1].host == "devbox")
   end
 end)
 
-test("cancelling host selection performs no creation and asks for no name", function()
-  answers = { "new_remote" }
+test("cancelling the host prompt creates nothing", function()
+  picked_host = nil
   run()
-  assert(created() == nil and #inputs == 0 and #queued == 0)
+  assert(#calls == 0 and #inputs == 0 and #selections == 0)
 end)
 
-test("cancelled and blank names create nothing on either host", function()
-  for _, choice in ipairs({ "new_local", "new_remote" }) do
+test("cancelled and blank names create nothing", function()
+  for _, target in ipairs({ "local", "remote" }) do
     for _, value in ipairs({ false, "", " \t " }) do
       setup()
-      answers, name = { choice, "lyhost" }, value or nil
+      choice, name = target, value or nil
       run()
-      assert(created() == nil and #queued == 0)
+      assert(#calls == 0 and #selections == 0)
     end
   end
 end)
 
-test("session names are passed as data including shell metacharacters", function()
-  answers, name = { "new_local" }, 'review $(touch /tmp/unwanted) `echo no` "quoted"'
+test("names with shell metacharacters stay data", function()
+  name = 'review $(touch /tmp/unwanted) `echo no` "quoted"'
   run()
-  assert(created().args.label == name)
+  assert(calls[1].args.label == "🥊-" .. name)
 end)
 
 test("no remote hosts does not silently create locally", function()
-  hosts, answers = {}, { "new_remote" }
+  hosts = {}
   local ok, err = pcall(run)
   assert(not ok and err:find("No connected remote hosts", 1, true))
-  assert(created() == nil and #queued == 0 and #inputs == 0)
+  assert(#calls == 0 and #inputs == 0 and #picks == 1)
 end)
 
-test("an unavailable remote host does not hide sessions on other hosts", function()
-  failures["lyhost:session.list"] = "Host disconnected"
-  run()
-  assert(#picks[1].items == 4 and picks[1].items[4].subtitle == "devbox")
-  assert(#warnings == 1 and warnings[1][2]:find("Host disconnected", 1, true))
-end)
-
-test("creation errors are surfaced without selecting a session", function()
-  for _, host in ipairs({ "local", "lyhost" }) do
+test("creation errors prevent selection", function()
+  for _, target in ipairs({ "local", "remote" }) do
     setup()
-    failures[host .. ":session.create"] = "Session limit reached"
-    answers = { host == "local" and "new_local" or "new_remote", host }
+    choice, create_error = target, "Session limit reached"
     local ok, err = pcall(run)
-    assert(not ok and err == "Session limit reached" and #queued == 0)
+    assert(not ok and err == create_error and #selections == 0)
   end
 end)
 
-test("local discovery failures are surfaced without showing incomplete results", function()
-  failures["local:session.list"] = "Local server unavailable"
+test("selection errors are reported without creating a second session", function()
+  select_error = "Go to Session failed on devbox"
   local ok, err = pcall(run)
-  assert(not ok and err == "Local server unavailable" and #picks == 0)
+  assert(not ok and err == select_error and #calls == 1 and #selections == 0)
 end)
 
-test("failure launching the local CLI is surfaced", function()
+test("CLI launch failures are surfaced", function()
   exec_error = "Could not launch rex"
   local ok, err = pcall(run)
-  assert(not ok and err == exec_error and #picks == 0)
+  assert(not ok and err == exec_error and #calls == 1 and #selections == 0)
 end)

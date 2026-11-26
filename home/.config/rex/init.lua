@@ -87,96 +87,78 @@ rex.bind("shift+cmd+x", "session_close_confirm")
 
 require("workspaces")
 
-local REMOTE_PREFIX = "🥊-"
-
-local function session_call(host, method, args)
-  if host then
-    return rex.server(host).call(method, args)
-  end
-  -- rex.call follows the focused pane's host. The CLI here runs on the home
-  -- server, so "local" still means the Mac when a remote pane is selected.
-  local result, err = rex.exec({
+local function session_command(args)
+  local argv = {
     "/bin/zsh", "-c",
     'unset REX_SERVER REX_SESSION REX_BLOCK REX_CLIENT; '
       .. 'export PATH="$PATH:$HOME/Library/Application Support/com.superlogical.rex/RexServer/Versions/Current/Rex Server.app/Contents/MacOS"; '
       .. 'exec rex "$@"',
-    "rex", "api", "call", method, rex.json.encode(args or {}),
-  })
-  if not result then return nil, err end
-  if not result.ok then return nil, result.stderr end
-  return rex.json.decode(result.stdout)
-end
-
-local function append_sessions(items, host)
-  local result, err = session_call(host, "session.list")
-  if not result then
-    if not host then error(err, 0) end
-    rex.log("warn", "Could not list sessions on " .. host .. ": " .. err)
-    return
-  end
-  for _, session in ipairs(result.sessions or {}) do
-    items[#items + 1] = {
-      id = session.session_id,
-      title = session.label,
-      subtitle = host or "This Mac",
-      icon = host and "server" or "terminal",
-    }
-  end
-end
-
-local function create_session(host)
-  local name = rex.ui.input({
-    title = host and ("New session on " .. host) or "New local session",
-    placeholder = "Session name",
-    confirm = "Create session",
-  })
-  if name == nil then return end
-  name = name:match("^%s*(.-)%s*$")
-  if name == "" then return end
-  if host and name:sub(1, #REMOTE_PREFIX) ~= REMOTE_PREFIX then
-    name = REMOTE_PREFIX .. name
-  end
-  local created, err = session_call(host, "session.create", {
-    label = name,
-    initial_windows = {
-      { layout = rex.layout.block({ flavor = "com.superlogical.terminal.shell" }) },
-    },
-  })
-  if not created then error(err, 0) end
-  rex.client.queue("session.select", { session_id = created.session_id })
+    "rex",
+  }
+  for _, value in ipairs(args) do argv[#argv + 1] = value end
+  local result, err = rex.exec(argv)
+  if not result then error(err, 0) end
+  if not result.ok then error(result.stderr, 0) end
+  return result.stdout
 end
 
 rex.action({
-  name = "session_picker_native",
-  title = "Open Session (Custom Native)…",
-  description = "Switch sessions or create a named local or remote session",
+  name = "create_session",
+  title = "Create Session…",
+  description = "Choose a local or remote session, then enter its name",
+  category = "Session",
   run = function()
-    local hosts = rex.servers()
-    local items = {
-      { id = "new_local", title = "New local session…", icon = "plus" },
-      { id = "new_remote", title = "New remote session…", icon = "server" },
-    }
-    append_sessions(items)
-    for _, host in ipairs(hosts) do
-      append_sessions(items, host)
-    end
-    local choice = rex.ui.pick({ title = "Sessions", placeholder = "Filter sessions", items = items })
+    local choice = rex.ui.pick({
+      title = "Create session",
+      items = {
+        { id = "local", title = "New session…", subtitle = "This Mac", icon = "terminal" },
+        { id = "remote", title = "New remote session…", icon = "server" },
+      },
+    })
     if choice == nil then return end
-    if choice == "new_local" then
-      return create_session()
-    end
-    if choice == "new_remote" then
+    local host
+    if choice == "remote" then
+      local hosts = rex.servers()
       if #hosts == 0 then error("No connected remote hosts are available.", 0) end
-      local host_items = {}
-      for _, host in ipairs(hosts) do
-        host_items[#host_items + 1] = { id = host, title = host, icon = "server" }
+      local items = {}
+      for _, server in ipairs(hosts) do
+        items[#items + 1] = { id = server, title = server, icon = "server" }
       end
-      local host = rex.ui.pick({ title = "Create session on host", items = host_items })
+      host = rex.ui.pick({ title = "Create session on host", items = items })
       if host == nil then return end
-      return create_session(host)
     end
-    rex.client.queue("session.select", { session_id = choice })
+    local name = rex.ui.input({
+      title = host and ("New session on " .. host) or "New local session",
+      placeholder = "Session name",
+      confirm = "Create session",
+    })
+    if name == nil then return end
+    name = name:match("^%s*(.-)%s*$")
+    if name == "" then return end
+    local prefix = "🥊-"
+    if host and name:sub(1, #prefix) ~= prefix then name = prefix .. name end
+    local request = {
+      label = name,
+      initial_windows = {
+        { layout = rex.layout.block({ flavor = "com.superlogical.terminal.shell" }) },
+      },
+    }
+    local created, err
+    if host then
+      created, err = rex.server(host).call("session.create", request)
+    else
+      -- A local session belongs to the Mac even when the focused pane is remote.
+      created = rex.json.decode(session_command({ "api", "call", "session.create", rex.json.encode(request) }))
+    end
+    if not created then error(err, 0) end
+    -- session.select resolves IDs on the server that sent the client action.
+    local args = { "do", "session.select", "session_id=" .. created.session_id }
+    if host then
+      table.insert(args, 1, host)
+      table.insert(args, 1, "-S")
+    end
+    session_command(args)
   end,
 })
 
-rex.bind("shift+cmd+f", "session_picker_native")
+rex.bind("shift+cmd+n", "create_session")
