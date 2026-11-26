@@ -43,6 +43,7 @@ endif
 	brew install --cask corretto@17
 	brew install --cask corretto@11
 	brew install --cask corretto@8
+	brew install sozercan/repo/kaset
 	# brew install --cask alacritty
 	# brew install --cask wezterm
 	# brew install --cask nikitabobko/tap/aerospace
