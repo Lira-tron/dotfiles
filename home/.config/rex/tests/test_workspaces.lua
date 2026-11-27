@@ -340,12 +340,12 @@ test("directory session closure is forwarded to its host and rejects tree tokens
   end
 end)
 
-test("worktree confirmation offers only No and Yes with warnings in the subtitle", function()
+test("worktree confirmation offers only No and Yes with the name in the subtitle", function()
   for _, force in ipairs({ false, true }) do
     for _, reply in ipairs({ false, "cancel", "delete" }) do
       setup(false)
       selection = reply or nil
-      local message = "Delete /tmp/task\nThis removes all package branches.\nUncommitted changes will be discarded."
+      local message = "🥊🌴-feature-work"
       local result = actions.workspace_deletion_confirm.run(ctx, { message = message, force = force })
       assert(result == (reply == "delete" and "ok" or "cancel"))
       assert(#picks == 1 and #picks[1].items == 2 and layer == nil)

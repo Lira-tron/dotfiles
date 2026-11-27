@@ -69,7 +69,7 @@ T.test("native confirmation accepts only explicit approval and preserves force i
   local state = { reply = "ok", confirmations = {}, deleted = 0, failures = {}, force = false }
   T.patch(actions, "delete", function(value, force, confirm)
     assert(value == "tree:00" and force == state.force)
-    if confirm("Full deletion scope\nDirty files") then state.deleted = state.deleted + 1 end
+    if confirm("Full deletion scope\nDirty files", "🥊🌴-feature-work") then state.deleted = state.deleted + 1 end
   end)
   T.patch(rex, "invoke", function(operation, args)
     if operation == "workspace_deletion_confirm" then
@@ -88,7 +88,7 @@ T.test("native confirmation accepts only explicit approval and preserves force i
     end
   end
   assert(state.deleted == 2 and #state.confirmations == 8)
-  assert(state.confirmations[1] == "Full deletion scope\nDirty files")
+  assert(state.confirmations[1] == "🥊🌴-feature-work")
   T.patch(actions, "create", function() error("Git creation failed", 0) end)
   T.raises("Git creation failed", function() actions.native("create", "none", "feature", "/cwd") end)
   assert(state.failures[1].operation == "create" and state.failures[1].message == "Git creation failed")
@@ -116,8 +116,9 @@ T.test("worktree removal closes only its marked session after confirmed success"
     return state.removed
   end)
   local token = trees.token({ parent = "/parent", path = "/task" })
-  local function confirm(message)
+  local function confirm(message, label)
     assert(message:find("Rex session Renamed tree will be closed.", 1, true))
+    assert(label == "Renamed tree")
     return state.approved
   end
   actions.delete(token, false, confirm)
@@ -125,6 +126,16 @@ T.test("worktree removal closes only its marked session after confirmed success"
   state.approved = true
   actions.delete(token, false, confirm)
   assert(#state.killed == 1 and state.killed[1] == "rex|session|kill|session:tree")
+  T.patch(actions, "sessions_by_path", function() return {} end)
+  T.patch(actions, "session_name", function(path)
+    assert(path == "/task")
+    return "Task worktree"
+  end)
+  actions.delete(token, false, function(message, label)
+    assert(message == "Deletion scope" and label == "Task worktree")
+    return false
+  end)
+  assert(#state.killed == 1)
 end)
 
 T.test("session entries replace tree and folder names and sort before unmatched paths", function()

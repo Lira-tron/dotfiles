@@ -54,7 +54,7 @@ local function confirm_delete(label, location)
     title = "Delete " .. label .. " on " .. location .. "?",
     items = {
       { id = "cancel", title = "No" },
-      { id = "delete", title = "Yes", subtitle = "All its tabs and programs will close. Files are kept.", icon = "document" },
+      { id = "delete", title = "Yes", subtitle = label, icon = "document" },
     },
   }) == "delete"
 end

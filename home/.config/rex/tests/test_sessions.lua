@@ -170,7 +170,7 @@ test("deleting a folder session closes it only after confirmation and keeps the 
     answers = { "dir:/tmp/my projects/project/", "delete", reply }
     sessions.pick(ctx)
     assert(#picks == 3 and #inputs == 0)
-    assert(picks[3].items[2].subtitle:find("Files are kept", 1, true))
+    assert(picks[3].items[2].subtitle == "Folder session")
     if reply == "delete" then
       assert(#workspace_calls == 2 and workspace_calls[2].operation == "close_session")
       assert(workspace_calls[2].value == "session:folder" and workspace_calls[2].ctx == ctx)

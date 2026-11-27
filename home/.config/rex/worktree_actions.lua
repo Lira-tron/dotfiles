@@ -193,7 +193,7 @@ function M.delete(value, force, confirm)
   end
   local removed = trees.delete(selected, force, function(message)
     if #found > 0 then message = "Rex session " .. table.concat(labels, ", ") .. " will be closed.\n" .. message end
-    return confirm(message)
+    return confirm(message, labels[1] or M.session_name(selected.path))
   end)
   if removed and not fs.test("-e", selected.path) then kill(found) end
 end
@@ -204,8 +204,8 @@ function M.native(operation, value, name, cwd, force)
       if type(name) ~= "string" then error("A worktree name is required.", 0) end
       M.create(value, name, cwd)
     elseif operation == "delete" and value:sub(1, 5) == "tree:" then
-      M.delete(value, force == true, function(message)
-        return rex.invoke("workspace_deletion_confirm", { message = message, force = force == true }) == "ok"
+      M.delete(value, force == true, function(_, label)
+        return rex.invoke("workspace_deletion_confirm", { message = label, force = force == true }) == "ok"
       end)
     else
       error("Choose a Git worktree to delete.", 0)
