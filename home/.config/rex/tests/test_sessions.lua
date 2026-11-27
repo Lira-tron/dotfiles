@@ -155,7 +155,7 @@ test("directory shortcuts are in the session menu and open on the pane's host", 
   choice = "dir:/tmp/my projects/project/"
   sessions.pick(ctx)
   local directory = picks[1].items[4]
-  assert(directory.title == "[dir] project" and directory.icon == "folder")
+  assert(directory.title == "project" and directory.icon == "folder" and directory.detail == "dir")
   assert(directory.subtitle == "lyhost · /tmp/my projects/project/")
   assert(#workspace_calls == 2)
   assert(workspace_calls[1].operation == "directories" and workspace_calls[1].ctx == ctx)
@@ -176,7 +176,7 @@ test("a folder session replaces its directory row and opens the existing session
   answers = { "remote:lyhost/session:renamed", "connect" }
   sessions.pick(ctx)
   local entry = picks[1].items[4]
-  assert(#picks[1].items == 4 and entry.title == "[session] My renamed session")
+  assert(#picks[1].items == 4 and entry.title == "My renamed session" and entry.detail == "session")
   assert(entry.subtitle == "lyhost" and entry.icon == "terminal")
   assert(#picks == 2 and #picks[2].items == 2 and #inputs == 0)
   assert(picks[2].items[1].title == "Open" and picks[2].items[2].title == "Delete")
@@ -219,7 +219,7 @@ test("directory session deletion errors do not fall back to a different host", f
   assert(#workspace_calls == 1 and #closed == 0 and #calls == 0)
 end)
 
-test("all sessions are listed independently of directories with searchable type labels", function()
+test("all sessions are listed independently of directories with type details and unchanged titles", function()
   listed.local_mac = { { session_id = "session:mac", label = "Notes" } }
   listed.lyhost = { { session_id = "session:remote", label = "Build" } }
   listed.devbox = { { session_id = "session:other", label = "Browser only" } }
@@ -228,11 +228,14 @@ test("all sessions are listed independently of directories with searchable type 
   local found = {}
   for _, item in ipairs(picks[1].items) do found[item.id] = item end
   assert(#picks[1].items == 7)
-  assert(found["local/session:mac"].title == "[session] Notes")
+  assert(found["local/session:mac"].title == "Notes")
+  assert(found["local/session:mac"].detail == "session")
   assert(found["local/session:mac"].subtitle == "This Mac")
   assert(found["remote:lyhost/session:remote"].subtitle == "lyhost")
-  assert(found["remote:devbox/session:other"].title == "[session] Browser only")
-  assert(found["dir:/tmp/my projects/project/"].title == "[dir] project")
+  assert(found["remote:devbox/session:other"].title == "Browser only")
+  assert(found["remote:devbox/session:other"].detail == "session")
+  assert(found["dir:/tmp/my projects/project/"].title == "project")
+  assert(found["dir:/tmp/my projects/project/"].detail == "dir")
   for _, id in ipairs({ "local", "remote:lyhost", "remote:devbox" }) do
     assert(not found[id].title:lower():find("session", 1, true), "creation actions must not match the session tag")
   end
@@ -271,7 +274,7 @@ test("a matching local session hides its directory and opens locally from the Ma
   directory_rows[1].session_id = "session:mac"
   answers = { "local/session:mac", "connect" }
   sessions.pick(ctx)
-  assert(#picks[1].items == 4 and picks[1].items[4].title == "[session] Local project")
+  assert(#picks[1].items == 4 and picks[1].items[4].title == "Local project")
   assert(#selections == 1 and selections[1].host == "local" and #calls == 0)
 end)
 
@@ -282,7 +285,7 @@ test("a session discovered during directory scanning is added once", function()
   sessions.pick(ctx)
   assert(#picks[1].items == 4)
   assert(picks[1].items[4].id == "remote:lyhost/session:late")
-  assert(picks[1].items[4].title == "[session] New arrival")
+  assert(picks[1].items[4].title == "New arrival")
 end)
 
 test("sessions with the same label open and close on their own host", function()

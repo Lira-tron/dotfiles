@@ -46,7 +46,7 @@ local function items(ctx)
     if entries[id] then return end
     entries[id] = { session_id = session.session_id, label = session.label, host = host }
     choices[#choices + 1] = {
-      id = id, title = "[session] " .. session.label,
+      id = id, title = session.label, detail = "session",
       subtitle = host or "This Mac", icon = "terminal",
     }
   end
@@ -66,7 +66,7 @@ local function items(ctx)
         local id = "dir:" .. directory.path
         entries[id] = directory
         choices[#choices + 1] = {
-          id = id, title = "[dir] " .. directory.title,
+          id = id, title = directory.title, detail = "dir",
           subtitle = (ctx.server and ctx.server .. " · " or "") .. directory.path, icon = "folder",
         }
       end
