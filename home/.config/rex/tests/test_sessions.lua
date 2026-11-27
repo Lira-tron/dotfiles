@@ -1,7 +1,7 @@
 -- Run from the Rex config directory: lua tests/test_sessions.lua
 local sessions, calls, picks, inputs, selections, prompt_order
 local hosts, choice, name, create_error, exec_error, select_error, encoded, response
-local answers, close_error
+local answers, close_error, listed, list_error, closed
 local ctx, workspace_calls, directory_rows
 local source = arg[1] or "sessions.lua"
 
@@ -19,12 +19,17 @@ local function setup()
   choice = "remote:devbox"
   create_error, exec_error, select_error = nil, nil, nil
   answers, close_error = nil, nil
+  listed, list_error, closed = { local_mac = {}, lyhost = {}, devbox = {} }, nil, {}
   ctx, workspace_calls = { server = "lyhost", session_id = "session:test", block_id = "block:test" }, {}
   directory_rows = { { name = "project", title = "project", path = "/tmp/my projects/project/" } }
   rex = {
     servers = function() return hosts end,
     server = function(host)
       return { call = function(method, args)
+        if method == "session.list" then
+          if list_error then return nil, list_error end
+          return { sessions = listed[host] or {} }
+        end
         return create(host, method, args)
       end }
     end,
@@ -37,16 +42,30 @@ local function setup()
       if exec_error then return nil, exec_error end
       if argv[5] == "api" then
         assert(argv[6] == "call")
+        if argv[7] == "session.list" then
+          response = { sessions = listed.local_mac }
+          return { ok = true, stdout = "response" }
+        end
         local err
         response, err = create("local", argv[7], encoded)
         return { ok = response ~= nil, stdout = "response", stderr = err }
       end
       local host, offset = "local", 5
       if argv[offset] == "-S" then host, offset = argv[offset + 1], offset + 2 end
+      if argv[offset] == "session" then
+        assert(argv[offset + 1] == "kill")
+        if close_error then return { ok = false, stderr = close_error } end
+        closed[#closed + 1] = { host = host, session_id = argv[offset + 2] }
+        return { ok = true, stdout = "" }
+      end
       assert(argv[offset] == "do" and argv[offset + 1] == "session.select")
       if select_error then return { ok = false, stderr = select_error } end
       local id = argv[offset + 2]:match("^session_id=(.+)$")
-      if id ~= "session:new-" .. host then
+      local exists = id == "session:new-" .. host
+      for _, session in ipairs(listed[host == "local" and "local_mac" or host] or {}) do
+        exists = exists or id == session.session_id
+      end
+      if not exists then
         return { ok = false, stderr = "Session was not found on this server" }
       end
       selections[#selections + 1] = { host = host, session_id = id }
@@ -101,9 +120,9 @@ test("session choices show local creation and each remote host directly", functi
   local items = sessions.items()
   assert(#items == 3)
   assert(items[1].id == "local" and items[1].subtitle == "This Mac")
-  assert(items[2].id == "remote:lyhost" and items[2].title == "🥊 Create remote session")
+  assert(items[2].id == "remote:lyhost" and items[2].title == "🥊 Create remote…")
   assert(items[2].subtitle == "lyhost")
-  assert(items[3].id == "remote:devbox" and items[3].title == "🥊 Create remote session")
+  assert(items[3].id == "remote:devbox" and items[3].title == "🥊 Create remote…")
   assert(items[3].subtitle == "devbox")
 end)
 
@@ -120,7 +139,7 @@ test("the session picker chooses local or a host before asking for its name", fu
     sessions.pick(ctx)
     local host = target == "local" and "local" or target:sub(8)
     assert(#picks == 1 and #picks[1].items == 4, "no extra host or worktree menu")
-    assert(picks[1].items[1].title == "Create session" and picks[1].items[1].subtitle == "This Mac")
+    assert(picks[1].items[1].title == "Create…" and picks[1].items[1].subtitle == "This Mac")
     assert(picks[1].items[2].subtitle == "lyhost" and picks[1].items[3].subtitle == "devbox")
     assert(table.concat(prompt_order, ",") == "pick,input")
     assert(#inputs == 1)
@@ -136,7 +155,7 @@ test("directory shortcuts are in the session menu and open on the pane's host", 
   choice = "dir:/tmp/my projects/project/"
   sessions.pick(ctx)
   local directory = picks[1].items[4]
-  assert(directory.title == "project" and directory.icon == "folder")
+  assert(directory.title == "[dir] project" and directory.icon == "folder")
   assert(directory.subtitle == "lyhost · /tmp/my projects/project/")
   assert(#workspace_calls == 2)
   assert(workspace_calls[1].operation == "directories" and workspace_calls[1].ctx == ctx)
@@ -153,49 +172,140 @@ end)
 
 test("a folder session replaces its directory row and opens the existing session", function()
   directory_rows[1].session_id, directory_rows[1].title = "session:renamed", "My renamed session"
-  answers = { "dir:/tmp/my projects/project/", "connect" }
+  listed.lyhost = { { session_id = "session:renamed", label = "My renamed session" } }
+  answers = { "remote:lyhost/session:renamed", "connect" }
   sessions.pick(ctx)
   local entry = picks[1].items[4]
-  assert(#picks[1].items == 4 and entry.title == "My renamed session")
-  assert(entry.subtitle == nil and entry.icon == "terminal")
+  assert(#picks[1].items == 4 and entry.title == "[session] My renamed session")
+  assert(entry.subtitle == "lyhost" and entry.icon == "terminal")
   assert(#picks == 2 and #picks[2].items == 2 and #inputs == 0)
   assert(picks[2].items[1].title == "Open" and picks[2].items[2].title == "Delete")
-  assert(workspace_calls[2].operation == "connect" and workspace_calls[2].value == "session:renamed")
+  assert(#workspace_calls == 1 and #selections == 1)
+  assert(selections[1].host == "lyhost" and selections[1].session_id == "session:renamed")
 end)
 
 test("deleting a folder session closes it only after confirmation and keeps the directory", function()
   for _, reply in ipairs({ false, "cancel", "delete" }) do
     setup()
     directory_rows[1].session_id, directory_rows[1].title = "session:folder", "Folder session"
-    answers = { "dir:/tmp/my projects/project/", "delete", reply }
+    listed.lyhost = { { session_id = "session:folder", label = "Folder session" } }
+    answers = { "remote:lyhost/session:folder", "delete", reply }
     sessions.pick(ctx)
     assert(#picks == 3 and #inputs == 0)
     assert(picks[3].items[2].subtitle == "Folder session")
     if reply == "delete" then
-      assert(#workspace_calls == 2 and workspace_calls[2].operation == "close_session")
-      assert(workspace_calls[2].value == "session:folder" and workspace_calls[2].ctx == ctx)
+      assert(#closed == 1 and closed[1].host == "lyhost" and closed[1].session_id == "session:folder")
     else
-      assert(#workspace_calls == 1)
+      assert(#closed == 0)
     end
-    assert(#calls == 0)
+    assert(#calls == 0 and #workspace_calls == 1)
   end
 end)
 
 test("cancelling a folder session action leaves it alone", function()
   directory_rows[1].session_id = "session:folder"
-  answers = { "dir:/tmp/my projects/project/" }
+  listed.lyhost = { { session_id = "session:folder", label = "Folder session" } }
+  answers = { "remote:lyhost/session:folder" }
   sessions.pick(ctx)
   assert(#picks == 2 and #workspace_calls == 1 and #inputs == 0)
 end)
 
 test("directory session deletion errors do not fall back to a different host", function()
   directory_rows[1].session_id = "session:folder"
-  answers, close_error = { "dir:/tmp/my projects/project/", "delete", "delete" }, "Could not close session"
+  listed.lyhost = { { session_id = "session:folder", label = "Folder session" } }
+  answers, close_error = { "remote:lyhost/session:folder", "delete", "delete" }, "Could not close session"
   local ok, err = pcall(sessions.pick, ctx)
   assert(not ok and err == close_error)
-  assert(#workspace_calls == 2 and workspace_calls[2].operation == "close_session")
-  assert(workspace_calls[2].value == "session:folder" and workspace_calls[2].ctx == ctx)
-  assert(#calls == 0)
+  assert(#workspace_calls == 1 and #closed == 0 and #calls == 0)
+end)
+
+test("all sessions are listed independently of directories with searchable type labels", function()
+  listed.local_mac = { { session_id = "session:mac", label = "Notes" } }
+  listed.lyhost = { { session_id = "session:remote", label = "Build" } }
+  listed.devbox = { { session_id = "session:other", label = "Browser only" } }
+  choice = nil
+  sessions.pick(ctx)
+  local found = {}
+  for _, item in ipairs(picks[1].items) do found[item.id] = item end
+  assert(#picks[1].items == 7)
+  assert(found["local/session:mac"].title == "[session] Notes")
+  assert(found["local/session:mac"].subtitle == "This Mac")
+  assert(found["remote:lyhost/session:remote"].subtitle == "lyhost")
+  assert(found["remote:devbox/session:other"].title == "[session] Browser only")
+  assert(found["dir:/tmp/my projects/project/"].title == "[dir] project")
+  for _, id in ipairs({ "local", "remote:lyhost", "remote:devbox" }) do
+    assert(not found[id].title:lower():find("session", 1, true), "creation actions must not match the session tag")
+  end
+end)
+
+test("multiple sessions in one directory remain visible without duplicate directory or session entries", function()
+  listed.lyhost = {
+    { session_id = "session:a", label = "First" },
+    { session_id = "session:b", label = "Second" },
+  }
+  directory_rows[1].session_id = "session:a"
+  directory_rows[2] = { path = "/tmp/project-alias", title = "Alias", session_id = "session:a" }
+  choice = nil
+  sessions.pick(ctx)
+  assert(#picks[1].items == 5)
+  local seen = {}
+  for _, item in ipairs(picks[1].items) do
+    assert(not seen[item.id] and not item.id:match("^dir:"))
+    seen[item.id] = true
+  end
+  assert(seen["remote:lyhost/session:a"] and seen["remote:lyhost/session:b"])
+end)
+
+test("the focused remote host is listed even when absent from configured hosts", function()
+  hosts = {}
+  listed.lyhost = { { session_id = "session:focus", label = "Focused host" } }
+  choice = nil
+  sessions.pick(ctx)
+  assert(#picks[1].items == 4)
+  assert(picks[1].items[3].id == "remote:lyhost/session:focus")
+end)
+
+test("a matching local session hides its directory and opens locally from the Mac", function()
+  ctx.server = nil
+  listed.local_mac = { { session_id = "session:mac", label = "Local project" } }
+  directory_rows[1].session_id = "session:mac"
+  answers = { "local/session:mac", "connect" }
+  sessions.pick(ctx)
+  assert(#picks[1].items == 4 and picks[1].items[4].title == "[session] Local project")
+  assert(#selections == 1 and selections[1].host == "local" and #calls == 0)
+end)
+
+test("a session discovered during directory scanning is added once", function()
+  directory_rows[1].session_id, directory_rows[1].title = "session:late", "New arrival"
+  directory_rows[2] = { path = "/tmp/alias", session_id = "session:late", title = "New arrival" }
+  choice = nil
+  sessions.pick(ctx)
+  assert(#picks[1].items == 4)
+  assert(picks[1].items[4].id == "remote:lyhost/session:late")
+  assert(picks[1].items[4].title == "[session] New arrival")
+end)
+
+test("sessions with the same label open and close on their own host", function()
+  for _, host in ipairs({ "local", "lyhost", "devbox" }) do
+    for _, action in ipairs({ "connect", "delete" }) do
+      setup()
+      for _, key in ipairs({ "local_mac", "lyhost", "devbox" }) do
+        listed[key] = { { session_id = "session:same", label = "Same name" } }
+      end
+      local id = (host == "local" and "local" or "remote:" .. host) .. "/session:same"
+      answers = { id, action, "delete" }
+      sessions.pick(ctx)
+      local result = action == "connect" and selections or closed
+      assert(#result == 1 and result[1].host == host and result[1].session_id == "session:same")
+      assert(#calls == 0 and #inputs == 0 and #workspace_calls == 1)
+    end
+  end
+end)
+
+test("remote listing failures are surfaced without opening an incomplete picker", function()
+  list_error = "Remote host unavailable"
+  local ok, err = pcall(sessions.pick, ctx)
+  assert(not ok and err == list_error and #picks == 0 and #calls == 0)
 end)
 
 test("cancelling session selection asks for no name and creates nothing", function()

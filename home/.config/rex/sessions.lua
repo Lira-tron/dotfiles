@@ -19,12 +19,60 @@ local function session_command(args, host)
   return result.stdout
 end
 
-local function items()
-  local choices = { { id = "local", title = "Create session", subtitle = "This Mac", icon = "terminal" } }
-  for _, host in ipairs(rex.servers()) do
-    choices[#choices + 1] = { id = "remote:" .. host, title = "🥊 Create remote session", subtitle = host, icon = "server" }
+local function session_call(host, method, args)
+  if not host then
+    -- Local calls belong to the Mac even when the focused pane is remote.
+    return rex.json.decode(session_command({ "api", "call", method, rex.json.encode(args or {}) }))
   end
-  return choices
+  local result, err = rex.server(host).call(method, args or {})
+  if not result then error(err, 0) end
+  return result
+end
+
+local function items(ctx)
+  local hosts = rex.servers()
+  if ctx and ctx.server then
+    local found = false
+    for _, host in ipairs(hosts) do found = found or host == ctx.server end
+    if not found then hosts[#hosts + 1] = ctx.server end
+  end
+  local choices = { { id = "local", title = "Create…", subtitle = "This Mac", icon = "plus" } }
+  for _, host in ipairs(hosts) do
+    choices[#choices + 1] = { id = "remote:" .. host, title = "🥊 Create remote…", subtitle = host, icon = "plus" }
+  end
+  local entries = {}
+  local function add_session(session, host)
+    local id = (host and "remote:" .. host or "local") .. "/" .. session.session_id
+    if entries[id] then return end
+    entries[id] = { session_id = session.session_id, label = session.label, host = host }
+    choices[#choices + 1] = {
+      id = id, title = "[session] " .. session.label,
+      subtitle = host or "This Mac", icon = "terminal",
+    }
+  end
+  for _, session in ipairs(session_call(nil, "session.list").sessions or {}) do
+    add_session(session)
+  end
+  for _, host in ipairs(hosts) do
+    for _, session in ipairs(session_call(host, "session.list").sessions or {}) do
+      add_session(session, host)
+    end
+  end
+  if ctx then
+    for _, directory in ipairs(workspace_operation(ctx, "directories")) do
+      if directory.session_id then
+        add_session({ session_id = directory.session_id, label = directory.title }, ctx.server)
+      else
+        local id = "dir:" .. directory.path
+        entries[id] = directory
+        choices[#choices + 1] = {
+          id = id, title = "[dir] " .. directory.title,
+          subtitle = (ctx.server and ctx.server .. " · " or "") .. directory.path, icon = "folder",
+        }
+      end
+    end
+  end
+  return choices, entries
 end
 
 local function create(choice, name)
@@ -37,14 +85,7 @@ local function create(choice, name)
       { layout = rex.layout.block({ flavor = "com.superlogical.terminal.shell" }) },
     },
   }
-  local created, err
-  if host then
-    created, err = rex.server(host).call("session.create", request)
-  else
-    -- A local session belongs to the Mac even when the focused pane is remote.
-    created = rex.json.decode(session_command({ "api", "call", "session.create", rex.json.encode(request) }))
-  end
-  if not created then error(err, 0) end
+  local created = session_call(host, "session.create", request)
   -- session.select resolves IDs on the server that sent the client action.
   session_command({ "do", "session.select", "session_id=" .. created.session_id }, host)
 end
@@ -60,33 +101,24 @@ local function confirm_delete(label, location)
 end
 
 local function pick(ctx)
-  local choices = items()
-  local directories = {}
-  for _, directory in ipairs(workspace_operation(ctx, "directories")) do
-    local id = "dir:" .. directory.path
-    directories[id] = directory
-    choices[#choices + 1] = {
-      id = id,
-      title = directory.title,
-      subtitle = not directory.session_id and ((ctx.server and ctx.server .. " · " or "") .. directory.path) or nil,
-      icon = directory.session_id and "terminal" or "folder",
-    }
-  end
-  local choice = rex.ui.pick({ title = "Sessions", items = choices })
+  local choices, entries = items(ctx)
+  local choice = rex.ui.pick({ title = "Sessions", placeholder = "Search session, dir, or name", items = choices })
   if choice == nil then return end
-  if directories[choice] then
-    local directory = directories[choice]
-    if not directory.session_id then return workspace_operation(ctx, "connect", directory.path) end
+  if entries[choice] then
+    local entry = entries[choice]
+    if not entry.session_id then return workspace_operation(ctx, "connect", entry.path) end
     local action = rex.ui.pick({
-      title = directory.title,
+      title = entry.label,
       items = {
         { id = "connect", title = "Open", icon = "terminal" },
         { id = "delete", title = "Delete", subtitle = "Close the session; keep the directory", icon = "document" },
       },
     })
-    if action == "connect" then return workspace_operation(ctx, "connect", directory.session_id) end
-    if action == "delete" and confirm_delete(directory.title, ctx.server or "This Mac") then
-      return workspace_operation(ctx, "close_session", directory.session_id)
+    if action == "connect" then
+      return session_command({ "do", "session.select", "session_id=" .. entry.session_id }, entry.host)
+    end
+    if action == "delete" and confirm_delete(entry.label, entry.host or "This Mac") then
+      return session_command({ "session", "kill", entry.session_id }, entry.host)
     end
     return
   end
