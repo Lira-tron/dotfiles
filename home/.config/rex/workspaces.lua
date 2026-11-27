@@ -53,13 +53,15 @@ local function workspace_items(cwd)
         id = value,
         title = title:gsub("^(.-) · (.*)$", "%2 · %1"),
         path = trees.decode(value).path,
-        icon = "branch",
-        detail = kind,
       }
       items[#items + 1] = by_id[value]
     end
   end
   worktrees.with_sessions(items)
+  for _, item in ipairs(items) do
+    item.icon = item.session_id and "terminal" or "folder"
+    item.detail = item.session_id and "session" or "dir"
+  end
   by_id.none = { id = "none", title = "New worktree…", icon = "plus", detail = "none" }
   table.insert(items, 1, by_id.none)
   return items, by_id
