@@ -3,7 +3,7 @@ local actions, calls, commands, starts, picks
 local ctx, remote_error, failed_operation, selection, menu_action, picked, layer
 local remote_call, elapsed, pick_hosts
 local inputs, name, start_error, prompt_order, tree_rows, encoded
-local tree_sessions, layer_error
+local tree_sessions, layer_error, close_confirmation
 local source = arg[1] or "workspaces.lua"
 local foreign_cwd = "/workplace/someone/Example/src/Example/dotfiles/dotfiles"
 
@@ -17,7 +17,7 @@ local function setup(remote)
   prompt_order, encoded = {}, {}
   tree_rows = "[tree] ExampleService · feature-branch\ttree-id\n"
   tree_sessions = { ["tree-id"] = { session_id = "session:tree", label = "Renamed session" } }
-  layer_error = nil
+  layer_error, close_confirmation = nil, nil
   local exec = setmetatable({
     start = function(argv, opts)
       starts[#starts + 1] = { argv = argv, opts = opts, remote = remote_call }
@@ -85,6 +85,7 @@ local function setup(remote)
       elapsed = elapsed + 15
       local answer = selection
       if picked then answer = menu_action end
+      if #picks == 3 then answer = close_confirmation end
       picked = true
       if answer then
         local offered = false
@@ -175,9 +176,45 @@ test("both remote menus can wait 15 seconds before opening the selection", funct
   local command = commands[#commands]
   assert(command.remote and command.operation == "connect" and command.value == "session:tree")
   assert(picks[1].items[2].title == "Renamed session" and #picks[1].items == 2)
-  assert(#picks[2].items == 3 and picks[2].items[1].title == "Open" and picks[2].items[2].title == "Delete")
-  assert(picks[2].items[3].title == "Force delete")
+  assert(#picks[2].items == 4 and picks[2].items[1].title == "Open" and picks[2].items[2].title == "Close session")
+  assert(picks[2].items[3].title == "Delete" and picks[2].items[4].title == "Force delete")
   assert(layer == nil)
+end)
+
+test("closing a worktree session confirms locally and keeps its worktree", function()
+  for _, remote in ipairs({ false, true }) do
+    for _, reply in ipairs({ false, "cancel", "close_session" }) do
+      setup(remote)
+      selection, menu_action, close_confirmation = "tree-id", "close_session", reply or nil
+      run()
+      assert(#picks == 3 and #starts == 0 and #inputs == 0 and layer == nil)
+      assert(picks[3].title == "Close Renamed session?")
+      assert(#picks[3].items == 2 and picks[3].items[1].title == "No" and picks[3].items[2].title == "Yes")
+      assert(picks[3].items[2].subtitle == "Renamed session")
+      assert(elapsed == 45 and pick_hosts[1] == "local" and pick_hosts[2] == "local" and pick_hosts[3] == "local")
+      if reply == "close_session" then
+        local command = commands[#commands]
+        assert(#commands == 2 and command.operation == "delete" and command.value == "session:tree")
+        assert(command.force and command.remote == remote)
+        if remote then
+          assert(#calls == 2 and calls[2].args.args.operation == "close_session")
+          assert(calls[2].args.args.value == "session:tree")
+        end
+      else
+        assert(#commands == 1 and commands[1].operation == "current")
+        assert(#calls == (remote and 1 or 0))
+      end
+    end
+  end
+end)
+
+test("remote close-session errors do not fall back to local closure", function()
+  setup(true)
+  selection, menu_action, close_confirmation = "tree-id", "close_session", "close_session"
+  remote_error, failed_operation = "Remote session could not be closed", "close_session"
+  local ok, err = pcall(run)
+  assert(not ok and err == remote_error)
+  assert(#picks == 3 and #calls == 2 and #commands == 1 and #starts == 0)
 end)
 
 test("cancelling the remote action menu does not open or change a worktree", function()

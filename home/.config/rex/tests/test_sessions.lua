@@ -179,7 +179,7 @@ test("a folder session replaces its directory row and opens the existing session
   assert(#picks[1].items == 4 and entry.title == "My renamed session" and entry.detail == "session")
   assert(entry.subtitle == "lyhost" and entry.icon == "terminal")
   assert(#picks == 2 and #picks[2].items == 2 and #inputs == 0)
-  assert(picks[2].items[1].title == "Open" and picks[2].items[2].title == "Delete")
+  assert(picks[2].items[1].title == "Open" and picks[2].items[2].title == "Close session")
   assert(#workspace_calls == 1 and #selections == 1)
   assert(selections[1].host == "lyhost" and selections[1].session_id == "session:renamed")
 end)
@@ -192,6 +192,7 @@ test("deleting a folder session closes it only after confirmation and keeps the 
     answers = { "remote:lyhost/session:folder", "delete", reply }
     sessions.pick(ctx)
     assert(#picks == 3 and #inputs == 0)
+    assert(picks[3].title == "Close Folder session on lyhost?")
     assert(picks[3].items[2].subtitle == "Folder session")
     if reply == "delete" then
       assert(#closed == 1 and closed[1].host == "lyhost" and closed[1].session_id == "session:folder")

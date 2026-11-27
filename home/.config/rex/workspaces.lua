@@ -38,11 +38,6 @@ rex.action({
 rex.bind("ctrl+a>shift+t", "workspace_picker")
 
 local HELPER = os.getenv("HOME") .. "/.config/rex/worktree_command.lua"
-local SESSION_MENU = {
-  { id = "connect", title = "Open", icon = "branch" },
-  { id = "delete_native", title = "Delete", subtitle = "Remove the worktree and close its session", icon = "document" },
-  { id = "force_delete_native", title = "Force delete", subtitle = "Discard changes, remove the worktree and close its session", icon = "document" },
-}
 
 local function workspace_items(cwd)
   local items, by_id = {}, {}
@@ -156,8 +151,29 @@ rex.action({
       if name == nil then return end
       return workspace_operation(ctx, "create", value, name)
     end
-    local action = rex.ui.pick({ title = item.title, placeholder = "Action", items = SESSION_MENU })
+    local menu = {
+      { id = "connect", title = "Open", icon = "branch" },
+      { id = "delete_native", title = "Delete", subtitle = "Remove the worktree and close its session", icon = "document" },
+      { id = "force_delete_native", title = "Force delete", subtitle = "Discard changes, remove the worktree and close its session", icon = "document" },
+    }
+    if item.session_id then
+      table.insert(menu, 2, {
+        id = "close_session", title = "Close session", subtitle = "Close the session; keep the worktree", icon = "document",
+      })
+    end
+    local action = rex.ui.pick({ title = item.title, placeholder = "Action", items = menu })
     if action == nil then return end
+    if action == "close_session" then
+      local confirmation = rex.ui.pick({
+        title = "Close " .. item.title .. "?",
+        items = {
+          { id = "cancel", title = "No" },
+          { id = "close_session", title = "Yes", subtitle = item.title, icon = "document" },
+        },
+      })
+      if confirmation ~= "close_session" then return end
+      return workspace_operation(ctx, action, item.session_id)
+    end
     return workspace_operation(ctx, action, action == "connect" and item.session_id or value)
   end,
 })

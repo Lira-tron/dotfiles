@@ -92,7 +92,7 @@ end
 
 local function confirm_delete(label, location)
   return rex.ui.pick({
-    title = "Delete " .. label .. " on " .. location .. "?",
+    title = "Close " .. label .. " on " .. location .. "?",
     items = {
       { id = "cancel", title = "No" },
       { id = "delete", title = "Yes", subtitle = label, icon = "document" },
@@ -111,7 +111,7 @@ local function pick(ctx)
       title = entry.label,
       items = {
         { id = "connect", title = "Open", icon = "terminal" },
-        { id = "delete", title = "Delete", subtitle = "Close the session; keep the directory", icon = "document" },
+        { id = "delete", title = "Close session", subtitle = "Close the session; keep the directory", icon = "document" },
       },
     })
     if action == "connect" then
