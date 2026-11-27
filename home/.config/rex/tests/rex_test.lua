@@ -1,5 +1,5 @@
--- Runtime tests: rex do ./tests/test_<module>.lua from the repository root.
-package.path = "home/.config/rex/?.lua;" .. package.path
+-- Runtime tests: rex do ./tests/test_<module>.lua from the Rex config directory.
+package.path = "./?.lua;" .. package.path
 local fs = require("files")
 local T = { fs = fs }
 local patches, temporary = {}, {}

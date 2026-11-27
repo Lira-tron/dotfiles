@@ -1,10 +1,10 @@
--- Run from the repository root: lua tests/test_workspaces.lua
+-- Run from the Rex config directory: lua tests/test_workspaces.lua
 local actions, calls, commands, starts, picks
 local ctx, remote_error, failed_operation, selection, menu_action, picked, layer
 local remote_call, elapsed, pick_hosts
 local inputs, name, start_error, prompt_order, tree_rows, encoded
 local tree_sessions
-local source = arg[1] or "home/.config/rex/workspaces.lua"
+local source = arg[1] or "workspaces.lua"
 local foreign_cwd = "/workplace/someone/Example/src/Example/dotfiles/dotfiles"
 
 local function setup(remote)

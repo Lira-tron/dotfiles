@@ -1,6 +1,6 @@
 local T = dofile("tests/rex_test.lua")
 local fs, actions = T.fs, require("worktree_actions")
-local script = "home/.config/rex/worktree_command.lua"
+local script = "./worktree_command.lua"
 
 T.test("detached commands route explicit names and native confirmations without terminal prompts", function()
   local requests = {}

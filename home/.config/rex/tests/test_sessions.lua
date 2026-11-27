@@ -1,9 +1,9 @@
--- Run from the repository root: lua tests/test_sessions.lua
+-- Run from the Rex config directory: lua tests/test_sessions.lua
 local sessions, calls, picks, inputs, selections, prompt_order
 local hosts, choice, name, create_error, exec_error, select_error, encoded, response
 local answers, listed, deleted, list_error, delete_error
 local ctx, workspace_calls, directory_rows
-local source = arg[1] or "home/.config/rex/sessions.lua"
+local source = arg[1] or "sessions.lua"
 
 local function create(host, method, args)
   assert(method == "session.create", "creation must not enumerate sessions or activity")

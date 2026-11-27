@@ -1,4 +1,4 @@
--- Run from the repository root: lua tests/test_init.lua
+-- Run from the Rex config directory: lua tests/test_init.lua
 local actions, bindings = {}, {}
 local pick_session = function() end
 local previous_workspaces, previous_sessions = package.loaded.workspaces, package.loaded.sessions
@@ -9,7 +9,7 @@ rex = {
   bind = function(key, value) bindings[key] = value end,
   mode = function() end,
 }
-dofile(arg[1] or "home/.config/rex/init.lua")
+dofile(arg[1] or "init.lua")
 package.loaded.workspaces, package.loaded.sessions = previous_workspaces, previous_sessions
 assert(bindings["shift+cmd+n"] == "create_session")
 assert(actions.create_session.run == pick_session)

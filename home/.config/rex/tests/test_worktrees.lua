@@ -4,7 +4,9 @@ local fs, trees, artifacts = T.fs, require("worktrees"), require("artifacts")
 local function fixture()
   local root = T.temp()
   local parent, target = root .. "/parent", root .. "/task"
-  fs.run({ "git", "clone", "--shared", "--no-checkout", fs.trim(fs.run({ "pwd", "-P" })), parent })
+  local source = fs.parent(fs.resolve("./worktrees.lua"))
+  local repository = fs.trim(fs.run({ "git", "-C", source, "rev-parse", "--show-toplevel" }))
+  fs.run({ "git", "clone", "--shared", "--no-checkout", repository, parent })
   fs.run({ "git", "-C", parent, "worktree", "add", "--detach", target, "HEAD" })
   return root, { parent = parent, path = target }
 end
