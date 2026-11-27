@@ -36,9 +36,9 @@ local function items(ctx)
     for _, host in ipairs(hosts) do found = found or host == ctx.server end
     if not found then hosts[#hosts + 1] = ctx.server end
   end
-  local choices = { { id = "local", title = "Create…", subtitle = "This Mac", icon = "plus" } }
+  local choices = { { id = "local", title = "New Session", subtitle = "This Mac", icon = "plus" } }
   for _, host in ipairs(hosts) do
-    choices[#choices + 1] = { id = "remote:" .. host, title = "🥊 Create remote…", subtitle = host, icon = "plus" }
+    choices[#choices + 1] = { id = "remote:" .. host, title = "🥊-New Session", subtitle = host, icon = "plus" }
   end
   local entries = {}
   local function add_session(session, host)

@@ -120,9 +120,9 @@ test("session choices show local creation and each remote host directly", functi
   local items = sessions.items()
   assert(#items == 3)
   assert(items[1].id == "local" and items[1].subtitle == "This Mac")
-  assert(items[2].id == "remote:lyhost" and items[2].title == "🥊 Create remote…")
+  assert(items[2].id == "remote:lyhost" and items[2].title == "🥊-New Session")
   assert(items[2].subtitle == "lyhost")
-  assert(items[3].id == "remote:devbox" and items[3].title == "🥊 Create remote…")
+  assert(items[3].id == "remote:devbox" and items[3].title == "🥊-New Session")
   assert(items[3].subtitle == "devbox")
 end)
 
@@ -139,7 +139,7 @@ test("the session picker chooses local or a host before asking for its name", fu
     sessions.pick(ctx)
     local host = target == "local" and "local" or target:sub(8)
     assert(#picks == 1 and #picks[1].items == 4, "no extra host or worktree menu")
-    assert(picks[1].items[1].title == "Create…" and picks[1].items[1].subtitle == "This Mac")
+    assert(picks[1].items[1].title == "New Session" and picks[1].items[1].subtitle == "This Mac")
     assert(picks[1].items[2].subtitle == "lyhost" and picks[1].items[3].subtitle == "devbox")
     assert(table.concat(prompt_order, ",") == "pick,input")
     assert(#inputs == 1)
@@ -238,7 +238,7 @@ test("all sessions are listed independently of directories with type details and
   assert(found["dir:/tmp/my projects/project/"].title == "project")
   assert(found["dir:/tmp/my projects/project/"].detail == "dir")
   for _, id in ipairs({ "local", "remote:lyhost", "remote:devbox" }) do
-    assert(not found[id].title:lower():find("session", 1, true), "creation actions must not match the session tag")
+    assert(found[id].detail == nil, "creation actions must not carry a session type tag")
   end
 end)
 
