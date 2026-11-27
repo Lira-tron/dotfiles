@@ -21,7 +21,7 @@ elseif operation == "preview" then
 elseif operation == "create-named" then
   actions.native("create", value, args.name, cwd)
 elseif operation == "delete-native" then
-  actions.native("delete", value, nil, cwd)
+  actions.native("delete", value, nil, cwd, args.force)
 elseif operation == "delete" then
   actions.delete(value, args.force, confirm)
 elseif operation == "create" or (operation == "connect" and value == "none") then

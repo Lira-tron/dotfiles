@@ -181,7 +181,8 @@ function M.delete(selected, force, confirm)
       end
     end
     command = { "brazil", "worktree", "delete", "--workspace", owner, "--name", fs.name(workspace) }
-    scope = "all package checkouts, branches (including unmerged branches), build outputs, and local artifact links"
+    scope = "all package checkouts, branches" .. (force and " (including unmerged branches)" or "")
+      .. ", build outputs, and local artifact links"
   else
     command = { "git", "-C", parent, "worktree", "remove", path }
     scope = "this checkout and local artifact links; its Git branch and external artifacts are retained"
@@ -190,7 +191,10 @@ function M.delete(selected, force, confirm)
   for _, repo in ipairs(repos) do
     if fs.run({ "git", "-C", repo, "status", "--porcelain" }) ~= "" then dirty[#dirty + 1] = repo end
   end
-  if workspace or force or #dirty > 0 then command[#command + 1] = "--force" end
+  if #dirty > 0 and not force then
+    error("Worktree has uncommitted changes. Use Force delete to discard them: " .. table.concat(dirty, ", "), 0)
+  end
+  if force then command[#command + 1] = "--force" end
   local message = "Delete " .. target .. "\nThis removes " .. scope .. ". Preserve needed work first."
   if #dirty > 0 then message = message .. "\nUncommitted changes will be discarded in: " .. table.concat(dirty, ", ") end
   if not confirm(message) then return false end

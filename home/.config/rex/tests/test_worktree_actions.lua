@@ -65,25 +65,29 @@ T.test("creation passes native name and selects only after success", function()
   assert(state.opens == 1)
 end)
 
-T.test("native confirmation accepts only explicit approval and displays operation failures", function()
-  local state = { reply = "ok", confirmations = {}, deleted = 0, failures = {} }
+T.test("native confirmation accepts only explicit approval and preserves force intent", function()
+  local state = { reply = "ok", confirmations = {}, deleted = 0, failures = {}, force = false }
   T.patch(actions, "delete", function(value, force, confirm)
-    assert(value == "tree:00" and force == false)
+    assert(value == "tree:00" and force == state.force)
     if confirm("Full deletion scope\nDirty files") then state.deleted = state.deleted + 1 end
   end)
   T.patch(rex, "invoke", function(operation, args)
     if operation == "workspace_deletion_confirm" then
       state.confirmations[#state.confirmations + 1] = args.message
+      assert(args.force == state.force)
       return state.reply
     end
     assert(operation == "workspace_operation_failed")
     state.failures[#state.failures + 1] = args
   end)
-  for _, reply in ipairs({ "ok", "cancel", true, "yes" }) do
-    state.reply = reply
-    actions.native("delete", "tree:00")
+  for _, force in ipairs({ false, true }) do
+    state.force = force
+    for _, reply in ipairs({ "ok", "cancel", true, "yes" }) do
+      state.reply = reply
+      actions.native("delete", "tree:00", nil, nil, force)
+    end
   end
-  assert(state.deleted == 1 and #state.confirmations == 4)
+  assert(state.deleted == 2 and #state.confirmations == 8)
   assert(state.confirmations[1] == "Full deletion scope\nDirty files")
   T.patch(actions, "create", function() error("Git creation failed", 0) end)
   T.raises("Git creation failed", function() actions.native("create", "none", "feature", "/cwd") end)

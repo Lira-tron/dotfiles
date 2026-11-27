@@ -198,14 +198,14 @@ function M.delete(value, force, confirm)
   if removed and not fs.test("-e", selected.path) then kill(found) end
 end
 
-function M.native(operation, value, name, cwd)
+function M.native(operation, value, name, cwd, force)
   local ok, err = pcall(function()
     if operation == "create" then
       if type(name) ~= "string" then error("A worktree name is required.", 0) end
       M.create(value, name, cwd)
     elseif operation == "delete" and value:sub(1, 5) == "tree:" then
-      M.delete(value, false, function(message)
-        return rex.invoke("workspace_deletion_confirm", { message = message }) == "ok"
+      M.delete(value, force == true, function(message)
+        return rex.invoke("workspace_deletion_confirm", { message = message, force = force == true }) == "ok"
       end)
     else
       error("Choose a Git worktree to delete.", 0)

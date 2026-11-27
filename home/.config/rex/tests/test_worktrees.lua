@@ -22,6 +22,36 @@ T.test("tokens round trip paths with quotes, tabs, newlines and Unicode", functi
   end
 end)
 
+T.test("ordinary deletion refuses dirty files before confirmation or removal", function()
+  local _, selected = fixture()
+  T.write(selected.path .. "/dirty.txt", "keep")
+  T.raises("Force delete", function()
+    trees.delete(selected, false, function() error("unexpected confirmation") end)
+  end)
+  assert(fs.read(selected.path .. "/dirty.txt") == "keep")
+end)
+
+T.test("ordinary Brazil deletion never passes force", function()
+  local root = T.temp()
+  local owner, workspace = root .. "/owner", root .. "/owner/worktrees/task"
+  local parent, target = owner .. "/src/Service", workspace .. "/src/Service"
+  T.write(parent .. "/.git")
+  T.write(target .. "/.git")
+  T.patch(trees, "brazil_workspace", function(path) return path == parent and owner or workspace end)
+  local run, removed = fs.run, false
+  T.patch(fs, "run", function(argv, cwd)
+    if argv[1] == "git" then return "" end
+    if argv[1] == "brazil" then
+      assert(table.concat(argv, "|") == "brazil|worktree|delete|--workspace|" .. owner .. "|--name|task")
+      removed = true
+      return ""
+    end
+    return run(argv, cwd)
+  end)
+  assert(trees.delete({ parent = parent, path = target }, false, function() return true end))
+  assert(removed)
+end)
+
 T.test("Git discovery, cancellation and removal preserve parent and external artifacts", function()
   local root, selected = fixture()
   local getenv = os.getenv
@@ -38,9 +68,9 @@ T.test("Git discovery, cancellation and removal preserve parent and external art
     assert(message:find("its Git branch and external artifacts are retained", 1, true))
     return false
   end
-  assert(not trees.delete(selected, false, confirm))
+  assert(not trees.delete(selected, true, confirm))
   assert(fs.read(selected.path .. "/dirty.txt") == "dirty")
-  assert(trees.delete(selected, false, function(message) confirm(message); return true end))
+  assert(trees.delete(selected, true, function(message) confirm(message); return true end))
   assert(not fs.test("-e", selected.path) and #trees.checkouts(selected.parent) == 1)
   assert(fs.read(root .. "/external/notes.md") == "keep")
 end)
@@ -154,7 +184,7 @@ T.test("Brazil deletion refuses ambiguous and nested checkouts and reports all p
     end
     return run(argv, cwd)
   end)
-  assert(trees.delete(selected, false, function(message)
+  assert(trees.delete(selected, true, function(message)
     assert(message:find("including unmerged branches", 1, true) and message:find(workspace .. "/src/Second", 1, true))
     return true
   end))

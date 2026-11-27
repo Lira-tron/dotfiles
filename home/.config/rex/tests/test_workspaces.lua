@@ -3,7 +3,7 @@ local actions, calls, commands, starts, picks
 local ctx, remote_error, failed_operation, selection, menu_action, picked, layer
 local remote_call, elapsed, pick_hosts
 local inputs, name, start_error, prompt_order, tree_rows, encoded
-local tree_sessions
+local tree_sessions, layer_error
 local source = arg[1] or "workspaces.lua"
 local foreign_cwd = "/workplace/someone/Example/src/Example/dotfiles/dotfiles"
 
@@ -17,6 +17,7 @@ local function setup(remote)
   prompt_order, encoded = {}, {}
   tree_rows = "[tree] ExampleService · feature-branch\ttree-id\n"
   tree_sessions = { ["tree-id"] = { session_id = "session:tree", label = "Renamed session" } }
+  layer_error = nil
   local exec = setmetatable({
     start = function(argv, opts)
       starts[#starts + 1] = { argv = argv, opts = opts, remote = remote_call }
@@ -94,6 +95,7 @@ local function setup(remote)
     end },
     layout = { block = function(opts) return opts end },
     session = { new_layer = function(opts)
+      if layer_error then return nil, layer_error end
       layer = opts
       return { block_ids = { "block:created" } }
     end },
@@ -173,7 +175,8 @@ test("both remote menus can wait 15 seconds before opening the selection", funct
   local command = commands[#commands]
   assert(command.remote and command.operation == "connect" and command.value == "session:tree")
   assert(picks[1].items[2].title == "Renamed session" and #picks[1].items == 2)
-  assert(#picks[2].items == 2 and picks[2].items[1].title == "Open" and picks[2].items[2].title == "Delete")
+  assert(#picks[2].items == 3 and picks[2].items[1].title == "Open" and picks[2].items[2].title == "Delete")
+  assert(picks[2].items[3].title == "Force delete")
   assert(layer == nil)
 end)
 
@@ -212,12 +215,22 @@ test("deleting a tree session starts its native-confirmation helper on the ownin
     local command = starts[1].argv
     assert(command[1] == "rex" and command[2] == "do")
     assert(command[3]:match("/worktree_command.lua$"))
-    assert(command[4] == "--args" and #command == 5)
+    assert(command[4] == "--args" and #command == 7)
+    assert(command[6] == "--session" and command[7] == ctx.session_id)
     local request = encoded[tonumber(command[5])]
     assert(request.operation == "delete-native" and request.value == selection)
-    assert(request.force == nil)
+    assert(request.force == false)
     assert(#starts == 1 and starts[1].opts.detach)
   end
+end)
+
+test("Force delete explicitly enables force in the native helper", function()
+  setup(true)
+  selection, menu_action = "tree-id", "force_delete_native"
+  run()
+  assert(calls[2].args.args.operation == "force_delete_native" and #starts == 1)
+  local request = encoded[tonumber(starts[1].argv[5])]
+  assert(request.operation == "delete-native" and request.value == selection and request.force == true)
 end)
 
 test("the T picker lists only worktrees and worktree actions", function()
@@ -269,7 +282,8 @@ test("new worktrees take native input only from the first menu", function()
     local request = encoded[tonumber(process.argv[5])]
     assert(process.argv[4] == "--args" and request.operation == "create-named")
     assert(request.value == "none" and request.name == "feature-work")
-    assert(#process.argv == 5 and process.opts.detach)
+    assert(#process.argv == 7 and process.opts.detach)
+    assert(process.argv[6] == "--session" and process.argv[7] == ctx.session_id)
     assert(process.opts.cwd == (remote and foreign_cwd or "/tmp/project"))
     if remote then
       assert(#calls == 2 and calls[2].args.args.name == "feature-work")
@@ -301,12 +315,14 @@ test("creation requests without a name fail before launching a background helper
   end
 end)
 
-test("a worktree without a session opens directly without asking for a name", function()
+test("Open on a worktree without a session creates its session without asking for a name", function()
   for _, remote in ipairs({ false, true }) do
     setup(remote)
-    selection, tree_sessions = "tree-id", {}
+    selection, menu_action, tree_sessions = "tree-id", "connect", {}
     run()
-    assert(#picks == 1 and #inputs == 0 and #starts == 0)
+    assert(#picks == 2 and #inputs == 0 and #starts == 0)
+    assert(#picks[2].items == 3 and picks[2].items[1].title == "Open" and picks[2].items[2].title == "Delete")
+    assert(picks[2].items[3].title == "Force delete")
     local command = commands[#commands]
     assert(command.operation == "connect" and command.value == "tree-id" and command.remote == remote)
   end
@@ -324,34 +340,49 @@ test("directory session closure is forwarded to its host and rejects tree tokens
   end
 end)
 
-test("native worktree confirmation displays all warnings and requires the delete choice", function()
-  for _, reply in ipairs({ false, "cancel", "info:1", "delete" }) do
-    setup(false)
-    selection = reply or nil
-    local result = actions.workspace_deletion_confirm.run(ctx, {
-      message = "Delete /tmp/task\nThis removes all package branches.\nUncommitted changes will be discarded.",
-    })
-    assert(result == (reply == "delete" and "ok" or "cancel"))
-    local items = picks[1].items
-    assert(#items == 5 and items[1].id == "cancel" and items[5].id == "delete")
-    assert(items[1].title == "No" and items[5].title == "Yes")
-    assert(items[2].title == "Delete /tmp/task")
-    assert(items[3].title == "This removes all package branches.")
-    assert(items[4].title == "Uncommitted changes will be discarded.")
-    assert(layer == nil and #starts == 0)
+test("worktree confirmation offers only No and Yes with warnings in the subtitle", function()
+  for _, force in ipairs({ false, true }) do
+    for _, reply in ipairs({ false, "cancel", "delete" }) do
+      setup(false)
+      selection = reply or nil
+      local message = "Delete /tmp/task\nThis removes all package branches.\nUncommitted changes will be discarded."
+      local result = actions.workspace_deletion_confirm.run(ctx, { message = message, force = force })
+      assert(result == (reply == "delete" and "ok" or "cancel"))
+      assert(#picks == 1 and #picks[1].items == 2 and layer == nil)
+      assert(picks[1].title == (force and "Force delete worktree?" or "Delete worktree?"))
+      assert(picks[1].items[1].id == "cancel" and picks[1].items[1].title == "No")
+      assert(picks[1].items[2].id == "delete" and picks[1].items[2].title == "Yes")
+      assert(picks[1].items[2].subtitle == message)
+    end
   end
 end)
 
-test("background failures are displayed in a native prompt", function()
+test("background failures open a floating error window with literal full text", function()
   for _, operation in ipairs({ "create", "delete" }) do
     setup(false)
-    actions.workspace_operation_failed.run(ctx, { operation = operation, message = "Operation failed" })
-    assert(#picks == 1 and picks[1].title == (operation == "delete" and "Worktree deletion failed" or "Worktree creation failed"))
-    assert(picks[1].items[1].subtitle == "Operation failed")
-    assert(layer == nil and #starts == 0)
+    local message = "Operation failed\nDetails with 'quotes', $(echo literal), and `echo literal`"
+    local result = actions.workspace_operation_failed.run(ctx, { operation = operation, message = message })
+    local title = operation == "delete" and "Worktree deletion failed" or "Worktree creation failed"
+    assert(#picks == 0 and #inputs == 0 and #starts == 0)
+    assert(layer.session_id == ctx.session_id and layer.focus)
+    assert(layer.layout.flavor == "com.superlogical.terminal.shell" and layer.layout.label == title)
+    local options = layer.layout.options
+    assert(options.shell == "none" and options.exit.on_completion)
+    assert(options.command[1] == "/bin/sh" and options.command[2] == "-c")
+    assert(options.command[5] == title and options.command[6] == message)
+    assert(not options.command[3]:find(message, 1, true), "error text must be an argument, not shell code")
+    assert(options.command[3]:find('read -r', 1, true))
+    assert(result.block_ids[1] == "block:created")
   end
 end)
 
+test("failure to open the error window preserves the original failure", function()
+  setup(false)
+  layer_error = "Session unavailable"
+  local ok, err = pcall(actions.workspace_operation_failed.run, ctx, { operation = "create", message = "Original failure" })
+  assert(not ok and err == "Session unavailable\nOriginal failure")
+  assert(#picks == 0 and layer == nil)
+end)
 
 test("numeric and boolean-looking names are passed as JSON strings", function()
   for _, value in ipairs({ "00123", "true", "false" }) do

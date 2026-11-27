@@ -6,8 +6,8 @@ T.test("detached commands route explicit names and native confirmations without 
   local requests = {}
   T.patch(fs, "run", function(argv) assert(argv[1] == "pwd"); return "/pane/cwd\n" end)
   T.patch(fs, "prompt", function() error("Detached operation read a terminal") end)
-  T.patch(actions, "native", function(operation, value, name, cwd)
-    requests[#requests + 1] = { operation = operation, value = value, name = name, cwd = cwd }
+  T.patch(actions, "native", function(operation, value, name, cwd, force)
+    requests[#requests + 1] = { operation = operation, value = value, name = name, cwd = cwd, force = force }
   end)
   T.patch(rex, "args", { operation = "create-named", value = "none", name = "feature-work" })
   dofile(script)
@@ -16,6 +16,10 @@ T.test("detached commands route explicit names and native confirmations without 
   rex.args = { operation = "delete-native", value = "tree:00" }
   dofile(script)
   assert(requests[2].operation == "delete" and requests[2].value == "tree:00")
+  assert(requests[2].force == nil)
+  rex.args = { operation = "delete-native", value = "tree:00", force = true }
+  dofile(script)
+  assert(requests[3].operation == "delete" and requests[3].force == true)
 end)
 
 T.test("Television create, connect and delete route to Rex Lua actions", function()

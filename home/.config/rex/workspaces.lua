@@ -41,6 +41,7 @@ local HELPER = os.getenv("HOME") .. "/.config/rex/worktree_command.lua"
 local SESSION_MENU = {
   { id = "connect", title = "Open", icon = "branch" },
   { id = "delete_native", title = "Delete", subtitle = "Remove the worktree and close its session", icon = "document" },
+  { id = "force_delete_native", title = "Force delete", subtitle = "Discard changes, remove the worktree and close its session", icon = "document" },
 }
 
 local function workspace_items(cwd)
@@ -64,8 +65,8 @@ local function workspace_items(cwd)
   return items, by_id
 end
 
-local function helper_argv(action, value, name)
-  local args = { operation = action, value = value, name = name }
+local function helper_argv(action, value, name, force)
+  local args = { operation = action, value = value, name = name, force = force }
   return { "rex", "do", HELPER, "--args", rex.json.encode(args) }
 end
 
@@ -103,11 +104,14 @@ local function workspace_operation(ctx, operation, value, name)
     assert(value:sub(1, 8) == "session:", "Choose a session to close.")
     return worktrees.delete(value, true)
   end
-  if operation == "create" or operation == "delete_native" then
-    local argv = helper_argv("delete-native", value)
+  if operation == "create" or operation == "delete_native" or operation == "force_delete_native" then
+    local argv = helper_argv("delete-native", value, nil, operation == "force_delete_native")
     if operation == "create" then
       if not name or name == "" then error("A worktree name is required.", 0) end
       argv = helper_argv("create-named", value, name)
+    end
+    if ctx.session_id then
+      argv[#argv + 1], argv[#argv + 2] = "--session", ctx.session_id
     end
     local process, err = rex.exec.start(argv, {
       cwd = cwd, env = fs.env(), detach = true, stdout = false, stderr = false,
@@ -150,26 +154,24 @@ rex.action({
       if name == nil then return end
       return workspace_operation(ctx, "create", value, name)
     end
-    if item.session_id then
-      local action = rex.ui.pick({ title = item.title, placeholder = "Action", items = SESSION_MENU })
-      if action == nil then return end
-      return workspace_operation(ctx, action, action == "connect" and item.session_id or value)
-    end
-    return workspace_operation(ctx, "connect", value)
+    local action = rex.ui.pick({ title = item.title, placeholder = "Action", items = SESSION_MENU })
+    if action == nil then return end
+    return workspace_operation(ctx, action, action == "connect" and item.session_id or value)
   end,
 })
 
 rex.action({
   name = "workspace_deletion_confirm",
   title = "Confirm Worktree Deletion",
-  args = { message = "string" },
+  args = { message = "string", force = "boolean?" },
   run = function(_, args)
-    local items = { { id = "cancel", title = "No" } }
-    for line in args.message:gmatch("[^\n]+") do
-      items[#items + 1] = { id = "info:" .. #items, title = line }
-    end
-    items[#items + 1] = { id = "delete", title = "Yes", icon = "document" }
-    local choice = rex.ui.pick({ title = "Delete worktree?", items = items })
+    local choice = rex.ui.pick({
+      title = args.force and "Force delete worktree?" or "Delete worktree?",
+      items = {
+        { id = "cancel", title = "No" },
+        { id = "delete", title = "Yes", subtitle = args.message, icon = "document" },
+      },
+    })
     return choice == "delete" and "ok" or "cancel"
   end,
 })
@@ -178,11 +180,28 @@ rex.action({
   name = "workspace_operation_failed",
   title = "Worktree Operation Failed",
   args = { message = "string", operation = "string" },
-  run = function(_, args)
-    rex.ui.pick({
-      title = args.operation == "delete" and "Worktree deletion failed" or "Worktree creation failed",
-      items = { { id = "close", title = "Dismiss", subtitle = args.message, icon = "document" } },
+  run = function(ctx, args)
+    local title = args.operation == "delete" and "Worktree deletion failed" or "Worktree creation failed"
+    local layer, err = rex.session.new_layer({
+      session_id = ctx.session_id,
+      bounds = { 0.15, 0.2, 0.7, 0.6 },
+      focus = true,
+      layout = rex.layout.block({
+        flavor = TERMINAL .. ".shell",
+        label = title,
+        options = {
+          shell = "none",
+          command = {
+            "/bin/sh", "-c",
+            [[printf '\033[1;31m%s\033[0m\n\n%s\n\nPress Enter to close.\n' "$1" "$2"; IFS= read -r answer]],
+            "rex-error", title, args.message,
+          },
+          exit = { on_completion = true },
+        },
+      }),
     })
+    if not layer then error(tostring(err) .. "\n" .. args.message, 0) end
+    return layer
   end,
 })
 
