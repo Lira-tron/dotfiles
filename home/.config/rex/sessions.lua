@@ -59,28 +59,9 @@ local function confirm_delete(label, location)
   }) == "delete"
 end
 
-local function delete_session()
-  local choices, targets = {}, {}
-  for _, location in ipairs(items()) do
-    local host = location.id ~= "local" and location.id:sub(8) or nil
-    local listed = rex.json.decode(session_command({ "ls", "--json" }, host))
-    for _, session in ipairs(listed.sessions) do
-      local id = location.id .. "/" .. session.session_id
-      choices[#choices + 1] = { id = id, title = session.label, subtitle = location.subtitle, icon = location.icon }
-      targets[id] = { host = host, id = session.session_id, label = session.label, location = location.subtitle }
-    end
-  end
-  local choice = rex.ui.pick({ title = "Delete session", placeholder = "Choose a session", items = choices })
-  if choice == nil then return end
-  local target = targets[choice]
-  if not confirm_delete(target.label, target.location) then return end
-  session_command({ "session", "kill", target.id }, target.host)
-end
-
 local function pick(ctx)
   local choices = items()
   local directories = {}
-  choices[#choices + 1] = { id = "delete", title = "Delete session…", icon = "document" }
   for _, directory in ipairs(workspace_operation(ctx, "directories")) do
     local id = "dir:" .. directory.path
     directories[id] = directory
@@ -93,7 +74,6 @@ local function pick(ctx)
   end
   local choice = rex.ui.pick({ title = "Sessions", items = choices })
   if choice == nil then return end
-  if choice == "delete" then return delete_session() end
   if directories[choice] then
     local directory = directories[choice]
     if not directory.session_id then return workspace_operation(ctx, "connect", directory.path) end
