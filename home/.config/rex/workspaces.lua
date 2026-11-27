@@ -1,5 +1,6 @@
 local fs = require("files")
 local worktrees = require("worktree_actions")
+local trees = require("worktrees")
 local TERMINAL = "com.superlogical.terminal"
 
 local function pane_cwd(ctx)
@@ -37,43 +38,34 @@ rex.action({
 rex.bind("ctrl+a>shift+t", "workspace_picker")
 
 local HELPER = os.getenv("HOME") .. "/.config/rex/worktree_command.lua"
-local MENUS = {
-  tree = {
-    { id = "connect", title = "Open", icon = "branch" },
-    { id = "create", title = "New worktree…", icon = "plus" },
-    { id = "delete", title = "Delete worktree…", icon = "document" },
-    { id = "force_delete", title = "Force-delete worktree…", icon = "document" },
-  },
+local SESSION_MENU = {
+  { id = "connect", title = "Open", icon = "branch" },
+  { id = "delete_native", title = "Delete", subtitle = "Remove the worktree and close its session", icon = "document" },
 }
 
 local function workspace_items(cwd)
   local items, by_id = {}, {}
-  -- Always offered first; the helper's own empty-list placeholder uses the same id and is skipped.
-  by_id.none = { id = "none", title = "New worktree…", icon = "plus", detail = "none" }
-  items[1] = by_id.none
-  by_id.delete = { id = "delete", title = "Delete worktree…", icon = "document", detail = "delete" }
-  items[2] = by_id.delete
   for line in worktrees.current(cwd):gmatch("[^\n]+") do
     local kind, title, value = line:match("^%[(%w+)%] (.-)\t(.+)$")
     if kind == "tree" and not by_id[value] then
       by_id[value] = {
         id = value,
-        -- Put the worktree first so it stays visible in Rex's narrow native picker.
-        -- To restore "repository · worktree", uncomment this and remove the next title line:
-        -- title = title,
         title = title:gsub("^(.-) · (.*)$", "%2 · %1"),
+        path = trees.decode(value).path,
         icon = "branch",
         detail = kind,
       }
       items[#items + 1] = by_id[value]
     end
   end
+  worktrees.with_sessions(items)
+  by_id.none = { id = "none", title = "New worktree…", icon = "plus", detail = "none" }
+  table.insert(items, 1, by_id.none)
   return items, by_id
 end
 
 local function helper_argv(action, value, name)
-  local args = { operation = action == "force_delete" and "delete" or action, value = value, name = name }
-  if action == "force_delete" then args.force = true end
+  local args = { operation = action, value = value, name = name }
   return { "rex", "do", HELPER, "--args", rex.json.encode(args) }
 end
 
@@ -103,9 +95,13 @@ local function workspace_operation(ctx, operation, value, name)
       'if [[ -d "${WORKPLACE_DIR:-$HOME/workplace}" ]]; then fd -t d -d 1 . "${WORKPLACE_DIR:-$HOME/workplace}" --format "{/}\t{}"; fi',
     }, cwd):gmatch("[^\n]+") do
       local label, path = line:match("^(.-)\t(.+)$")
-      if path then directories[#directories + 1] = { name = label, path = path } end
+      if path then directories[#directories + 1] = { name = label, title = label, path = path } end
     end
-    return directories
+    return worktrees.with_sessions(directories)
+  end
+  if operation == "close_session" then
+    assert(value:sub(1, 8) == "session:", "Choose a session to close.")
+    return worktrees.delete(value, true)
   end
   if operation == "create" or operation == "delete_native" then
     local argv = helper_argv("delete-native", value)
@@ -119,30 +115,11 @@ local function workspace_operation(ctx, operation, value, name)
     if not process then error(err, 0) end
     return
   end
-  -- Existing per-worktree deletion actions retain their terminal confirmation.
   if operation == "connect" then
     worktrees.connect(value)
     return
   end
-  local layer, err = rex.session.new_layer({
-    session_id = ctx.session_id,
-    bounds = { 0.2, 0.2, 0.6, 0.5 },
-    focus = true,
-    layout = rex.layout.block({
-      flavor = TERMINAL .. ".shell",
-      options = { command = helper_argv(operation, value), cwd = cwd },
-    }),
-  })
-  if not layer then
-    error(err, 0)
-  end
-  -- Closing the palette hands focus back to the pane it opened over, after the layer took it.
-  local refocus = ("rex.session.focus_block({ block_id = %q })"):format(layer.block_ids[1])
-  rex.exec.start(
-    { "/bin/sh", "-c", 'sleep 0.3; exec "$0" do -s "$1" -e "$2"', "rex", ctx.session_id, refocus },
-    { detach = true, stdout = false, stderr = false, env = fs.env() }
-  )
-  return layer
+  error("Unknown workspace operation: " .. tostring(operation), 0)
 end
 
 local function read_name()
@@ -167,30 +144,18 @@ rex.action({
     if value == nil then
       return
     end
-    if value == "delete" then
-      local worktrees = {}
-      for _, item in ipairs(choices.items) do
-        if item.detail == "tree" then worktrees[#worktrees + 1] = item end
-      end
-      local selected = rex.ui.pick({ title = "Delete worktree", placeholder = "Choose a worktree", items = worktrees })
-      if selected == nil then return end
-      return workspace_operation(ctx, "delete_native", selected)
-    end
     local item = choices.by_id[value]
-    local kind = item.detail
-    local action = "create"
-    if MENUS[kind] then
-      action = rex.ui.pick({ title = item.title, placeholder = "Action", items = MENUS[kind] })
-      if action == nil then
-        return
-      end
-    end
-    if action == "create" then
+    if value == "none" then
       local name = read_name()
       if name == nil then return end
-      return workspace_operation(ctx, action, value, name)
+      return workspace_operation(ctx, "create", value, name)
     end
-    return workspace_operation(ctx, action, value)
+    if item.session_id then
+      local action = rex.ui.pick({ title = item.title, placeholder = "Action", items = SESSION_MENU })
+      if action == nil then return end
+      return workspace_operation(ctx, action, action == "connect" and item.session_id or value)
+    end
+    return workspace_operation(ctx, "connect", value)
   end,
 })
 

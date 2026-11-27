@@ -28,12 +28,65 @@ function M.session_name(path)
   return basename
 end
 
-local function labelled(label)
+function M.session_root(path)
+  local resolved = fs.resolve(path)
+  local current = resolved
+  while current ~= "/" do
+    if fs.read(current .. "/packageInfo") then return current end
+    current = fs.parent(current)
+  end
+  local git = fs.result({ "git", "-C", resolved, "rev-parse", "--show-toplevel" })
+  return git.ok and fs.resolve(fs.trim(git.stdout)) or resolved
+end
+
+function M.sessions_by_path()
   local found = {}
+  local host = call("server.status").host_id
   for _, session in ipairs(call("session.list").sessions or {}) do
-    if session.label == label then found[#found + 1] = session.session_id end
+    call("session.attach", { session_id = session.session_id })
+    local blocks = call("session.list_blocks", { session_id = session.session_id })
+    local seen = {}
+    for _, block in ipairs(blocks.blocks or {}) do
+      if block.creator_name == "com.superlogical.terminal" and block.host_id == host then
+        local process, err = rex.block.call("com.superlogical.terminal", "process", {
+          session_id = session.session_id, block_id = block.block_id,
+        })
+        if not process then error(err, 0) end
+        local cwd = (process.foreground and process.foreground.cwd) or (process.child and process.child.cwd)
+        if cwd then
+          local root = M.session_root(cwd)
+          if not seen[root] then
+            found[root] = found[root] or {}
+            found[root][#found[root] + 1] = session
+            seen[root] = true
+          end
+        end
+      end
+    end
+  end
+  for _, sessions in pairs(found) do
+    table.sort(sessions, function(a, b)
+      if a.label:lower() == b.label:lower() then return a.session_id < b.session_id end
+      return a.label:lower() < b.label:lower()
+    end)
   end
   return found
+end
+
+function M.with_sessions(items)
+  local sessions = M.sessions_by_path()
+  for _, item in ipairs(items) do
+    local matches = sessions[M.session_root(item.path)]
+    if matches then
+      item.session_id, item.title = matches[1].session_id, matches[1].label
+    end
+  end
+  table.sort(items, function(a, b)
+    if (a.session_id ~= nil) ~= (b.session_id ~= nil) then return a.session_id ~= nil end
+    if a.title:lower() == b.title:lower() then return a.path < b.path end
+    return a.title:lower() < b.title:lower()
+  end)
+  return items
 end
 
 local function select_session(id)
@@ -44,8 +97,8 @@ end
 function M.open(path, worktree)
   local remote = fs.trim(fs.run({ "uname", "-s" })) ~= "Darwin"
   local label = M.label(M.session_name(path), worktree, remote)
-  local found = labelled(label)
-  local id = found[1]
+  local found = M.sessions_by_path()[M.session_root(path)] or {}
+  local id = found[1] and found[1].session_id
   if not id then
     id = call("session.create", {
       label = label,
@@ -134,11 +187,12 @@ function M.delete(value, force, confirm)
   end
   if value:sub(1, 5) ~= "tree:" then return end
   local selected = trees.decode(value)
-  local remote = fs.trim(fs.run({ "uname", "-s" })) ~= "Darwin"
-  local label = M.label(M.session_name(selected.path), true, remote)
-  local found = labelled(label)
+  local found, labels = {}, {}
+  for _, session in ipairs(M.sessions_by_path()[M.session_root(selected.path)] or {}) do
+    found[#found + 1], labels[#labels + 1] = session.session_id, session.label
+  end
   local removed = trees.delete(selected, force, function(message)
-    if #found > 0 then message = "Rex session " .. label .. " will be closed.\n" .. message end
+    if #found > 0 then message = "Rex session " .. table.concat(labels, ", ") .. " will be closed.\n" .. message end
     return confirm(message)
   end)
   if removed and not fs.test("-e", selected.path) then kill(found) end

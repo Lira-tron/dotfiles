@@ -3,6 +3,7 @@ local actions, calls, commands, starts, picks
 local ctx, remote_error, failed_operation, selection, menu_action, picked, layer
 local remote_call, elapsed, pick_hosts
 local inputs, name, start_error, prompt_order, tree_rows, encoded
+local tree_sessions
 local source = arg[1] or "home/.config/rex/workspaces.lua"
 local foreign_cwd = "/workplace/someone/Example/src/Example/dotfiles/dotfiles"
 
@@ -15,6 +16,7 @@ local function setup(remote)
   inputs, name, start_error = {}, "feature-work", nil
   prompt_order, encoded = {}, {}
   tree_rows = "[tree] ExampleService · feature-branch\ttree-id\n"
+  tree_sessions = { ["tree-id"] = { session_id = "session:tree", label = "Renamed session" } }
   local exec = setmetatable({
     start = function(argv, opts)
       starts[#starts + 1] = { argv = argv, opts = opts, remote = remote_call }
@@ -80,9 +82,15 @@ local function setup(remote)
       prompt_order[#prompt_order + 1] = opts.title
       pick_hosts[#pick_hosts + 1] = remote_call and "remote" or "local"
       elapsed = elapsed + 15
-      if picked then return menu_action end
+      local answer = selection
+      if picked then answer = menu_action end
       picked = true
-      return selection
+      if answer then
+        local offered = false
+        for _, item in ipairs(opts.items) do if item.id == answer then offered = true end end
+        assert(offered, "picker returned an action that was not offered: " .. answer)
+      end
+      return answer
     end },
     layout = { block = function(opts) return opts end },
     session = { new_layer = function(opts)
@@ -90,7 +98,8 @@ local function setup(remote)
       return { block_ids = { "block:created" } }
     end },
   }
-  local old_files, old_actions = package.loaded.files, package.loaded.worktree_actions
+  local old_files, old_actions, old_trees = package.loaded.files, package.loaded.worktree_actions, package.loaded.worktrees
+  package.loaded.worktrees = { decode = function(value) return { path = "/" .. value } end }
   package.loaded.files = {
     env = function() return { PATH = "/usr/bin:/bin" } end,
     run = function(argv, cwd)
@@ -108,9 +117,19 @@ local function setup(remote)
     connect = function(value)
       commands[#commands + 1] = { operation = "connect", value = value, remote = remote_call }
     end,
+    with_sessions = function(items)
+      for _, item in ipairs(items) do
+        local session = tree_sessions[item.id or item.path]
+        if session then item.session_id, item.title = session.session_id, session.label end
+      end
+      return items
+    end,
+    delete = function(value, force)
+      commands[#commands + 1] = { operation = "delete", value = value, force = force, remote = remote_call }
+    end,
   }
   dofile(source)
-  package.loaded.files, package.loaded.worktree_actions = old_files, old_actions
+  package.loaded.files, package.loaded.worktree_actions, package.loaded.worktrees = old_files, old_actions, old_trees
 end
 
 local function run(args)
@@ -139,7 +158,7 @@ test("remote list can remain open for 15 seconds and then be cancelled", functio
   assert(request.action == "workspace_picker_native")
   assert(request.args.operation == "list")
   assert(request.session_id == ctx.session_id and request.block_id == ctx.block_id)
-  assert(picks[1].items[3].id == "tree-id")
+  assert(picks[1].items[2].id == "tree-id")
 end)
 
 test("both remote menus can wait 15 seconds before opening the selection", function()
@@ -149,10 +168,12 @@ test("both remote menus can wait 15 seconds before opening the selection", funct
   assert(elapsed == 30 and #picks == 2)
   assert(pick_hosts[1] == "local" and pick_hosts[2] == "local")
   assert(#calls == 2 and calls[2].args.args.operation == "connect")
-  assert(calls[2].args.args.value == selection)
+  assert(calls[2].args.args.value == "session:tree")
   assert(calls[2].args.session_id == ctx.session_id and calls[2].args.block_id == ctx.block_id)
   local command = commands[#commands]
-  assert(command.remote and command.operation == "connect" and command.value == selection)
+  assert(command.remote and command.operation == "connect" and command.value == "session:tree")
+  assert(picks[1].items[2].title == "Renamed session" and #picks[1].items == 2)
+  assert(#picks[2].items == 2 and picks[2].items[1].title == "Open" and picks[2].items[2].title == "Delete")
   assert(layer == nil)
 end)
 
@@ -180,35 +201,35 @@ test("failure opening the remote selection reaches the original action", functio
   assert(#picks == 2 and #calls == 2 and layer == nil)
 end)
 
-test("remote delete retains its interactive confirmation shell", function()
-  for _, operation in ipairs({ "delete", "force_delete" }) do
-    setup(true)
-    selection, menu_action = "tree-id", operation
+test("deleting a tree session starts its native-confirmation helper on the owning host", function()
+  for _, remote in ipairs({ false, true }) do
+    setup(remote)
+    selection, menu_action = "tree-id", "delete_native"
     run()
-    assert(#calls == 2 and calls[2].args.args.operation == operation)
-    assert(layer.session_id == ctx.session_id)
-    assert(layer.layout.options.cwd == foreign_cwd)
-    local command = layer.layout.options.command
+    if remote then assert(#calls == 2 and calls[2].args.args.operation == "delete_native") end
+    assert(layer == nil and #starts == 1 and starts[1].remote == remote)
+    assert(starts[1].opts.cwd == (remote and foreign_cwd or "/tmp/project"))
+    local command = starts[1].argv
     assert(command[1] == "rex" and command[2] == "do")
     assert(command[3]:match("/worktree_command.lua$"))
     assert(command[4] == "--args" and #command == 5)
     local request = encoded[tonumber(command[5])]
-    assert(request.operation == "delete" and request.value == selection)
-    assert(request.force == (operation == "force_delete" and true or nil))
+    assert(request.operation == "delete-native" and request.value == selection)
+    assert(request.force == nil)
     assert(#starts == 1 and starts[1].opts.detach)
   end
 end)
 
 test("the T picker lists only worktrees and worktree actions", function()
   setup(false)
+  tree_sessions = {}
   run()
   assert(#calls == 0 and #picks == 1 and layer == nil)
   assert(picks[1].items[1].id == "none")
   assert(picks[1].items[1].title == "New worktree…")
-  assert(picks[1].items[2].id == "delete" and picks[1].items[2].title == "Delete worktree…")
-  assert(#picks[1].items == 3)
-  assert(picks[1].items[3].id == "tree-id")
-  assert(picks[1].items[3].title == "feature-branch · ExampleService")
+  assert(#picks[1].items == 2)
+  assert(picks[1].items[2].id == "tree-id")
+  assert(picks[1].items[2].title == "feature-branch · ExampleService")
   assert(picks[1].title == "Worktrees")
 end)
 
@@ -230,30 +251,28 @@ test("directory discovery for the N picker runs on the pane's host", function()
   end
 end)
 
-test("new worktrees take native input and start detached on the pane's host", function()
+test("new worktrees take native input only from the first menu", function()
   for _, remote in ipairs({ false, true }) do
-    for _, target in ipairs({ "none", "tree-id" }) do
-      setup(remote)
-      selection, menu_action, name = target, "create", "  feature-work  "
-      run()
-      assert(#inputs == 1 and inputs[1].title == "Worktree name:")
-      assert(inputs[1].confirm == "Create")
-      assert(#picks == (target == "none" and 1 or 2), "no creation-type chooser")
-      assert(prompt_order[#prompt_order] == "Worktree name:")
-      assert(elapsed == (target == "none" and 60 or 75), "menus and input must permit user think-time")
-      assert(layer == nil, "creation must not open a terminal overlay")
-      assert(#starts == 1)
-      local process = starts[1]
-      assert(process.remote == remote)
-      assert(process.argv[1] == "rex" and process.argv[2] == "do" and process.argv[3]:match("/worktree_command.lua$"))
-      local request = encoded[tonumber(process.argv[5])]
-      assert(process.argv[4] == "--args" and request.operation == "create-named")
-      assert(request.value == target and request.name == "feature-work")
-      assert(#process.argv == 5 and process.opts.detach)
-      assert(process.opts.cwd == (remote and foreign_cwd or "/tmp/project"))
-      if remote then
-        assert(#calls == 2 and calls[2].args.args.name == "feature-work")
-      end
+    setup(remote)
+    selection, name = "none", "  feature-work  "
+    run()
+    assert(#inputs == 1 and inputs[1].title == "Worktree name:")
+    assert(inputs[1].confirm == "Create")
+    assert(#picks == 1, "no creation-type chooser")
+    assert(prompt_order[#prompt_order] == "Worktree name:")
+    assert(elapsed == 60, "menus and input must permit user think-time")
+    assert(layer == nil, "creation must not open a terminal overlay")
+    assert(#starts == 1)
+    local process = starts[1]
+    assert(process.remote == remote)
+    assert(process.argv[1] == "rex" and process.argv[2] == "do" and process.argv[3]:match("/worktree_command.lua$"))
+    local request = encoded[tonumber(process.argv[5])]
+    assert(process.argv[4] == "--args" and request.operation == "create-named")
+    assert(request.value == "none" and request.name == "feature-work")
+    assert(#process.argv == 5 and process.opts.detach)
+    assert(process.opts.cwd == (remote and foreign_cwd or "/tmp/project"))
+    if remote then
+      assert(#calls == 2 and calls[2].args.args.name == "feature-work")
     end
   end
 end)
@@ -282,29 +301,26 @@ test("creation requests without a name fail before launching a background helper
   end
 end)
 
-test("delete worktree lists only worktrees and starts the native-confirmation helper on their host", function()
+test("a worktree without a session opens directly without asking for a name", function()
   for _, remote in ipairs({ false, true }) do
     setup(remote)
-    selection, menu_action = "delete", "tree-id"
+    selection, tree_sessions = "tree-id", {}
     run()
-    assert(#picks == 2 and picks[2].title == "Delete worktree" and #picks[2].items == 1)
-    assert(picks[2].items[1].id == "tree-id")
-    assert(#inputs == 0 and layer == nil and #starts == 1)
-    local command = starts[1]
-    local request = encoded[tonumber(command.argv[5])]
-    assert(command.argv[4] == "--args" and request.operation == "delete-native" and request.value == "tree-id")
-    assert(command.opts.detach and command.remote == remote)
-    assert(command.opts.cwd == (remote and foreign_cwd or "/tmp/project"))
-    if remote then assert(calls[2].args.args.operation == "delete_native") end
+    assert(#picks == 1 and #inputs == 0 and #starts == 0)
+    local command = commands[#commands]
+    assert(command.operation == "connect" and command.value == "tree-id" and command.remote == remote)
   end
 end)
 
-test("an empty or cancelled worktree deletion list starts nothing", function()
-  for _, rows in ipairs({ "", "[tree] ExampleService · feature-branch\ttree-id\n" }) do
-    setup(true)
-    selection, tree_rows = "delete", rows
-    run()
-    assert(#picks == 2 and #calls == 1 and #starts == 0 and layer == nil)
+test("directory session closure is forwarded to its host and rejects tree tokens", function()
+  for _, remote in ipairs({ false, true }) do
+    setup(remote)
+    run({ operation = "close_session", value = "session:folder" })
+    local command = commands[#commands]
+    assert(command.operation == "delete" and command.value == "session:folder" and command.force)
+    assert(command.remote == remote and #picks == 0)
+    local ok = pcall(run, { operation = "close_session", value = "tree:not-a-session" })
+    assert(not ok and commands[#commands] == command)
   end
 end)
 

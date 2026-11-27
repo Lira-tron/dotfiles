@@ -49,6 +49,16 @@ local function create(choice, name)
   session_command({ "do", "session.select", "session_id=" .. created.session_id }, host)
 end
 
+local function confirm_delete(label, location)
+  return rex.ui.pick({
+    title = "Delete " .. label .. " on " .. location .. "?",
+    items = {
+      { id = "cancel", title = "No" },
+      { id = "delete", title = "Yes", subtitle = "All its tabs and programs will close. Files are kept.", icon = "document" },
+    },
+  }) == "delete"
+end
+
 local function delete_session()
   local choices, targets = {}, {}
   for _, location in ipairs(items()) do
@@ -63,32 +73,43 @@ local function delete_session()
   local choice = rex.ui.pick({ title = "Delete session", placeholder = "Choose a session", items = choices })
   if choice == nil then return end
   local target = targets[choice]
-  local confirmed = rex.ui.pick({
-    title = "Delete " .. target.label .. " on " .. target.location .. "?",
-    items = {
-      { id = "cancel", title = "No" },
-      { id = "delete", title = "Yes", subtitle = "All its tabs and programs will close. Files are kept.", icon = "document" },
-    },
-  })
-  if confirmed ~= "delete" then return end
+  if not confirm_delete(target.label, target.location) then return end
   session_command({ "session", "kill", target.id }, target.host)
 end
 
 local function pick(ctx)
   local choices = items()
+  local directories = {}
   choices[#choices + 1] = { id = "delete", title = "Delete session…", icon = "document" }
   for _, directory in ipairs(workspace_operation(ctx, "directories")) do
+    local id = "dir:" .. directory.path
+    directories[id] = directory
     choices[#choices + 1] = {
-      id = "dir:" .. directory.path,
-      title = directory.name,
-      subtitle = (ctx.server and ctx.server .. " · " or "") .. directory.path,
-      icon = "folder",
+      id = id,
+      title = directory.title,
+      subtitle = not directory.session_id and ((ctx.server and ctx.server .. " · " or "") .. directory.path) or nil,
+      icon = directory.session_id and "terminal" or "folder",
     }
   end
   local choice = rex.ui.pick({ title = "Sessions", items = choices })
   if choice == nil then return end
   if choice == "delete" then return delete_session() end
-  if choice:sub(1, 4) == "dir:" then return workspace_operation(ctx, "connect", choice:sub(5)) end
+  if directories[choice] then
+    local directory = directories[choice]
+    if not directory.session_id then return workspace_operation(ctx, "connect", directory.path) end
+    local action = rex.ui.pick({
+      title = directory.title,
+      items = {
+        { id = "connect", title = "Open", icon = "terminal" },
+        { id = "delete", title = "Delete", subtitle = "Close the session; keep the directory", icon = "document" },
+      },
+    })
+    if action == "connect" then return workspace_operation(ctx, "connect", directory.session_id) end
+    if action == "delete" and confirm_delete(directory.title, ctx.server or "This Mac") then
+      return workspace_operation(ctx, "close_session", directory.session_id)
+    end
+    return
+  end
   local name = rex.ui.input({
     title = choice == "local" and "Session:" or choice:sub(8) .. " session:",
     placeholder = "Session name",

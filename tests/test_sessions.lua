@@ -20,7 +20,7 @@ local function setup()
   create_error, exec_error, select_error = nil, nil, nil
   answers, listed, deleted, list_error, delete_error = nil, {}, {}, nil, nil
   ctx, workspace_calls = { server = "lyhost", session_id = "session:test", block_id = "block:test" }, {}
-  directory_rows = { { name = "project", path = "/tmp/my projects/project/" } }
+  directory_rows = { { name = "project", title = "project", path = "/tmp/my projects/project/" } }
   rex = {
     servers = function() return hosts end,
     server = function(host)
@@ -89,7 +89,7 @@ local function setup()
   package.loaded.workspaces = function(context, operation, value)
     workspace_calls[#workspace_calls + 1] = { ctx = context, operation = operation, value = value }
     if operation == "directories" then return directory_rows end
-    assert(operation == "connect")
+    assert(operation == "connect" or operation == "close_session")
   end
   sessions = dofile(source)
   package.loaded.workspaces = previous
@@ -200,6 +200,43 @@ test("empty directory lists retain the session actions", function()
   directory_rows, choice = {}, nil
   sessions.pick(ctx)
   assert(#picks[1].items == 4)
+end)
+
+test("a folder session replaces its directory row and opens the existing session", function()
+  directory_rows[1].session_id, directory_rows[1].title = "session:renamed", "My renamed session"
+  answers = { "dir:/tmp/my projects/project/", "connect" }
+  sessions.pick(ctx)
+  local entry = picks[1].items[5]
+  assert(#picks[1].items == 5 and entry.title == "My renamed session")
+  assert(entry.subtitle == nil and entry.icon == "terminal")
+  assert(#picks == 2 and #picks[2].items == 2 and #inputs == 0)
+  assert(picks[2].items[1].title == "Open" and picks[2].items[2].title == "Delete")
+  assert(workspace_calls[2].operation == "connect" and workspace_calls[2].value == "session:renamed")
+end)
+
+test("deleting a folder session closes it only after confirmation and keeps the directory", function()
+  for _, reply in ipairs({ false, "cancel", "delete" }) do
+    setup()
+    directory_rows[1].session_id, directory_rows[1].title = "session:folder", "Folder session"
+    answers = { "dir:/tmp/my projects/project/", "delete", reply }
+    sessions.pick(ctx)
+    assert(#picks == 3 and #inputs == 0)
+    assert(picks[3].items[2].subtitle:find("Files are kept", 1, true))
+    if reply == "delete" then
+      assert(#workspace_calls == 2 and workspace_calls[2].operation == "close_session")
+      assert(workspace_calls[2].value == "session:folder" and workspace_calls[2].ctx == ctx)
+    else
+      assert(#workspace_calls == 1)
+    end
+    assert(#calls == 0 and #deleted == 0)
+  end
+end)
+
+test("cancelling a folder session action leaves it alone", function()
+  directory_rows[1].session_id = "session:folder"
+  answers = { "dir:/tmp/my projects/project/" }
+  sessions.pick(ctx)
+  assert(#picks == 2 and #workspace_calls == 1 and #inputs == 0)
 end)
 
 test("session deletion errors do not fall back to a different host", function()
